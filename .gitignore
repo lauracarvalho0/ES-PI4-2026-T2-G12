@@ -1,0 +1,27 @@
+# Java
+*.class
+
+# Build / compilação
+target/
+out/
+bin/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Arquivos de ambiente e segredos
+.env
+.env.*
