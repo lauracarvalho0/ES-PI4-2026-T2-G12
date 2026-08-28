@@ -1,0 +1,259 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Poppins', sans-serif;
+  color: #1a1a1a;
+  -webkit-font-smoothing: antialiased;
+}
+
+:root {
+  --dark-green: #163a2b;
+  --accent-green: #3a9b53;
+  --text-gray: #5b5b5b;
+  --border-gray: #d9d9d4;
+  --cream-bg: #f2f0e9;
+  --white: #ffffff;
+}
+
+
+.login-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+/* painel a esquerda*/
+.login-left {
+  background-color: var(--cream-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 38px 120px;
+  margin-bottom: 90px;
+  
+ 
+}
+
+.login-logo {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--dark-green);
+  text-decoration: none;
+}
+
+.login-left-content {
+  max-width: 420px;
+  margin: auto 0;
+}
+
+.login-headline {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1.3;
+  color: var(--dark-green);
+  margin-bottom: 20px;
+}
+
+.login-left-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-gray);
+  max-width: 320px;
+}
+
+/* Painel a direita*/
+.login-right {
+  background-color: var(--white);
+  display: flex;
+  flex-direction: column;
+  padding: 32px 64px;
+}
+
+.login-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-right: 72px;
+}
+
+.btn {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 26px;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1.5px solid var(--dark-green);
+  background-color: transparent;
+  transition: opacity 0.2s ease;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.btn-solid {
+  background-color: var(--dark-green);
+  color: var(--white);
+  text-decoration: none;
+}
+
+.btn-outline {
+  color: var(--dark-green);
+  text-decoration: none;
+}
+
+.login-form-container {
+  max-width: 450px;
+  width: 100%;
+  margin: auto;
+  padding-top: 40px;
+}
+
+.login-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #1a1a1a;
+  margin-bottom: 6px;
+}
+
+.login-subtitle {
+  font-size: 13px;
+  color: var(--text-gray);
+  margin-bottom: 28px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.form-group input {
+  border: 1.5px solid var(--border-gray);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: #1a1a1a;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input::placeholder {
+  color: #a8a8a3;
+}
+
+.form-group input:focus {
+  border-color: var(--accent-green);
+}
+
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-field input {
+  width: 100%;
+  padding-right: 42px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-gray);
+  display: flex;
+  align-items: center;
+}
+
+.forgot-password {
+  align-self: flex-end;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dark-green);
+  text-decoration: none;
+  margin-bottom: 24px;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.btn-submit {
+  background-color: var(--dark-green);
+  color: var(--white);
+  border: none;
+  border-radius: 999px;
+  padding: 14px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btn-submit:hover {
+  opacity: 0.9;
+}
+
+.login-alt-action {
+  align-self: flex-end;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dark-green);
+  text-decoration: none;
+  margin-top: 16px;
+}
+
+.login-alt-action:hover {
+  text-decoration: underline;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .login-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .login-left {
+    display: none;
+  }
+
+  .login-right {
+    padding: 32px 24px;
+  }
+
+  .login-form-container {
+    margin: 0 auto;
+  }
+}
