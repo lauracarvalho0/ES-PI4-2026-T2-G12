@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroMonitor - Meus Plantios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/plantios.css">
+</head>
+<body>
+
+  <div class="dashboard">
+
+    <aside class="sidebar">
+      <div>
+        <a href="/index.html" class="sidebar-logo">AgroMonitor</a>
+        <p class="sidebar-tagline">Linha do Tempo Inteligente</p>
+
+        <ul class="sidebar-nav">
+          <li>
+            <a href="inicio.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 11.5 12 4l9 7.5"></path>
+                <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"></path>
+              </svg>
+              Início
+            </a>
+          </li>
+          <li>
+            <a href="meus-plantios.html" class="active">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22V12"></path>
+                <path d="M12 12C12 7.5 9 5 5 4c-.6 3.8 1.4 7.4 5 8"></path>
+                <path d="M12 12c0-4.5 3-7 7-8 .6 3.8-1.4 7.4-5 8"></path>
+              </svg>
+              Meus Plantios
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3.5" y="4.5" width="17" height="16" rx="2"></rect>
+                <path d="M3.5 9.5h17"></path>
+                <path d="M8 3v3M16 3v3"></path>
+              </svg>
+              Calendário
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 3.5h8l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"></path>
+                <path d="M9 11h6M9 15h6"></path>
+              </svg>
+              Atividades
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 4a5.5 5.5 0 0 0-5.5 5.5c0 4-2 5-2 7.5h15c0-2.5-2-3.5-2-7.5A5.5 5.5 0 0 0 12 4Z"></path>
+                <path d="M9.5 20a2.5 2.5 0 0 0 5 0"></path>
+              </svg>
+              Alertas
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 20V11M12 20V4M20 20v-6"></path>
+              </svg>
+              Relatórios
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.4-2-3.4-2.3.8a7.6 7.6 0 0 0-2.6-1.5L14 2.5h-4l-.5 2.5a7.6 7.6 0 0 0-2.6 1.5l-2.3-.8-2 3.4 2 1.4a7.6 7.6 0 0 0 0 3l-2 1.4 2 3.4 2.3-.8a7.6 7.6 0 0 0 2.6 1.5l.5 2.5h4l.5-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3.8 2-3.4-2-1.4Z"></path>
+              </svg>
+              Configurações
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="3.5"></circle>
+              <path d="M4.5 20c1.4-3.5 4.3-5.5 7.5-5.5s6.1 2 7.5 5.5"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="sidebar-user-name">João da Silva</p>
+            <p class="sidebar-user-role">Produtor Rural</p>
+          </div>
+        </div>
+        <a href="/pages/auth/login.html" class="sidebar-logout">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Sair
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="main-header">
+        <div>
+          <h1 class="main-title">Meus Plantios</h1>
+          <p class="main-subtitle">Acompanhe todos os seus plantios e o andamento de cada um.</p>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="M21 21l-4.3-4.3"></path>
+          </svg>
+          <input type="text" placeholder="Buscar plantio, cultura ou talhão">
+        </div>
+
+        <div class="select-box">
+          Todos os Status
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9l6 6 6-6"></path>
+          </svg>
+        </div>
+
+        <div class="select-box">
+          Todas as Culturas
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9l6 6 6-6"></path>
+          </svg>
+        </div>
+
+        <button class="btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+          Novo Plantio
+        </button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number">4</span>
+          <div>
+            <p class="stat-label">Plantios ativos</p>
+            <a href="#" class="stat-link">Ver todos →</a>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">2</span>
+          <div>
+            <p class="stat-label">Em fase inicial</p>
+            <a href="#" class="stat-link">Ver todos →</a>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">1</span>
+          <div>
+            <p class="stat-label">Em desenvolvimento</p>
+            <a href="#" class="stat-link">Ver todos →</a>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">1</span>
+          <div>
+            <p class="stat-label">Em fase final</p>
+            <a href="#" class="stat-link">Ver todos →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-panel">
+        <table class="plantios-table">
+          <thead>
+            <tr>
+              <th>Plantio</th>
+              <th>Talhão</th>
+              <th>Data de plantio</th>
+              <th>Proxima Atividade</th>
+              <th>Progresso</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <p class="plantio-name">Milho Verão 2025/26</p>
+                <p class="plantio-culture"><span class="culture-dot milho"></span>Milho</p>
+                <p class="plantio-meta">Plantio padrão &nbsp;-&nbsp; 7 Atividades</p>
+              </td>
+              <td>
+                <p class="talhao-name">Talhão 01</p>
+                <p class="talhao-area">Área: 12.5 ha</p>
+              </td>
+              <td><span class="plantio-date">15/05/2025</span></td>
+              <td>
+                <p class="next-activity">Adubação de cobertura</p>
+                <p class="next-activity-time">Em 2 dias</p>
+              </td>
+              <td>
+                <div class="progress-wrap">
+                  <span class="progress-percent">43%</span>
+                  <div class="progress-bar"><div class="progress-fill" style="width: 43%;"></div></div>
+                </div>
+              </td>
+              <td><span class="status-pill status-desenvolvimento">Em desenvolvimento</span></td>
+            </tr>
+
+            <tr>
+              <td>
+                <p class="plantio-name">Soja &nbsp;2025/26</p>
+                <p class="plantio-culture"><span class="culture-dot soja"></span>Soja</p>
+                <p class="plantio-meta">Plantio padrão &nbsp;-&nbsp; 6 Atividades</p>
+              </td>
+              <td>
+                <p class="talhao-name">Talhão 02</p>
+                <p class="talhao-area">Área: 12.5 ha</p>
+              </td>
+              <td><span class="plantio-date">22/05/2025</span></td>
+              <td>
+                <p class="next-activity">Adubação de cobertura</p>
+                <p class="next-activity-time">Em 2 dias</p>
+              </td>
+              <td>
+                <div class="progress-wrap">
+                  <span class="progress-percent">43%</span>
+                  <div class="progress-bar"><div class="progress-fill" style="width: 43%;"></div></div>
+                </div>
+              </td>
+              <td><span class="status-pill status-final">Em fase final</span></td>
+            </tr>
+
+            <tr>
+              <td>
+                <p class="plantio-name">Milho Verão 2025/26</p>
+                <p class="plantio-culture"><span class="culture-dot milho"></span>Milho</p>
+                <p class="plantio-meta">Plantio padrão &nbsp;-&nbsp; 7 Atividades</p>
+              </td>
+              <td>
+                <p class="talhao-name">Talhão 01</p>
+                <p class="talhao-area">Área: 12.5 ha</p>
+              </td>
+              <td><span class="plantio-date">15/05/2025</span></td>
+              <td>
+                <p class="next-activity">Adubação de cobertura</p>
+                <p class="next-activity-time">Em 2 dias</p>
+              </td>
+              <td>
+                <div class="progress-wrap">
+                  <span class="progress-percent">43%</span>
+                  <div class="progress-bar"><div class="progress-fill" style="width: 43%;"></div></div>
+                </div>
+              </td>
+              <td><span class="status-pill status-inicial">Em fase inicial</span></td>
+            </tr>
+
+            <tr>
+              <td>
+                <p class="plantio-name">Milho Verão 2025/26</p>
+                <p class="plantio-culture"><span class="culture-dot milho"></span>Milho</p>
+                <p class="plantio-meta">Plantio padrão &nbsp;-&nbsp; 7 Atividades</p>
+              </td>
+              <td>
+                <p class="talhao-name">Talhão 01</p>
+                <p class="talhao-area">Área: 12.5 ha</p>
+              </td>
+              <td><span class="plantio-date">15/05/2025</span></td>
+              <td>
+                <p class="next-activity">Adubação de cobertura</p>
+                <p class="next-activity-time">Em 2 dias</p>
+              </td>
+              <td>
+                <div class="progress-wrap">
+                  <span class="progress-percent">97%</span>
+                  <div class="progress-bar"><div class="progress-fill" style="width: 97%;"></div></div>
+                </div>
+              </td>
+              <td><span class="status-pill status-final">Em fase final</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+  </div>
+
+</body>
+</html>
