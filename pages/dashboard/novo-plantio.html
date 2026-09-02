@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroMonitor - Novo Plantio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/novo-plantio.css">
+</head>
+<body>
+
+  <div class="dashboard">
+
+    <div class="mobile-topbar">
+      <a href="/index.html" class="sidebar-logo">AgroMonitor</a>
+      <button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M3 12h18M3 18h18"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="sidebar-overlay"></div>
+
+    <aside class="sidebar">
+      <div>
+        <a href="/index.html" class="sidebar-logo">AgroMonitor</a>
+        <p class="sidebar-tagline">Linha do Tempo Inteligente</p>
+
+        <ul class="sidebar-nav">
+          <li>
+            <a href="inicio.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 11.5 12 4l9 7.5"></path>
+                <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"></path>
+              </svg>
+              Início
+            </a>
+          </li>
+          <li>
+            <a href="plantios.html" class="active">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22V12"></path>
+                <path d="M12 12C12 7.5 9 5 5 4c-.6 3.8 1.4 7.4 5 8"></path>
+                <path d="M12 12c0-4.5 3-7 7-8 .6 3.8-1.4 7.4-5 8"></path>
+              </svg>
+              Meus Plantios
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3.5" y="4.5" width="17" height="16" rx="2"></rect>
+                <path d="M3.5 9.5h17"></path>
+                <path d="M8 3v3M16 3v3"></path>
+              </svg>
+              Calendário
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 3.5h8l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"></path>
+                <path d="M9 11h6M9 15h6"></path>
+              </svg>
+              Atividades
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 4a5.5 5.5 0 0 0-5.5 5.5c0 4-2 5-2 7.5h15c0-2.5-2-3.5-2-7.5A5.5 5.5 0 0 0 12 4Z"></path>
+                <path d="M9.5 20a2.5 2.5 0 0 0 5 0"></path>
+              </svg>
+              Alertas
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 20V11M12 20V4M20 20v-6"></path>
+              </svg>
+              Relatórios
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.4-2-3.4-2.3.8a7.6 7.6 0 0 0-2.6-1.5L14 2.5h-4l-.5 2.5a7.6 7.6 0 0 0-2.6 1.5l-2.3-.8-2 3.4 2 1.4a7.6 7.6 0 0 0 0 3l-2 1.4 2 3.4 2.3-.8a7.6 7.6 0 0 0 2.6 1.5l.5 2.5h4l.5-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3.8 2-3.4-2-1.4Z"></path>
+              </svg>
+              Configurações
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="3.5"></circle>
+              <path d="M4.5 20c1.4-3.5 4.3-5.5 7.5-5.5s6.1 2 7.5 5.5"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="sidebar-user-name">João da Silva</p>
+            <p class="sidebar-user-role">Produtor Rural</p>
+          </div>
+        </div>
+        <a href="/pages/auth/login.html" class="sidebar-logout">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Sair
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="main-header">
+        <div>
+          <a href="plantios.html" class="page-back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 12H5"></path>
+              <path d="M12 19l-7-7 7-7"></path>
+            </svg>
+            Novo Plantio
+          </a>
+          <p class="main-subtitle">Informe os dados do seu plantio para que possamos criar sua linha do tempo inteligente</p>
+        </div>
+      </div>
+
+      <!-- STEPPER -->
+      <div class="stepper">
+        <div class="step-item active" data-step="1">
+          <div class="step-circle">
+            <span class="step-number">1</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+          </div>
+          <span class="step-label">Informações básicas</span>
+        </div>
+        <div class="step-line"></div>
+
+        <div class="step-item" data-step="2">
+          <div class="step-circle">
+            <span class="step-number">2</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+          </div>
+          <span class="step-label">Talhão e área</span>
+        </div>
+        <div class="step-line"></div>
+
+        <div class="step-item" data-step="3">
+          <div class="step-circle">
+            <span class="step-number">3</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+          </div>
+          <span class="step-label">Datas e Previsões</span>
+        </div>
+        <div class="step-line"></div>
+
+        <div class="step-item" data-step="4">
+          <div class="step-circle">
+            <span class="step-number">4</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+          </div>
+          <span class="step-label">Revisão e confirmação</span>
+        </div>
+      </div>
+
+      <!-- FORM PANEL -->
+      <form class="form-panel" id="novoPlantioForm">
+
+        <!-- STEP 1: INFORMAÇÕES BÁSICAS -->
+        <div class="step-content active" data-step-content="1">
+          <h2 class="step-heading">Informações básicas</h2>
+
+          <div class="field-grid">
+            <div class="field-group">
+              <label for="cultura">Cultura</label>
+              <select id="cultura" name="cultura">
+                <option value="" selected disabled>Selecione a cultura</option>
+                <option value="Soja">Soja</option>
+                <option value="Milho">Milho</option>
+                <option value="Trigo">Trigo</option>
+                <option value="Café">Café</option>
+                <option value="Algodão">Algodão</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="nomePlantio">Nome do Plantio</label>
+              <input type="text" id="nomePlantio" name="nomePlantio" placeholder="Ex: Plantio de soja">
+            </div>
+
+            <div class="field-group">
+              <label for="safra">Safra</label>
+              <select id="safra" name="safra">
+                <option value="25/26" selected>25/26</option>
+                <option value="26/27">26/27</option>
+                <option value="24/25">24/25</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="descricao">Descrição (opcional)</label>
+            <textarea id="descricao" name="descricao" maxlength="200" placeholder="Adicione informações sobre esse plantio..."></textarea>
+            <p class="char-counter"><span id="charCount">0</span>/200</p>
+          </div>
+        </div>
+
+        <!-- STEP 2: TALHÃO E ÁREA -->
+        <div class="step-content" data-step-content="2">
+          <h2 class="section-title">Talhão e área</h2>
+          <p class="section-subtitle">Informe onde o plantio será realizado</p>
+
+          <div class="field-grid">
+            <div class="field-group">
+              <label for="talhao">Talhão</label>
+              <select id="talhao" name="talhao">
+                <option value="Talhão 01" selected>Talhão 01</option>
+                <option value="Talhão 02">Talhão 02</option>
+                <option value="Talhão 03">Talhão 03</option>
+              </select>
+            </div>
+
+            <div class="field-group unit-field">
+              <label for="areaPlantada">Área Plantada</label>
+              <input type="text" id="areaPlantada" name="areaPlantada" placeholder="12,5">
+              <span class="unit-suffix">ha</span>
+            </div>
+
+            <div class="field-group">
+              <label for="sistemaCultivo">Sistema de cultivo</label>
+              <select id="sistemaCultivo" name="sistemaCultivo">
+                <option value="Sequeiro" selected>Sequeiro</option>
+                <option value="Irrigado">Irrigado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-grid cols-2">
+            <div class="field-group">
+              <label for="localizacao">Localização</label>
+              <input type="text" id="localizacao" name="localizacao" placeholder="Campinas, SP">
+            </div>
+
+            <div class="field-group unit-field">
+              <label for="altitude">Altitude (opcional)</label>
+              <input type="text" id="altitude" name="altitude" placeholder="680">
+              <span class="unit-suffix">m</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3: DATAS E PREVISÕES -->
+        <div class="step-content" data-step-content="3">
+          <h2 class="section-title">Datas e previsões</h2>
+          <p class="section-subtitle">Informe a data de plantio para que o sistema estime as próximas atividades</p>
+
+          <div class="field-grid cols-2">
+            <div class="field-group date-field">
+              <label for="dataPlantio">Data de plantio</label>
+              <input type="date" id="dataPlantio" name="dataPlantio">
+            </div>
+
+            <div class="field-group">
+              <label for="metodoPlantio">Método de plantio (opcional)</label>
+              <select id="metodoPlantio" name="metodoPlantio">
+                <option value="Plantio direto" selected>Plantio direto</option>
+                <option value="Plantio convencional">Plantio convencional</option>
+                <option value="Plantio mínimo">Plantio mínimo</option>
+              </select>
+            </div>
+          </div>
+
+          <h3 class="section-title" style="margin-top: 28px;">Atividades previstas para a cultura <span id="culturaLabelActivities">Soja</span></h3>
+
+          <table class="activities-table">
+            <thead>
+              <tr>
+                <th>Atividade</th>
+                <th>Previsão automática</th>
+                <th>Ajuste (opcional)</th>
+              </tr>
+            </thead>
+            <tbody id="activitiesBody">
+              <tr>
+                <td><span class="activity-name">Plantio</span></td>
+                <td>
+                  <p class="activity-forecast" data-forecast-base>15/05/2026</p>
+                </td>
+                <td>
+                  <div class="activity-adjust">
+                    <input type="date" name="ajustePlantio">
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="activity-name">Irrigação</span></td>
+                <td>
+                  <p class="activity-forecast">22/05/2026</p>
+                  <p class="activity-forecast-days">Em 7 dias</p>
+                </td>
+                <td>
+                  <div class="activity-adjust">
+                    <input type="date" name="ajusteIrrigacao">
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="activity-name">Adubação de cobertura</span></td>
+                <td>
+                  <p class="activity-forecast">04/06/2026</p>
+                  <p class="activity-forecast-days">Em 20 dias</p>
+                </td>
+                <td>
+                  <div class="activity-adjust">
+                    <input type="date" name="ajusteAdubacao">
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="activity-name">Tratos culturais</span></td>
+                <td>
+                  <p class="activity-forecast">16/06/2026</p>
+                  <p class="activity-forecast-days">Em 35 dias</p>
+                </td>
+                <td>
+                  <div class="activity-adjust">
+                    <input type="date" name="ajusteTratos">
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- STEP 4: REVISÃO E CONFIRMAÇÃO -->
+        <div class="step-content" data-step-content="4">
+          <h2 class="section-title">Revise e confirme os dados</h2>
+          <p class="section-subtitle">Confira todas as informações antes de finalizar o cadastro do plantio</p>
+
+          <p class="step-heading" style="margin-bottom: 16px;">Atividades previstas para a cultura <span id="culturaLabelReview">Soja</span></p>
+
+          <div class="review-block">
+            <div class="review-block-header">
+              <span>Informações básicas</span>
+              <button type="button" class="review-edit-link" data-goto-step="1">Editar</button>
+            </div>
+            <div class="review-grid">
+              <div>
+                <p class="review-item-label">Cultura</p>
+                <p class="review-item-value" id="reviewCultura">-</p>
+              </div>
+              <div>
+                <p class="review-item-label">Nome do plantio</p>
+                <p class="review-item-value" id="reviewNome">-</p>
+              </div>
+              <div>
+                <p class="review-item-label">Safra</p>
+                <p class="review-item-value" id="reviewSafra">-</p>
+              </div>
+              <div>
+                <p class="review-item-label">Data de plantio</p>
+                <p class="review-item-value with-icon" id="reviewDataPlantio">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2"></rect><path d="M3.5 9.5h17"></path><path d="M8 3v3M16 3v3"></path></svg>
+                  <span>-</span>
+                </p>
+              </div>
+              <div>
+                <p class="review-item-label">Método de plantio</p>
+                <p class="review-item-value" id="reviewMetodo">-</p>
+              </div>
+            </div>
+            <div class="review-grid" style="padding-top: 0;">
+              <div style="grid-column: 1 / -1;">
+                <p class="review-item-label">Descrição</p>
+                <p class="review-item-value" id="reviewDescricao">-</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="review-block">
+            <div class="review-block-header">
+              <span>Talhão e área</span>
+              <button type="button" class="review-edit-link" data-goto-step="2">Editar</button>
+            </div>
+            <div class="review-grid">
+              <div>
+                <p class="review-item-label">Talhão</p>
+                <p class="review-item-value" id="reviewTalhao">-</p>
+              </div>
+              <div>
+                <p class="review-item-label">Área plantada</p>
+                <p class="review-item-value" id="reviewArea">-</p>
+              </div>
+              <div>
+                <p class="review-item-label">Sistema de cultivo</p>
+                <p class="review-item-value" id="reviewSistema">-</p>
+              </div>
+              <div>
+                <p class="review-item-label">Localização</p>
+                <p class="review-item-value with-icon" id="reviewLocalizacao">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+                  <span>-</span>
+                </p>
+              </div>
+              <div>
+                <p class="review-item-label">Altitude</p>
+                <p class="review-item-value" id="reviewAltitude">-</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="review-block">
+            <div class="review-block-header">
+              <span>Datas e previsões</span>
+              <button type="button" class="review-edit-link" data-goto-step="3">Editar</button>
+            </div>
+            <div class="review-grid cols-4">
+              <div>
+                <p class="review-item-label">Plantio</p>
+                <p class="review-item-value" id="reviewDataAtividadePlantio">-</p>
+              </div>
+              <div>
+                <p class="review-item-label">Irrigação</p>
+                <p class="review-item-value" id="reviewDataIrrigacao">-</p>
+              </div>
+              <div>
+                <p class="review-item-label">Adubação de cobertura</p>
+                <p class="review-item-value" id="reviewDataAdubacao">-</p>
+              </div>
+              <div>
+                <p class="review-item-label">Tratos culturais</p>
+                <p class="review-item-value" id="reviewDataTratos">-</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="review-block">
+            <div class="review-block-header">
+              <span>Alertas e previsões</span>
+              <button type="button" class="review-edit-link" data-goto-step="3">Editar</button>
+            </div>
+            <div class="review-alert-row">
+              <div class="review-alert-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+              </div>
+              <div class="review-alert-text">
+                <p class="review-item-value">Alertas climáticos</p>
+                <p class="review-item-label">Ativados para este plano</p>
+              </div>
+              <p class="review-alert-desc">Você receberá alertas quando atividades importantes estiverem próximas e houver previsão de condições climáticas críticas.</p>
+            </div>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- WIZARD ACTIONS -->
+      <div class="wizard-actions">
+        <button type="button" class="btn-outline-nav" id="btnVoltar" style="visibility: hidden;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
+          Voltar
+        </button>
+        <div class="spacer"></div>
+        <button type="button" class="btn-solid-nav" id="btnContinuar">
+          Continuar
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+        </button>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/novo-plantio.js"></script>
+
+</body>
+</html>

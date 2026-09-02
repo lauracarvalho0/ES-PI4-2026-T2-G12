@@ -72,6 +72,7 @@
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  text-decoration: none;
   transition: opacity 0.2s ease;
 }
 

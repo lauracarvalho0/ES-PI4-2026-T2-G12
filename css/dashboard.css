@@ -43,6 +43,14 @@ body {
   flex-direction: column;
   justify-content: space-between;
   padding: 32px 20px;
+  /* Fixa a sidebar na viewport: evita que ela estique junto com o
+     .main-content quando ele tiver mais conteúdo (ex: formulários
+     longos), o que empurrava o "Sair" para fora da tela. */
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .sidebar-logo {
