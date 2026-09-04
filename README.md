@@ -1,4 +1,4 @@
-# ES-PI4-2026-T2-G12
+# Projeto Integrador 4
 
 ## Descrição do Projeto
 
