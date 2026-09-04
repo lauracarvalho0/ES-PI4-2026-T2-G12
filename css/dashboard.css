@@ -8,7 +8,7 @@ body {
   font-family: 'Inter', 'Poppins', sans-serif;
   color: #1a1a1a;
   -webkit-font-smoothing: antialiased;
-  background-color: var(--cream-bg);
+  background-color: var(--white);
 }
 
 :root {
@@ -16,7 +16,7 @@ body {
   --accent-green: #3a9b53;
   --text-gray: #5b5b5b;
   --border-gray: #d9d9d4;
-  --cream-bg: #f2f0e9;
+  --cream-bg: #fefdfa;
   --white: #ffffff;
 
   --green-bg: #e5f3e7;
