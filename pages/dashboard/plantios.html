@@ -136,22 +136,21 @@
             <circle cx="11" cy="11" r="7"></circle>
             <path d="M21 21l-4.3-4.3"></path>
           </svg>
-          <input type="text" placeholder="Buscar plantio, cultura ou talhão">
+          <input type="text" id="searchPlantio" placeholder="Buscar plantio, cultura ou talhão">
         </div>
 
-        <div class="select-box">
-          Todos os Status
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9l6 6 6-6"></path>
-          </svg>
-        </div>
+        <select class="select-box" id="filterStatus">
+          <option value="todos" selected>Todos os Status</option>
+          <option value="inicial">Em fase inicial</option>
+          <option value="desenvolvimento">Em desenvolvimento</option>
+          <option value="final">Em fase final</option>
+        </select>
 
-        <div class="select-box">
-          Todas as Culturas
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9l6 6 6-6"></path>
-          </svg>
-        </div>
+        <select class="select-box" id="filterCultura">
+          <option value="todas" selected>Todas as Culturas</option>
+          <option value="milho">Milho</option>
+          <option value="soja">Soja</option>
+        </select>
 
         <a href="novo-plantio.html" class="btn-primary">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -166,28 +165,28 @@
           <span class="stat-number">4</span>
           <div>
             <p class="stat-label">Plantios ativos</p>
-            <a href="#" class="stat-link">Ver todos →</a>
+            <a href="#" class="stat-link" data-status="todos">Ver todos →</a>
           </div>
         </div>
         <div class="stat-card">
           <span class="stat-number">2</span>
           <div>
             <p class="stat-label">Em fase inicial</p>
-            <a href="#" class="stat-link">Ver todos →</a>
+            <a href="#" class="stat-link" data-status="inicial">Ver todos →</a>
           </div>
         </div>
         <div class="stat-card">
           <span class="stat-number">1</span>
           <div>
             <p class="stat-label">Em desenvolvimento</p>
-            <a href="#" class="stat-link">Ver todos →</a>
+            <a href="#" class="stat-link" data-status="desenvolvimento">Ver todos →</a>
           </div>
         </div>
         <div class="stat-card">
           <span class="stat-number">1</span>
           <div>
             <p class="stat-label">Em fase final</p>
-            <a href="#" class="stat-link">Ver todos →</a>
+            <a href="#" class="stat-link" data-status="final">Ver todos →</a>
           </div>
         </div>
       </div>
@@ -205,7 +204,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr data-status="desenvolvimento" data-cultura="milho">
               <td>
                 <p class="plantio-name">Milho Verão 2025/26</p>
                 <p class="plantio-culture"><span class="culture-dot milho"></span>Milho</p>
@@ -229,7 +228,7 @@
               <td><span class="status-pill status-desenvolvimento">Em desenvolvimento</span></td>
             </tr>
 
-            <tr>
+            <tr data-status="final" data-cultura="soja">
               <td>
                 <p class="plantio-name">Soja &nbsp;2025/26</p>
                 <p class="plantio-culture"><span class="culture-dot soja"></span>Soja</p>
@@ -253,7 +252,7 @@
               <td><span class="status-pill status-final">Em fase final</span></td>
             </tr>
 
-            <tr>
+            <tr data-status="inicial" data-cultura="milho">
               <td>
                 <p class="plantio-name">Milho Verão 2025/26</p>
                 <p class="plantio-culture"><span class="culture-dot milho"></span>Milho</p>
@@ -277,7 +276,7 @@
               <td><span class="status-pill status-inicial">Em fase inicial</span></td>
             </tr>
 
-            <tr>
+            <tr data-status="final" data-cultura="milho">
               <td>
                 <p class="plantio-name">Milho Verão 2025/26</p>
                 <p class="plantio-culture"><span class="culture-dot milho"></span>Milho</p>
@@ -300,6 +299,10 @@
               </td>
               <td><span class="status-pill status-final">Em fase final</span></td>
             </tr>
+
+            <tr class="no-results-row" id="noResultsRow" style="display:none;">
+              <td colspan="6">Nenhum plantio encontrado para os filtros selecionados.</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -308,6 +311,7 @@
   </div>
 
   <script src="/js/dashboard.js"></script>
+  <script src="/js/plantios.js"></script>
 
 </body>
 </html>
