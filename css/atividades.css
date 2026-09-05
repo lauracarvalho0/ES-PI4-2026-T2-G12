@@ -1,0 +1,133 @@
+/* ===== ACTIVITIES PANEL ===== */
+.activities-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.panel-tab {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1a1a1a;
+  padding: 20px 24px 14px;
+  border-bottom: 2px solid var(--accent-green);
+  display: inline-block;
+  margin: 0 24px;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-gray);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.15s ease;
+}
+
+.activity-row:hover {
+  background-color: var(--cream-bg);
+}
+
+.activity-row:last-child {
+  border-bottom: none;
+}
+
+.activity-date {
+  width: 56px;
+  flex-shrink: 0;
+  text-align: left;
+}
+
+.activity-day {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.activity-day.is-today {
+  color: var(--accent-green);
+}
+
+.activity-day.is-late {
+  color: var(--red);
+}
+
+.activity-month {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-gray);
+}
+
+.activity-month.is-late {
+  color: var(--red);
+}
+
+.activity-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 3px;
+}
+
+.activity-subtitle {
+  font-size: 12.5px;
+  color: var(--text-gray);
+}
+
+.activity-chevron {
+  color: var(--text-gray);
+  flex-shrink: 0;
+}
+
+/* status badges reused across activities */
+.badge-status {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-concluida {
+  background-color: var(--green-bg);
+  color: var(--accent-green);
+}
+
+.badge-pendente {
+  background-color: var(--amber-bg);
+  color: var(--amber);
+}
+
+.badge-atrasada {
+  background-color: var(--red-bg);
+  color: var(--red);
+}
+
+.badge-planejada {
+  background-color: var(--gray-bg);
+  color: var(--text-gray);
+}
+
+@media (max-width: 600px) {
+  .activity-row {
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .activity-date {
+    width: 42px;
+  }
+}
