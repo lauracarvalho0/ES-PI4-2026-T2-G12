@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroMonitor - Relatórios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/plantios.css">
+    <link rel="stylesheet" href="/css/atividades.css">
+    <link rel="stylesheet" href="/css/relatorios.css">
+</head>
+<body>
+
+  <div class="dashboard">
+
+    <div class="mobile-topbar">
+      <a href="/index.html" class="sidebar-logo">AgroMonitor</a>
+      <button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M3 12h18M3 18h18"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="sidebar-overlay"></div>
+
+    <aside class="sidebar">
+      <div>
+        <a href="/index.html" class="sidebar-logo">AgroMonitor</a>
+        <p class="sidebar-tagline">Linha do Tempo Inteligente</p>
+
+        <ul class="sidebar-nav">
+          <li>
+            <a href="inicio.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 11.5 12 4l9 7.5"></path>
+                <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"></path>
+              </svg>
+              Início
+            </a>
+          </li>
+          <li>
+            <a href="plantios.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22V12"></path>
+                <path d="M12 12C12 7.5 9 5 5 4c-.6 3.8 1.4 7.4 5 8"></path>
+                <path d="M12 12c0-4.5 3-7 7-8 .6 3.8-1.4 7.4-5 8"></path>
+              </svg>
+              Meus Plantios
+            </a>
+          </li>
+          <li>
+            <a href="calendario.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3.5" y="4.5" width="17" height="16" rx="2"></rect>
+                <path d="M3.5 9.5h17"></path>
+                <path d="M8 3v3M16 3v3"></path>
+              </svg>
+              Calendário
+            </a>
+          </li>
+          <li>
+            <a href="atividades.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 3.5h8l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"></path>
+                <path d="M9 11h6M9 15h6"></path>
+              </svg>
+              Atividades
+            </a>
+          </li>
+          <li>
+            <a href="alertas.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 4a5.5 5.5 0 0 0-5.5 5.5c0 4-2 5-2 7.5h15c0-2.5-2-3.5-2-7.5A5.5 5.5 0 0 0 12 4Z"></path>
+                <path d="M9.5 20a2.5 2.5 0 0 0 5 0"></path>
+              </svg>
+              Alertas
+            </a>
+          </li>
+          <li>
+            <a href="relatorios.html" class="active">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 20V11M12 20V4M20 20v-6"></path>
+              </svg>
+              Relatórios
+            </a>
+          </li>
+          <li>
+            <a href="configuracoes.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.4-2-3.4-2.3.8a7.6 7.6 0 0 0-2.6-1.5L14 2.5h-4l-.5 2.5a7.6 7.6 0 0 0-2.6 1.5l-2.3-.8-2 3.4 2 1.4a7.6 7.6 0 0 0 0 3l-2 1.4 2 3.4 2.3-.8a7.6 7.6 0 0 0 2.6 1.5l.5 2.5h4l.5-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3.8 2-3.4-2-1.4Z"></path>
+              </svg>
+              Configurações
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="3.5"></circle>
+              <path d="M4.5 20c1.4-3.5 4.3-5.5 7.5-5.5s6.1 2 7.5 5.5"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="sidebar-user-name">João da Silva</p>
+            <p class="sidebar-user-role">Produtor Rural</p>
+          </div>
+        </div>
+        <a href="/pages/auth/login.html" class="sidebar-logout">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Sair
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="main-header">
+        <div>
+          <h1 class="main-title">Relatórios</h1>
+          <p class="main-subtitle">Acompanhe o desempenho dos seus plantios e atividades</p>
+        </div>
+      </div>
+
+      <!-- ===== FILTROS ===== -->
+    <div class="filter-bar rel-filter-bar">
+        <div class="rel-field">
+            <label for="filtroPeriodo">Período</label>
+            <select id="filtroPeriodo" class="rel-native-select" data-filter="periodo">
+            <option value="01/05/2026 - 31/05/2026" selected>01/05/2026 - 31/05/2026</option>
+            <option value="Últimos 30 dias">Últimos 30 dias</option>
+            <option value="Este mês">Este mês</option>
+            <option value="Safra 2025/26">Safra 2025/26</option>
+            </select>
+        </div>
+
+        <div class="rel-field">
+            <label for="filtroPlantio">Plantio</label>
+            <select id="filtroPlantio" class="rel-native-select" data-filter="plantio">
+            <option value="Todos os plantios" selected>Todos os plantios</option>
+            <option value="Milho Verão 2025/26">Milho Verão 2025/26</option>
+            <option value="Soja 2025/26">Soja 2025/26</option>
+            <option value="Milho Safrinha 2025/26">Milho Safrinha 2025/26</option>
+            <option value="Feijão 2025/26">Feijão 2025/26</option>
+            </select>
+        </div>
+
+        <div class="rel-field">
+            <label for="filtroCultura">Cultura</label>
+            <select id="filtroCultura" class="rel-native-select" data-filter="cultura">
+            <option value="Todas as culturas" selected>Todas as culturas</option>
+            <option value="Milho">Milho</option>
+            <option value="Soja">Soja</option>
+            <option value="Feijão">Feijão</option>
+            </select>
+        </div>
+
+        <div class="rel-field">
+            <label for="filtroTalhao">Talhão</label>
+            <select id="filtroTalhao" class="rel-native-select" data-filter="talhao">
+            <option value="Todos os talhões" selected>Todos os talhões</option>
+            <option value="Talhão 01">Talhão 01</option>
+            <option value="Talhão 02">Talhão 02</option>
+            <option value="Talhão 03">Talhão 03</option>
+            </select>
+        </div>
+
+        <button type="button" class="btn-outline" id="btnExportar" style="margin-left: auto;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v12"></path>
+            <path d="M7 10l5 5 5-5"></path>
+            <path d="M5 21h14"></path>
+            </svg>
+            Exportar relatório
+        </button>
+    </div>
+
+      <!-- ===== RESUMO ===== -->
+      <section class="panel rel-summary-panel">
+        <h2 class="rel-panel-title">Resumo do plantio selecionado</h2>
+
+        <div class="rel-summary-grid" id="resumoGrid">
+          <div class="rel-summary-item">
+            <div class="rel-summary-icon icon-green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22V12"></path>
+                <path d="M12 12C12 7.5 9 5 5 4c-.6 3.8 1.4 7.4 5 8"></path>
+                <path d="M12 12c0-4.5 3-7 7-8 .6 3.8-1.4 7.4-5 8"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="rel-summary-number" id="numPlantios">4</p>
+              <p class="rel-summary-label">Plantios ativos</p>
+            </div>
+          </div>
+
+          <div class="rel-summary-item">
+            <div class="rel-summary-icon icon-amber">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 7v5l3 3"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="rel-summary-number" id="numTotal">22</p>
+              <p class="rel-summary-label">Atividades no total</p>
+            </div>
+          </div>
+
+          <div class="rel-summary-item">
+            <div class="rel-summary-icon icon-green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M8.5 12.5l2.5 2.5 5-5"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="rel-summary-number" id="numConcluidas">15</p>
+              <p class="rel-summary-label">Concluídas</p>
+              <p class="rel-summary-sub" id="pctConcluidas">68% do total</p>
+            </div>
+          </div>
+
+          <div class="rel-summary-item">
+            <div class="rel-summary-icon icon-amber">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 7v5l3 3"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="rel-summary-number" id="numPendentes">5</p>
+              <p class="rel-summary-label">Pendentes</p>
+              <p class="rel-summary-sub" id="pctPendentes">23% do total</p>
+            </div>
+          </div>
+
+          <div class="rel-summary-item">
+            <div class="rel-summary-icon icon-red">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 4 2 20h20L12 4Z"></path>
+                <path d="M12 10v4"></path>
+                <path d="M12 17h.01"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="rel-summary-number" id="numAtrasadas">2</p>
+              <p class="rel-summary-label">Atrasadas</p>
+              <p class="rel-summary-sub" id="pctAtrasadas">9% no total</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== GRÁFICO + PRÓXIMAS ATIVIDADES ===== -->
+      <div class="content-grid rel-content-grid">
+        <section class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Status das atividades</h2>
+          </div>
+          <p class="rel-panel-subtitle">Distribuição por status no período</p>
+
+          <div class="rel-donut-wrap">
+            <div class="rel-donut" id="donutChart">
+              <div class="rel-donut-center">
+                <span class="rel-donut-total" id="donutTotal">22</span>
+                <span class="rel-donut-total-label">Total</span>
+              </div>
+            </div>
+
+            <ul class="rel-legend" id="legendList">
+              <li>
+                <span class="legend-dot" style="background: var(--accent-green);"></span>
+                Concluídas
+                <span class="legend-value"><span id="legendConcluidas">15</span> (<span id="legendConcluidasPct">68%</span>)</span>
+              </li>
+              <li>
+                <span class="legend-dot" style="background: var(--amber);"></span>
+                Pendentes
+                <span class="legend-value"><span id="legendPendentes">5</span> (<span id="legendPendentesPct">23%</span>)</span>
+              </li>
+              <li>
+                <span class="legend-dot" style="background: var(--red);"></span>
+                Atrasadas
+                <span class="legend-value"><span id="legendAtrasadas">2</span> (<span id="legendAtrasadasPct">9%</span>)</span>
+              </li>
+              <li>
+                <span class="legend-dot" style="background: var(--gray-bg); border: 1px solid var(--border-gray);"></span>
+                Planejadas
+                <span class="legend-value"><span id="legendPlanejadas">0</span> (<span id="legendPlanejadasPct">0%</span>)</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Próximas atividades</h2>
+          </div>
+
+          <div class="rel-next-list" id="proximasList">
+            <!-- preenchido via JS -->
+          </div>
+
+          <a href="atividades.html" class="panel-footer-link rel-footer-link">
+            Ver todas as próximas atividades
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6"></path>
+            </svg>
+          </a>
+        </section>
+      </div>
+
+      <!-- ===== TABELA RESUMO DOS PLANTIOS ===== -->
+      <section class="table-panel rel-table-panel">
+        <div class="rel-table-header">
+          <h2 class="panel-title">Resumo dos plantios</h2><br>
+          <p class="rel-panel-subtitle">Visão geral do andamento das atividades por plantio</p>
+        </div>
+
+        <table class="plantios-table">
+          <thead>
+            <tr>
+              <th>Plantio</th>
+              <th>Cultura</th>
+              <th>Talhão</th>
+              <th>Data do plantio</th>
+              <th>Concluídas</th>
+              <th>Pendentes</th>
+              <th>Atrasadas</th>
+              <th>Progresso</th>
+            </tr>
+          </thead>
+          <tbody id="plantiosTableBody">
+            <!-- preenchido via JS -->
+          </tbody>
+        </table>
+
+        <p class="rel-empty-state" id="emptyState" style="display:none;">
+          Nenhum plantio encontrado para os filtros selecionados.
+        </p>
+      </section>
+    </main>
+
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/relatorios.js"></script>
+
+</body>
+</html>
