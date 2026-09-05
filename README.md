@@ -28,7 +28,7 @@ Desenvolver um sistema web que permita:
 
 **Banco de Dados**
 
-* A definir
+* MongoDB
 
 **Controle de Versão**
 
