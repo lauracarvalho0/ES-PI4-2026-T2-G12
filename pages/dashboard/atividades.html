@@ -132,25 +132,25 @@
       </div>
 
       <div class="filter-bar">
-        <div class="select-box">
-          Todos os plantios
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9l6 6 6-6"></path>
-          </svg>
-        </div>
+        <select class="select-box" id="filterPlantioAtiv">
+            <option value="todos" selected>Todos os plantios</option>
+            <option value="Milho Verão 2025/26">Milho Verão 2025/26</option>
+            <option value="Soja 2025/26">Soja 2025/26</option>
+        </select>
 
-        <div class="select-box">
-          Todos os status
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9l6 6 6-6"></path>
-          </svg>
-        </div>
+        <select class="select-box" id="filterStatusAtiv">
+            <option value="todos" selected>Todos os status</option>
+            <option value="concluida">Concluída</option>
+            <option value="pendente">Pendente</option>
+            <option value="atrasada">Atrasada</option>
+            <option value="planejada">Planejada</option>
+        </select>
 
         <a href="nova-atividade.html" class="btn-primary" style="margin-left: auto; text-decoration: none;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14"></path>
-          </svg>
-          Registrar atividade
+            </svg>
+            Registrar atividade
         </a>
       </div>
 
@@ -158,7 +158,7 @@
         <h2 class="panel-tab">Linha do tempo de atividades</h2>
 
         <div class="activity-list">
-          <a href="#" class="activity-row">
+          <a href="#" class="activity-row" data-plantio="Milho Verão 2025/26" data-status="concluida">
             <div class="activity-date">
               <span class="activity-day is-today">HOJE</span>
               <span class="activity-month">01 JUN</span>
@@ -173,7 +173,7 @@
             </svg>
           </a>
 
-          <a href="#" class="activity-row">
+          <a href="#" class="activity-row" data-plantio="Soja 2025/26" data-status="pendente">
             <div class="activity-date">
               <span class="activity-day">03</span>
               <span class="activity-month">JUN</span>
@@ -188,7 +188,7 @@
             </svg>
           </a>
 
-          <a href="#" class="activity-row">
+          <a href="#" class="activity-row" data-plantio="Milho Verão 2025/26" data-status="pendente">
             <div class="activity-date">
               <span class="activity-day">05</span>
               <span class="activity-month">JUN</span>
@@ -203,7 +203,7 @@
             </svg>
           </a>
 
-          <a href="#" class="activity-row">
+          <a href="#" class="activity-row" data-plantio="Soja 2025/26" data-status="atrasada">
             <div class="activity-date">
               <span class="activity-day is-late">07</span>
               <span class="activity-month is-late">JUN</span>
@@ -218,7 +218,7 @@
             </svg>
           </a>
 
-          <a href="#" class="activity-row">
+          <a href="#" class="activity-row" data-plantio="Milho Verão 2025/26" data-status="planejada">
             <div class="activity-date">
               <span class="activity-day">10</span>
               <span class="activity-month">JUN</span>
@@ -232,6 +232,10 @@
               <path d="M9 6l6 6-6 6"></path>
             </svg>
           </a>
+
+          <p class="no-results-row" id="noActivityResults" style="display:none; text-align:center; padding:40px 24px; color: var(--text-gray); font-size:13.5px;">
+            Nenhuma atividade encontrada para os filtros selecionados.
+          </p>
         </div>
       </section>
     </main>
@@ -239,6 +243,7 @@
   </div>
 
   <script src="/js/dashboard.js"></script>
+  <script src="/js/atividades.js"></script>
 
 </body>
 </html>
