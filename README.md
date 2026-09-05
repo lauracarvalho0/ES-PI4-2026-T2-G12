@@ -24,7 +24,7 @@ Desenvolver um sistema web que permita:
 
 **Backend**
 
-* Java
+* JavaScript
 
 **Banco de Dados**
 
