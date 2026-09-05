@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroMonitor - Alertas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/alertas.css">
+</head>
+<body>
+
+  <div class="dashboard">
+
+    <div class="mobile-topbar">
+      <a href="/index.html" class="sidebar-logo">AgroMonitor</a>
+      <button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M3 12h18M3 18h18"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="sidebar-overlay"></div>
+
+    <aside class="sidebar">
+      <div>
+        <a href="/index.html" class="sidebar-logo">AgroMonitor</a>
+        <p class="sidebar-tagline">Linha do Tempo Inteligente</p>
+
+        <ul class="sidebar-nav">
+          <li>
+            <a href="inicio.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 11.5 12 4l9 7.5"></path>
+                <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"></path>
+              </svg>
+              Início
+            </a>
+          </li>
+          <li>
+            <a href="plantios.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22V12"></path>
+                <path d="M12 12C12 7.5 9 5 5 4c-.6 3.8 1.4 7.4 5 8"></path>
+                <path d="M12 12c0-4.5 3-7 7-8 .6 3.8-1.4 7.4-5 8"></path>
+              </svg>
+              Meus Plantios
+            </a>
+          </li>
+          <li>
+            <a href="calendario.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3.5" y="4.5" width="17" height="16" rx="2"></rect>
+                <path d="M3.5 9.5h17"></path>
+                <path d="M8 3v3M16 3v3"></path>
+              </svg>
+              Calendário
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 3.5h8l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"></path>
+                <path d="M9 11h6M9 15h6"></path>
+              </svg>
+              Atividades
+            </a>
+          </li>
+          <li>
+            <a href="alertas.html" class="active">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 4a5.5 5.5 0 0 0-5.5 5.5c0 4-2 5-2 7.5h15c0-2.5-2-3.5-2-7.5A5.5 5.5 0 0 0 12 4Z"></path>
+                <path d="M9.5 20a2.5 2.5 0 0 0 5 0"></path>
+              </svg>
+              Alertas
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 20V11M12 20V4M20 20v-6"></path>
+              </svg>
+              Relatórios
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.4-2-3.4-2.3.8a7.6 7.6 0 0 0-2.6-1.5L14 2.5h-4l-.5 2.5a7.6 7.6 0 0 0-2.6 1.5l-2.3-.8-2 3.4 2 1.4a7.6 7.6 0 0 0 0 3l-2 1.4 2 3.4 2.3-.8a7.6 7.6 0 0 0 2.6 1.5l.5 2.5h4l.5-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3.8 2-3.4-2-1.4Z"></path>
+              </svg>
+              Configurações
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="3.5"></circle>
+              <path d="M4.5 20c1.4-3.5 4.3-5.5 7.5-5.5s6.1 2 7.5 5.5"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="sidebar-user-name">João da Silva</p>
+            <p class="sidebar-user-role">Produtor Rural</p>
+          </div>
+        </div>
+        <a href="/pages/auth/login.html" class="sidebar-logout">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Sair
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+
+      <!-- ============ LIST VIEW ============ -->
+      <div class="list-view" id="listView">
+        <div class="main-header">
+          <div>
+            <h1 class="main-title">Alertas</h1>
+            <p class="main-subtitle">Acompanhe alertas de condições climáticas que podem impactar seus plantios</p>
+          </div>
+        </div>
+
+        <div class="alert-stats-grid">
+          <div class="alert-stat-card">
+            <span class="alert-stat-number">2</span>
+            <div>
+              <p class="alert-stat-label">Críticos</p>
+              <p class="alert-stat-sub tone-red">Exigem atenção imediata</p>
+            </div>
+          </div>
+          <div class="alert-stat-card">
+            <span class="alert-stat-number">5</span>
+            <div>
+              <p class="alert-stat-label">Para hoje</p>
+              <p class="alert-stat-sub tone-amber">Vencem ainda hoje</p>
+            </div>
+          </div>
+          <div class="alert-stat-card">
+            <span class="alert-stat-number">6</span>
+            <div>
+              <p class="alert-stat-label">Próximos 7 dias</p>
+              <p class="alert-stat-sub tone-blue">Fique atento</p>
+            </div>
+          </div>
+          <div class="alert-stat-card">
+            <span class="alert-stat-number">8</span>
+            <div>
+              <p class="alert-stat-label">Resolvidos</p>
+              <p class="alert-stat-sub tone-gray">Últimos 30 dias</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert-filter-bar">
+          <div class="alert-filter-field">
+            <label for="filtroTipo">Tipo de Alerta</label>
+            <select id="filtroTipo">
+              <option value="">Todos</option>
+              <option value="Climático">Climático</option>
+              <option value="Atividade">Atividade</option>
+            </select>
+          </div>
+          <div class="alert-filter-field">
+            <label for="filtroPrioridade">Prioridade</label>
+            <select id="filtroPrioridade">
+              <option value="">Todos</option>
+              <option value="Crítico">Crítico</option>
+              <option value="Alta">Alta</option>
+              <option value="Média">Média</option>
+            </select>
+          </div>
+          <div class="alert-filter-field">
+            <label for="filtroCultura">Cultura</label>
+            <select id="filtroCultura">
+              <option value="">Todas</option>
+              <option value="Milho">Milho</option>
+              <option value="Soja">Soja</option>
+              <option value="Feijão">Feijão</option>
+              <option value="Algodão">Algodão</option>
+            </select>
+          </div>
+          <div class="alert-filter-field">
+            <label for="filtroTalhao">Talhão</label>
+            <select id="filtroTalhao">
+              <option value="">Todos</option>
+              <option value="Talhão 01">Talhão 01</option>
+              <option value="Talhão 02">Talhão 02</option>
+              <option value="Talhão 03">Talhão 03</option>
+              <option value="Talhão 04">Talhão 04</option>
+            </select>
+          </div>
+          <div class="alert-filter-field">
+            <label for="ordenarPor">Ordenar por</label>
+            <select id="ordenarPor">
+              <option value="recentes">Mais recentes</option>
+              <option value="antigos">Mais antigos</option>
+              <option value="prioridade">Prioridade</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="alerts-table-panel">
+          <div class="alerts-table-header">
+            <span class="alerts-table-title">Todos os Alertas</span>
+          </div>
+          <table class="alerts-table">
+            <thead>
+              <tr>
+                <th>Alerta</th>
+                <th>Tipo</th>
+                <th>Referência</th>
+                <th>Data</th>
+                <th>Prioridade</th>
+                <th>Situação</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="alertsTableBody"></tbody>
+          </table>
+          <div class="alerts-pagination" id="alertsPagination"></div>
+        </div>
+      </div>
+
+      <!-- ============ DETAIL VIEW ============ -->
+      <div class="detail-view" id="detailView">
+        <div class="main-header">
+          <div>
+            <h1 class="main-title">Alertas</h1>
+            <p class="main-subtitle">Informações completas sobre o alerta selecionado</p>
+          </div>
+        </div>
+
+        <div class="detail-header-panel">
+          <div>
+            <div class="detail-title-row">
+              <span class="detail-alert-title" id="detailTitle">-</span>
+              <span class="detail-priority-badge" id="detailPriorityBadge">-</span>
+            </div>
+            <p class="detail-alert-desc" id="detailDesc">-</p>
+          </div>
+
+          <div class="detail-meta-col">
+            <div>
+              <p class="detail-meta-label">Tipo de alerta:</p>
+              <p class="detail-meta-value" id="detailTipo">-</p>
+            </div>
+            <div>
+              <p class="detail-meta-label">Data do Alerta:</p>
+              <p class="detail-meta-value" id="detailDataAlerta">-</p>
+            </div>
+          </div>
+
+          <div class="detail-meta-col">
+            <div>
+              <p class="detail-meta-label">Situação:</p>
+              <p class="detail-meta-value" id="detailSituacao">-</p>
+            </div>
+            <div>
+              <p class="detail-meta-label">Prioridade:</p>
+              <p class="detail-meta-value" id="detailPrioridade">-</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-panel">
+            <p class="detail-panel-title">Impacto nos plantios</p>
+            <div class="impact-row">
+              <div>
+                <p class="impact-activity" id="detailImpactActivity">-</p>
+                <p class="impact-reference" id="detailImpactReference">-</p>
+              </div>
+              <p class="impact-date" id="detailImpactDate">-</p>
+            </div>
+          </div>
+
+          <div class="detail-panel">
+            <p class="detail-panel-title">Recomendações</p>
+            <ul class="recommendations-list" id="detailRecommendations"></ul>
+          </div>
+        </div>
+
+        <div class="detail-row forecast-row">
+          <div class="detail-panel">
+            <p class="detail-panel-title">Previsão do tempo</p>
+            <div class="forecast-grid" id="detailForecastGrid"></div>
+            <a href="#" class="forecast-full-link">Ver previsão completa →</a>
+          </div>
+
+          <div class="detail-panel tips-panel">
+            <p class="detail-panel-title">Dicas</p>
+            <p class="tips-text" id="detailTips">-</p>
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          <button type="button" class="btn-voltar-detalhe" id="btnVoltarDetalhe">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
+            Voltar
+          </button>
+          <button type="button" class="btn-marcar-lido" id="btnMarcarLido">
+            Marcar como lido
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+          </button>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/alertas.js"></script>
+
+</body>
+</html>
