@@ -1,0 +1,363 @@
+/* ===== FILTER BAR (relatórios) ===== */
+/* ===== FILTER BAR (relatórios) ===== */
+.rel-filter-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.rel-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rel-field label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-gray);
+}
+
+.rel-native-select {
+  appearance: none;
+  width: 100%;
+  min-width: 200px;
+  border: 1px solid var(--border-gray);
+  border-radius: 10px;
+  padding: 11px 34px 11px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  color: #1a1a1a;
+  background-color: var(--white);
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b6b66' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.rel-native-select:focus {
+  border-color: var(--dark-green);
+}
+
+.btn-outline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--white);
+  color: var(--accent-green);
+  border: 1.5px solid var(--accent-green);
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.btn-outline:hover {
+  background-color: var(--green-bg);
+}
+
+/* ===== RESUMO ===== */
+.rel-summary-panel {
+  margin-bottom: 24px;
+}
+
+.rel-panel-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: #1a1a1a;
+  margin-bottom: 20px;
+}
+
+.rel-panel-subtitle {
+  font-size: 12.5px;
+  color: var(--text-gray);
+  margin-top: -12px;
+  margin-bottom: 18px;
+}
+
+.rel-summary-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  justify-content: space-between;
+}
+
+.rel-summary-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 150px;
+}
+
+.rel-summary-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-green {
+  background-color: var(--green-bg);
+  color: var(--accent-green);
+}
+
+.icon-amber {
+  background-color: var(--amber-bg);
+  color: var(--amber);
+}
+
+.icon-red {
+  background-color: var(--red-bg);
+  color: var(--red);
+}
+
+.rel-summary-number {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: #1a1a1a;
+  line-height: 1.1;
+}
+
+.rel-summary-label {
+  font-size: 12.5px;
+  color: var(--text-gray);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.rel-summary-sub {
+  font-size: 11px;
+  color: var(--text-gray);
+  margin-top: 2px;
+}
+
+/* ===== CONTENT GRID (donut + próximas) ===== */
+.rel-content-grid {
+  margin-bottom: 24px;
+}
+
+.rel-donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  padding-top: 8px;
+}
+
+.rel-donut {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: conic-gradient(var(--gray-bg) 0 100%);
+  transition: background 0.3s ease;
+}
+
+.rel-donut::before {
+  content: '';
+  position: absolute;
+  inset: 26px;
+  background-color: var(--white);
+  border-radius: 50%;
+}
+
+.rel-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.rel-donut-total {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  color: #1a1a1a;
+}
+
+.rel-donut-total-label {
+  font-size: 12px;
+  color: var(--text-gray);
+}
+
+.rel-legend {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.rel-legend li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  color: #1a1a1a;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-value {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--text-gray);
+  font-size: 12.5px;
+}
+
+/* ===== PRÓXIMAS ATIVIDADES ===== */
+.rel-next-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rel-next-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-gray);
+}
+
+.rel-next-item:last-child {
+  border-bottom: none;
+}
+
+.rel-next-date {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background-color: var(--cream-bg);
+  border: 1px solid var(--border-gray);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rel-next-day {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark-green);
+  line-height: 1.1;
+}
+
+.rel-next-month {
+  font-size: 9.5px;
+  color: var(--text-gray);
+  text-transform: uppercase;
+}
+
+.rel-next-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.rel-next-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 2px;
+}
+
+.rel-next-subtitle {
+  font-size: 12px;
+  color: var(--text-gray);
+}
+
+.rel-footer-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.rel-empty-state {
+  text-align: center;
+  padding: 30px 24px;
+  font-size: 13.5px;
+  color: var(--text-gray);
+}
+
+/* ===== TABELA RESUMO ===== */
+.rel-table-panel {
+  margin-top: 4px;
+}
+
+.rel-table-header {
+  padding: 22px 24px 6px;
+}
+
+.rel-table-header .panel-title {
+  margin-bottom: 4px;
+}
+
+.culture-dot.feijao {
+  background-color: var(--blue);
+}
+
+/* ===== AJUSTE DE FONTE DA TABELA DE RESUMO ===== */
+.rel-table-panel .plantios-table td {
+  font-size: 13.5px;
+  color: #1a1a1a;
+}
+
+.rel-table-panel .plantios-table td:nth-child(2),
+.rel-table-panel .plantios-table td:nth-child(3),
+.rel-table-panel .plantios-table td:nth-child(4) {
+  color: var(--text-gray);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .rel-summary-grid {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .rel-donut-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 700px) {
+  .rel-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rel-select {
+    min-width: 0;
+  }
+
+  .btn-outline {
+    margin-left: 0 !important;
+    justify-content: center;
+  }
+}
