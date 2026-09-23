@@ -141,5 +141,18 @@ document.addEventListener('DOMContentLoaded', function () {
     showToast(e.target.checked ? 'Alertas por e-mail ativados.' : 'Alertas por e-mail desativados.');
   });
 
+  // ===== PLANO (sincronizado com a tela de Planos) =====
+  const planNames = {
+    gratuito: 'Gratuito',
+    essencial: 'Essencial',
+    avancado: 'Avançado'
+  };
+
+  function refreshPlanoAtualLabel() {
+    const planoId = localStorage.getItem('agromonitor_plano') || 'gratuito';
+    document.getElementById('planoAtualLabel').textContent = planNames[planoId] || 'Gratuito';
+  }
+
   refreshProfileDisplay();
+  refreshPlanoAtualLabel();
 });
