@@ -30,6 +30,9 @@ Desenvolver um sistema web que permita:
 
 * MongoDB
 
+**Servidor**
+* Java
+
 **Controle de Versão**
 
 * Git
