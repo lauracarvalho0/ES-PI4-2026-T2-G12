@@ -41,7 +41,8 @@
         <h2 class="login-title">Bem-vindo de volta!</h2>
         <p class="login-subtitle">Faça seu login para continuar acompanhando o seu plantio</p>
 
-        <form class="login-form">
+        <!-- MUDANCA: id="form-login" -->
+        <form class="login-form" id="form-login">
           <div class="form-group">
             <label for="email">E-mail</label>
             <input type="email" id="email" name="email" placeholder="Digite o seu email">
@@ -63,7 +64,8 @@
 
           <a href="recuperarSenha.html" class="forgot-password">Esqueci minha senha</a>
 
-          <button type="button" class="btn-submit" onclick="window.location.href='../dashboard/inicio.html'">Entrar</button>
+          <!-- MUDANCA: type="submit" e sem onclick (o redirecionamento agora e feito pelo auth.js apos o login) -->
+          <button type="submit" class="btn-submit">Entrar</button>
         </form>
       </div>
     </main>
