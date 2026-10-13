@@ -25,7 +25,7 @@ body {
   background-image:
     linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.55) 25%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 75%),
     linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 45%),
-    url('/assets/images/imgInicial1.jpg');
+    url('../assets/images/imgInicial1.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
