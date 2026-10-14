@@ -33,11 +33,14 @@ public class Servidor
         }
 
         UsuarioDAO dao;
+        PlantioDAO plantioDao;
         try
         {
             MongoClient cliente = MongoClients.create(uri);
             dao = new UsuarioDAO(cliente.getDatabase("agromonitor"));
+            plantioDao = new PlantioDAO(cliente.getDatabase("agromonitor"));
             dao.garantirIndices(); // tambem testa a conexao
+            plantioDao.garantirIndices();
         }
         catch (Exception erro)
         {
@@ -53,7 +56,7 @@ public class Servidor
         AceitadoraDeConexao aceitadora = null;
         try
         {
-            aceitadora = new AceitadoraDeConexao(porta, usuarios, dao);
+            aceitadora = new AceitadoraDeConexao(porta, usuarios, dao, plantioDao);
             aceitadora.start();
         }
         catch (Exception erro)

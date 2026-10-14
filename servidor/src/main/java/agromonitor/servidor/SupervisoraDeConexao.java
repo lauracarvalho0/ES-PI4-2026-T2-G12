@@ -2,6 +2,7 @@ package agromonitor.servidor;
 
 import java.io.*;
 import java.net.*;
+import java.time.LocalDate;
 import java.util.*;
 
 import agromonitor.comum.*;
@@ -16,8 +17,9 @@ public class SupervisoraDeConexao extends Thread
     private Socket              conexao;
     private ArrayList<Parceiro> usuarios;
     private UsuarioDAO          dao;
+    private PlantioDAO          plantioDao;
 
-    public SupervisoraDeConexao(Socket conexao, ArrayList<Parceiro> usuarios, UsuarioDAO dao) throws Exception
+    public SupervisoraDeConexao(Socket conexao, ArrayList<Parceiro> usuarios, UsuarioDAO dao, PlantioDAO plantioDao) throws Exception
     {
         if (conexao == null)
             throw new Exception("Conexao ausente");
@@ -25,10 +27,13 @@ public class SupervisoraDeConexao extends Thread
             throw new Exception("Usuarios ausentes");
         if (dao == null)
             throw new Exception("DAO ausente");
+        if (plantioDao == null)
+            throw new Exception("DAO de plantio ausente");
 
-        this.conexao  = conexao;
-        this.usuarios = usuarios;
-        this.dao      = dao;
+        this.conexao    = conexao;
+        this.usuarios   = usuarios;
+        this.dao        = dao;
+        this.plantioDao = plantioDao;
     }
 
     public void run()
@@ -82,6 +87,10 @@ public class SupervisoraDeConexao extends Thread
                     this.usuario.receba(tratarCadastro((PedidoDeCadastro) comunicado));
                 else if (comunicado instanceof PedidoDeLogin)
                     this.usuario.receba(tratarLogin((PedidoDeLogin) comunicado));
+                else if (comunicado instanceof PedidoDeCadastroDePlantio)
+                    this.usuario.receba(tratarCadastroDePlantio((PedidoDeCadastroDePlantio) comunicado));
+                else if (comunicado instanceof PedidoDeListagemDePlantios)
+                    this.usuario.receba(tratarListagemDePlantios((PedidoDeListagemDePlantios) comunicado));
                 else if (comunicado instanceof PedidoParaSair)
                 {
                     synchronized (this.usuarios)
@@ -165,6 +174,90 @@ public class SupervisoraDeConexao extends Thread
             System.err.println("Erro no login: " + e);
             return new RespostaDeLogin(false, "Erro interno ao entrar. Tente novamente.", 0, null, null);
         }
+    }
+
+    private RespostaDeCadastroDePlantio tratarCadastroDePlantio(PedidoDeCadastroDePlantio p)
+    {
+        String erro = primeiroErro(
+            ValidadorPlantio.validarUsuario(p.getUsuarioCodigo()),
+            ValidadorPlantio.validarCultura(p.getCultura()),
+            ValidadorPlantio.validarNome(p.getNome()),
+            ValidadorPlantio.validarSafra(p.getSafra()),
+            ValidadorPlantio.validarDescricao(p.getDescricao()),
+            ValidadorPlantio.validarTalhao(p.getTalhao()),
+            ValidadorPlantio.validarAreaPlantada(p.getAreaPlantada()),
+            ValidadorPlantio.validarSistemaCultivo(p.getSistemaCultivo()),
+            ValidadorPlantio.validarAltitude(p.getAltitude()),
+            ValidadorPlantio.validarDataPlantio(p.getDataPlantio()),
+            ValidadorPlantio.validarMetodoPlantio(p.getMetodoPlantio()),
+            ValidadorPlantio.validarAjuste(p.getAjustePlantio(),   "plantio"),
+            ValidadorPlantio.validarAjuste(p.getAjusteIrrigacao(), "irrigacao"),
+            ValidadorPlantio.validarAjuste(p.getAjusteAdubacao(),  "adubacao"),
+            ValidadorPlantio.validarAjuste(p.getAjusteTratos(),    "tratos culturais"));
+        if (erro != null)
+            return new RespostaDeCadastroDePlantio(false, erro, 0);
+
+        try
+        {
+            // o dono do plantio precisa existir e estar ativo
+            if (!this.dao.existeAtivoPorCodigo(p.getUsuarioCodigo()))
+                return new RespostaDeCadastroDePlantio(false, "Usuario nao encontrado. Entre novamente.", 0);
+
+            String descricao = p.getDescricao() == null ? "" : p.getDescricao().trim();
+            String local     = p.getLocalizacao() == null ? "" : p.getLocalizacao().trim();
+            String metodo    = p.getMetodoPlantio() == null ? "" : p.getMetodoPlantio().trim();
+
+            // ajustes opcionais: data valida ou null (null = previsao automatica)
+            LocalDate[] ajustes = new LocalDate[4];
+            ajustes[0] = ValidadorPlantio.lerData(vazioParaNull(p.getAjustePlantio()));
+            ajustes[1] = ValidadorPlantio.lerData(vazioParaNull(p.getAjusteIrrigacao()));
+            ajustes[2] = ValidadorPlantio.lerData(vazioParaNull(p.getAjusteAdubacao()));
+            ajustes[3] = ValidadorPlantio.lerData(vazioParaNull(p.getAjusteTratos()));
+
+            int codigo = this.plantioDao.inserir(
+                p.getUsuarioCodigo(),
+                p.getCultura().trim(),
+                p.getNome().trim(),
+                p.getSafra().trim(),
+                descricao.isEmpty() ? null : descricao,
+                p.getSistemaCultivo(),
+                p.getTalhao().trim(),
+                p.getAreaPlantada(),
+                local.isEmpty() ? null : local,
+                p.getAltitude(),
+                ValidadorPlantio.lerData(p.getDataPlantio()),
+                metodo.isEmpty() ? null : metodo,
+                ajustes);
+            return new RespostaDeCadastroDePlantio(true, "Plantio cadastrado com sucesso!", codigo);
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao cadastrar plantio: " + e);
+            return new RespostaDeCadastroDePlantio(false, "Erro interno ao cadastrar o plantio. Tente novamente.", 0);
+        }
+    }
+
+    private RespostaDeListagemDePlantios tratarListagemDePlantios(PedidoDeListagemDePlantios p)
+    {
+        String erro = ValidadorPlantio.validarUsuario(p.getUsuarioCodigo());
+        if (erro != null)
+            return new RespostaDeListagemDePlantios(false, erro, null);
+
+        try
+        {
+            return new RespostaDeListagemDePlantios(true, "OK", this.plantioDao.listarPorUsuario(p.getUsuarioCodigo()));
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao listar plantios: " + e);
+            return new RespostaDeListagemDePlantios(false, "Erro interno ao buscar os plantios. Tente novamente.", null);
+        }
+    }
+
+    // lerData nao aceita null; este auxiliar devolve "" quando nao veio nada
+    private static String vazioParaNull(String texto)
+    {
+        return texto == null ? "" : texto;
     }
 
     private static String primeiroErro(String... erros)

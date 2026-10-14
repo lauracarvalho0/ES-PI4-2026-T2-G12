@@ -165,6 +165,15 @@ select.select-box:focus {
   background-color: var(--amber);
 }
 
+.culture-dot.trigo {
+  background-color: var(--amber);
+}
+
+.culture-dot.cafe,
+.culture-dot.algodao {
+  background-color: var(--text-gray);
+}
+
 .plantio-meta {
   font-size: 12px;
   color: var(--text-gray);
@@ -251,6 +260,11 @@ select.select-box:focus {
 .status-final {
   background-color: var(--green-bg);
   color: var(--accent-green);
+}
+
+.status-concluido {
+  background-color: var(--border-gray);
+  color: var(--text-gray);
 }
 
 /* ===== RESPONSIVE ===== */

@@ -92,6 +92,14 @@ public class UsuarioDAO
         return codigo;
     }
 
+    // Diz se existe usuario ativo com esse codigo (usado ao cadastrar plantio).
+    public boolean existeAtivoPorCodigo(int codigo)
+    {
+        return usuarios().find(Filters.and(
+                Filters.eq("codigo", codigo),
+                Filters.eq("ativo", true))).first() != null;
+    }
+
     // Devolve o usuario ativo com esse e-mail, ou null.
     public Usuario buscarAtivoPorEmail(String email)
     {

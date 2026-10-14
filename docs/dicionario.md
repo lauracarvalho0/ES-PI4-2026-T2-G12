@@ -5,6 +5,7 @@
 | Data | Autor | Versão | Comentários |
 | --- | --- | --- | --- |
 | 23/09/2026 | Giovana | 1.0.0| Versão inicial do dicionário de dados do AgroMonitor |
+| 28/09/2026 | Laura | 1.0.1 | Revisão e validação do conteúdo existente |
 
 ## 2. Entidades e atributos conceituais
 
@@ -217,7 +218,7 @@ Documento de identificação é uma estrutura composta por tipo e valor, usada n
 
 Em um banco orientado a documentos, a coleção `plantios` pode concentrar os dados do plantio junto com um resumo de suas atividades (já que a tela "Meus Plantios" sempre exibe a "Próxima Atividade" junto com o plantio). Já a coleção `alertas` pode embutir as recomendações e a previsão do tempo, pois esses dados só fazem sentido quando consultados junto com o alerta que os gerou.
 
-#### Coleções sugeridas
+#### Coleções 
 
 | Coleção | Finalidade | Estratégia documental |
 | :--- | :--- | :--- |
