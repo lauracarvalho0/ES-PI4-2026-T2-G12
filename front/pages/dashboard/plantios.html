@@ -150,6 +150,9 @@
           <option value="todas" selected>Todas as Culturas</option>
           <option value="milho">Milho</option>
           <option value="soja">Soja</option>
+          <option value="trigo">Trigo</option>
+          <option value="cafe">Café</option>
+          <option value="algodao">Algodão</option>
         </select>
 
         <a href="novo-plantio.html" class="btn-primary">
@@ -162,28 +165,28 @@
 
       <div class="stats-grid">
         <div class="stat-card">
-          <span class="stat-number">4</span>
+          <span class="stat-number" id="statTotal">0</span>
           <div>
             <p class="stat-label">Plantios ativos</p>
             <a href="#" class="stat-link" data-status="todos">Ver todos →</a>
           </div>
         </div>
         <div class="stat-card">
-          <span class="stat-number">2</span>
+          <span class="stat-number" id="statInicial">0</span>
           <div>
             <p class="stat-label">Em fase inicial</p>
             <a href="#" class="stat-link" data-status="inicial">Ver todos →</a>
           </div>
         </div>
         <div class="stat-card">
-          <span class="stat-number">1</span>
+          <span class="stat-number" id="statDesenvolvimento">0</span>
           <div>
             <p class="stat-label">Em desenvolvimento</p>
             <a href="#" class="stat-link" data-status="desenvolvimento">Ver todos →</a>
           </div>
         </div>
         <div class="stat-card">
-          <span class="stat-number">1</span>
+          <span class="stat-number" id="statFinal">0</span>
           <div>
             <p class="stat-label">Em fase final</p>
             <a href="#" class="stat-link" data-status="final">Ver todos →</a>
@@ -204,102 +207,6 @@
             </tr>
           </thead>
           <tbody>
-            <tr data-status="desenvolvimento" data-cultura="milho">
-              <td>
-                <p class="plantio-name">Milho Verão 2025/26</p>
-                <p class="plantio-culture"><span class="culture-dot milho"></span>Milho</p>
-                <p class="plantio-meta">Plantio padrão &nbsp;-&nbsp; 7 Atividades</p>
-              </td>
-              <td>
-                <p class="talhao-name">Talhão 01</p>
-                <p class="talhao-area">Área: 12.5 ha</p>
-              </td>
-              <td><span class="plantio-date">15/05/2025</span></td>
-              <td>
-                <p class="next-activity">Adubação de cobertura</p>
-                <p class="next-activity-time">Em 2 dias</p>
-              </td>
-              <td>
-                <div class="progress-wrap">
-                  <span class="progress-percent">43%</span>
-                  <div class="progress-bar"><div class="progress-fill" style="width: 43%;"></div></div>
-                </div>
-              </td>
-              <td><span class="status-pill status-desenvolvimento">Em desenvolvimento</span></td>
-            </tr>
-
-            <tr data-status="final" data-cultura="soja">
-              <td>
-                <p class="plantio-name">Soja &nbsp;2025/26</p>
-                <p class="plantio-culture"><span class="culture-dot soja"></span>Soja</p>
-                <p class="plantio-meta">Plantio padrão &nbsp;-&nbsp; 6 Atividades</p>
-              </td>
-              <td>
-                <p class="talhao-name">Talhão 02</p>
-                <p class="talhao-area">Área: 12.5 ha</p>
-              </td>
-              <td><span class="plantio-date">22/05/2025</span></td>
-              <td>
-                <p class="next-activity">Adubação de cobertura</p>
-                <p class="next-activity-time">Em 2 dias</p>
-              </td>
-              <td>
-                <div class="progress-wrap">
-                  <span class="progress-percent">43%</span>
-                  <div class="progress-bar"><div class="progress-fill" style="width: 43%;"></div></div>
-                </div>
-              </td>
-              <td><span class="status-pill status-final">Em fase final</span></td>
-            </tr>
-
-            <tr data-status="inicial" data-cultura="milho">
-              <td>
-                <p class="plantio-name">Milho Verão 2025/26</p>
-                <p class="plantio-culture"><span class="culture-dot milho"></span>Milho</p>
-                <p class="plantio-meta">Plantio padrão &nbsp;-&nbsp; 7 Atividades</p>
-              </td>
-              <td>
-                <p class="talhao-name">Talhão 01</p>
-                <p class="talhao-area">Área: 12.5 ha</p>
-              </td>
-              <td><span class="plantio-date">15/05/2025</span></td>
-              <td>
-                <p class="next-activity">Adubação de cobertura</p>
-                <p class="next-activity-time">Em 2 dias</p>
-              </td>
-              <td>
-                <div class="progress-wrap">
-                  <span class="progress-percent">43%</span>
-                  <div class="progress-bar"><div class="progress-fill" style="width: 43%;"></div></div>
-                </div>
-              </td>
-              <td><span class="status-pill status-inicial">Em fase inicial</span></td>
-            </tr>
-
-            <tr data-status="final" data-cultura="milho">
-              <td>
-                <p class="plantio-name">Milho Verão 2025/26</p>
-                <p class="plantio-culture"><span class="culture-dot milho"></span>Milho</p>
-                <p class="plantio-meta">Plantio padrão &nbsp;-&nbsp; 7 Atividades</p>
-              </td>
-              <td>
-                <p class="talhao-name">Talhão 01</p>
-                <p class="talhao-area">Área: 12.5 ha</p>
-              </td>
-              <td><span class="plantio-date">15/05/2025</span></td>
-              <td>
-                <p class="next-activity">Adubação de cobertura</p>
-                <p class="next-activity-time">Em 2 dias</p>
-              </td>
-              <td>
-                <div class="progress-wrap">
-                  <span class="progress-percent">97%</span>
-                  <div class="progress-bar"><div class="progress-fill" style="width: 97%;"></div></div>
-                </div>
-              </td>
-              <td><span class="status-pill status-final">Em fase final</span></td>
-            </tr>
-
             <tr class="no-results-row" id="noResultsRow" style="display:none;">
               <td colspan="6">Nenhum plantio encontrado para os filtros selecionados.</td>
             </tr>

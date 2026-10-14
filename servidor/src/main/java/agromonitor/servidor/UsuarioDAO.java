@@ -93,6 +93,14 @@ public class UsuarioDAO
         return codigo;
     }
 
+    // Diz se existe usuario ativo com esse codigo (usado ao cadastrar plantio).
+    public boolean existeAtivoPorCodigo(int codigo)
+    {
+        return usuarios().find(Filters.and(
+                Filters.eq("codigo", codigo),
+                Filters.eq("ativo", true))).first() != null;
+    }
+
     // Guarda (o hash do) token de recuperacao no usuario ativo com esse e-mail.
     // Devolve o usuario, ou null se o e-mail nao existe OU se ja foi pedido um link ha menos
     // de "cooldownLimite" (evita encher a caixa de e-mail de alguem). Quem chama trata os dois
