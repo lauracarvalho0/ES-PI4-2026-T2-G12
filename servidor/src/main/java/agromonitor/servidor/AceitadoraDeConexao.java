@@ -13,8 +13,10 @@ public class AceitadoraDeConexao extends Thread
     private ArrayList<Parceiro> usuarios;
     private UsuarioDAO          dao;
     private PlantioDAO          plantioDao;
+    private EmailService        email;
 
-    public AceitadoraDeConexao(String porta, ArrayList<Parceiro> usuarios, UsuarioDAO dao, PlantioDAO plantioDao) throws Exception
+    public AceitadoraDeConexao(String porta, ArrayList<Parceiro> usuarios, UsuarioDAO dao,
+                               PlantioDAO plantioDao, EmailService email) throws Exception
     {
         if (porta == null)
             throw new Exception("Porta ausente");
@@ -34,10 +36,13 @@ public class AceitadoraDeConexao extends Thread
             throw new Exception("DAO ausente");
         if (plantioDao == null)
             throw new Exception("DAO de plantio ausente");
+        if (email == null)
+            throw new Exception("Servico de e-mail ausente");
 
         this.usuarios   = usuarios;
         this.dao        = dao;
         this.plantioDao = plantioDao;
+        this.email      = email;
     }
 
     public void run()
@@ -57,7 +62,7 @@ public class AceitadoraDeConexao extends Thread
             SupervisoraDeConexao supervisora = null;
             try
             {
-                supervisora = new SupervisoraDeConexao(conexao, this.usuarios, this.dao, this.plantioDao);
+                supervisora = new SupervisoraDeConexao(conexao, this.usuarios, this.dao, this.plantioDao, this.email);
             }
             catch (Exception erro)
             {} // sei que passei parametros corretos

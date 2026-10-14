@@ -49,6 +49,13 @@ public class Servidor
         }
         System.out.println("Conectado ao MongoDB.");
 
+        // servico de e-mail (recuperacao de senha); sem SMTP_USER/SMTP_PASS, so imprime o link no console
+        EmailService email = EmailService.doAmbiente();
+        if (email.isAtivo())
+            System.out.println("E-mail: SMTP configurado.");
+        else
+            System.out.println("E-mail: SMTP_USER/SMTP_PASS nao definidas. MODO DESENVOLVIMENTO: os links de recuperacao aparecerao aqui no console.");
+
         // 2) estrutura de dados compartilhada com os clientes conectados
         ArrayList<Parceiro> usuarios = new ArrayList<Parceiro>();
 
@@ -56,7 +63,7 @@ public class Servidor
         AceitadoraDeConexao aceitadora = null;
         try
         {
-            aceitadora = new AceitadoraDeConexao(porta, usuarios, dao, plantioDao);
+            aceitadora = new AceitadoraDeConexao(porta, usuarios, dao, plantioDao, email);
             aceitadora.start();
         }
         catch (Exception erro)

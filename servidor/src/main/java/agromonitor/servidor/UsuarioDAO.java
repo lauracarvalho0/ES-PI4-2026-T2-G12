@@ -33,6 +33,7 @@ public class UsuarioDAO
     {
         usuarios().createIndex(Indexes.ascending("email"),  new IndexOptions().unique(true));
         usuarios().createIndex(Indexes.ascending("codigo"), new IndexOptions().unique(true));
+        usuarios().createIndex(Indexes.ascending("recuperacaoSenha.tokenHash"));
     }
 
     // Gera codigos sequenciais (1, 2, 3...) usando uma colecao de contadores.
@@ -98,6 +99,45 @@ public class UsuarioDAO
         return usuarios().find(Filters.and(
                 Filters.eq("codigo", codigo),
                 Filters.eq("ativo", true))).first() != null;
+    }
+
+    // Guarda (o hash do) token de recuperacao no usuario ativo com esse e-mail.
+    // Devolve o usuario, ou null se o e-mail nao existe OU se ja foi pedido um link ha menos
+    // de "cooldownLimite" (evita encher a caixa de e-mail de alguem). Quem chama trata os dois
+    // casos do mesmo jeito, para nao revelar se o e-mail esta cadastrado.
+    public Usuario salvarTokenDeRecuperacao(String email, String tokenHash, Date expiraEm, Date cooldownLimite)
+    {
+        Document d = usuarios().findOneAndUpdate(
+            Filters.and(
+                Filters.eq("email", email),
+                Filters.eq("ativo", true),
+                Filters.or(
+                    Filters.exists("recuperacaoSenha.criadoEm", false),
+                    Filters.lt("recuperacaoSenha.criadoEm", cooldownLimite))),
+            Updates.set("recuperacaoSenha", new Document("tokenHash", tokenHash)
+                    .append("expiraEm", expiraEm)
+                    .append("criadoEm", new Date())),
+            new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER));
+
+        if (d == null)
+            return null;
+        return new Usuario(d.getInteger("codigo"), d.getString("nome"),
+                           d.getString("email"), d.getString("senhaHash"));
+    }
+
+    // Troca a senha se o token existe, nao expirou e o usuario esta ativo.
+    // Uma unica operacao atomica: troca a senha E apaga o token, entao o link so vale uma vez.
+    public boolean redefinirSenha(String tokenHash, String novoSenhaHash)
+    {
+        Document d = usuarios().findOneAndUpdate(
+            Filters.and(
+                Filters.eq("recuperacaoSenha.tokenHash", tokenHash),
+                Filters.gt("recuperacaoSenha.expiraEm", new Date()),
+                Filters.eq("ativo", true)),
+            Updates.combine(
+                Updates.set("senhaHash", novoSenhaHash),
+                Updates.unset("recuperacaoSenha")));
+        return d != null;
     }
 
     // Devolve o usuario ativo com esse e-mail, ou null.
