@@ -107,4 +107,91 @@
       });
     });
   }
+  // ---------- RECUPERAR SENHA (pede o link por e-mail) ----------
+  var formRecuperar = document.getElementById('form-recuperar');
+  if (formRecuperar) {
+    var botaoEnviar = formRecuperar.querySelector('.btn-submit');
+    var botaoReenviar = document.getElementById('btn-reenviar');
+    var contagem = null;
+    var enviando = false;
+
+    // O servidor nao reenvia em menos de 60 s; o botao espera o mesmo tempo
+    function iniciarContagem(segundos) {
+      if (!botaoReenviar) return;
+      clearInterval(contagem);
+      var restante = segundos;
+      botaoReenviar.disabled = true;
+      botaoReenviar.textContent = 'Reenviar link (' + restante + 's)';
+      contagem = setInterval(function () {
+        restante--;
+        if (restante <= 0) {
+          clearInterval(contagem);
+          botaoReenviar.disabled = false;
+          botaoReenviar.textContent = 'Reenviar link';
+        } else {
+          botaoReenviar.textContent = 'Reenviar link (' + restante + 's)';
+        }
+      }, 1000);
+    }
+
+    function enviarLink() {
+      if (enviando) return;
+      var email = valor('email');
+      if (!email) {
+        mostrarMensagem(formRecuperar, 'Informe o seu e-mail.', false);
+        return;
+      }
+
+      enviando = true;
+      botaoEnviar.disabled = true;
+      // urlBase: o link do e-mail volta para este mesmo site (o servidor so aceita enderecos permitidos)
+      postar('/api/recuperar-senha', { email: email, urlBase: window.location.origin }).then(function (r) {
+        enviando = false;
+        botaoEnviar.disabled = false;
+        mostrarMensagem(formRecuperar, r.mensagem, r.sucesso);
+        if (r.sucesso) iniciarContagem(60);
+      });
+    }
+
+    formRecuperar.addEventListener('submit', function (e) {
+      e.preventDefault();
+      enviarLink();
+    });
+    if (botaoReenviar) botaoReenviar.addEventListener('click', enviarLink);
+  }
+
+  // ---------- REDEFINIR SENHA (tela aberta pelo link do e-mail) ----------
+  var formRedefinir = document.getElementById('form-redefinir');
+  if (formRedefinir) {
+    var tokenDoLink = new URLSearchParams(window.location.search).get('token') || '';
+    var botaoRedefinir = formRedefinir.querySelector('.btn-submit');
+
+    if (!tokenDoLink) {
+      mostrarMensagem(formRedefinir, 'Link inválido. Peça um novo link de recuperação.', false);
+      botaoRedefinir.disabled = true;
+    }
+
+    formRedefinir.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!tokenDoLink) return;
+
+      var senha = document.getElementById('senha').value;
+      var confirmar = document.getElementById('confirmar-senha').value;
+      if (senha !== confirmar) {
+        mostrarMensagem(formRedefinir, 'As senhas não conferem.', false);
+        return;
+      }
+
+      botaoRedefinir.disabled = true;
+      postar('/api/redefinir-senha', { token: tokenDoLink, senha: senha }).then(function (r) {
+        mostrarMensagem(formRedefinir, r.mensagem, r.sucesso);
+        if (r.sucesso) {
+          // senha trocada: o link nao serve mais; segue para o login
+          setTimeout(function () { window.location.href = 'login.html'; }, 2000);
+        } else {
+          botaoRedefinir.disabled = false;
+        }
+      });
+    });
+  }
 })();

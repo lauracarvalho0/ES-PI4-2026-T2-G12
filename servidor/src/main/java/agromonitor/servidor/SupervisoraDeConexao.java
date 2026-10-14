@@ -16,8 +16,34 @@ public class SupervisoraDeConexao extends Thread
     private Socket              conexao;
     private ArrayList<Parceiro> usuarios;
     private UsuarioDAO          dao;
+    private EmailService        email;
 
-    public SupervisoraDeConexao(Socket conexao, ArrayList<Parceiro> usuarios, UsuarioDAO dao) throws Exception
+    private static final int VALIDADE_TOKEN_MINUTOS     = 30;
+    private static final int INTERVALO_REENVIO_SEGUNDOS = 60;
+
+    // Enderecos do site que podem aparecer no link do e-mail (separe por virgula em APP_URLS_PERMITIDAS)
+    private static final Set<String> BASES_PERMITIDAS = carregarBasesPermitidas();
+
+    private static Set<String> carregarBasesPermitidas()
+    {
+        String env   = System.getenv("APP_URLS_PERMITIDAS");
+        String lista = (env == null || env.isBlank())
+            ? "http://localhost:8080,http://127.0.0.1:8080,http://localhost:5500,http://127.0.0.1:5500"
+            : env;
+
+        Set<String> bases = new HashSet<String>();
+        for (String b : lista.split(","))
+        {
+            b = b.trim();
+            while (b.endsWith("/"))
+                b = b.substring(0, b.length() - 1);
+            if (!b.isEmpty())
+                bases.add(b.toLowerCase());
+        }
+        return bases;
+    }
+
+    public SupervisoraDeConexao(Socket conexao, ArrayList<Parceiro> usuarios, UsuarioDAO dao, EmailService email) throws Exception
     {
         if (conexao == null)
             throw new Exception("Conexao ausente");
@@ -25,10 +51,13 @@ public class SupervisoraDeConexao extends Thread
             throw new Exception("Usuarios ausentes");
         if (dao == null)
             throw new Exception("DAO ausente");
+        if (email == null)
+            throw new Exception("Servico de e-mail ausente");
 
         this.conexao  = conexao;
         this.usuarios = usuarios;
         this.dao      = dao;
+        this.email    = email;
     }
 
     public void run()
@@ -82,6 +111,10 @@ public class SupervisoraDeConexao extends Thread
                     this.usuario.receba(tratarCadastro((PedidoDeCadastro) comunicado));
                 else if (comunicado instanceof PedidoDeLogin)
                     this.usuario.receba(tratarLogin((PedidoDeLogin) comunicado));
+                else if (comunicado instanceof PedidoDeRecuperacaoDeSenha)
+                    this.usuario.receba(tratarRecuperacao((PedidoDeRecuperacaoDeSenha) comunicado));
+                else if (comunicado instanceof PedidoDeRedefinicaoDeSenha)
+                    this.usuario.receba(tratarRedefinicao((PedidoDeRedefinicaoDeSenha) comunicado));
                 else if (comunicado instanceof PedidoParaSair)
                 {
                     synchronized (this.usuarios)
@@ -164,6 +197,97 @@ public class SupervisoraDeConexao extends Thread
         {
             System.err.println("Erro no login: " + e);
             return new RespostaDeLogin(false, "Erro interno ao entrar. Tente novamente.", 0, null, null);
+        }
+    }
+
+    // "Esqueci minha senha": gera o token, guarda o hash no banco e envia o link por e-mail.
+    private RespostaDeRecuperacaoDeSenha tratarRecuperacao(PedidoDeRecuperacaoDeSenha p)
+    {
+        // mesma mensagem exista o e-mail ou nao: ninguem descobre quem esta cadastrado
+        final String generica = "Se o e-mail estiver cadastrado, enviamos um link para redefinir a senha. "
+                              + "Confira tambem a caixa de spam.";
+
+        if (ValidadorUsuario.validarEmail(p.getEmail()) != null)
+            return new RespostaDeRecuperacaoDeSenha(false, "Informe um e-mail valido.");
+
+        String base = p.getUrlBase() == null ? "" : p.getUrlBase().trim();
+        while (base.endsWith("/"))
+            base = base.substring(0, base.length() - 1);
+        // seguranca: o link do e-mail so pode apontar para um site nosso. Se aceitasse qualquer
+        // endereco, alguem poderia pedir a recuperacao da conta de outra pessoa com um site falso
+        // e a vitima receberia um e-mail verdadeiro com o link do site falso.
+        if (!BASES_PERMITIDAS.contains(base.toLowerCase()))
+        {
+            System.err.println("urlBase NAO permitida no pedido de recuperacao: " + base
+                + "  (permitidas: " + BASES_PERMITIDAS + "; para mudar, defina APP_URLS_PERMITIDAS)");
+            return new RespostaDeRecuperacaoDeSenha(false, "Erro interno ao enviar o e-mail. Tente novamente.");
+        }
+
+        try
+        {
+            String token = TokenRecuperacao.gerar();
+            long   agora = System.currentTimeMillis();
+
+            Usuario u = this.dao.salvarTokenDeRecuperacao(
+                p.getEmail().trim().toLowerCase(),
+                TokenRecuperacao.hash(token),
+                new Date(agora + VALIDADE_TOKEN_MINUTOS * 60_000L),
+                new Date(agora - INTERVALO_REENVIO_SEGUNDOS * 1000L));
+
+            if (u != null)
+            {
+                final String link    = base + "/pages/auth/redefinirSenha.html?token=" + token;
+                final String nome    = u.getNome();
+                final String destino = u.getEmail();
+
+                // o envio roda em outra thread: a resposta ao cliente sai na hora, existindo o e-mail
+                // ou nao (se demorasse so para quem existe, daria para descobrir quem esta cadastrado)
+                new Thread(() ->
+                {
+                    try
+                    {
+                        this.email.enviarRecuperacao(nome, destino, link);
+                    }
+                    catch (Exception e)
+                    {
+                        System.err.println("Falha ao enviar e-mail de recuperacao para " + destino + ": " + e);
+                    }
+                }).start();
+            }
+
+            return new RespostaDeRecuperacaoDeSenha(true, generica);
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro na recuperacao de senha: " + e);
+            return new RespostaDeRecuperacaoDeSenha(false, "Erro interno. Tente novamente.");
+        }
+    }
+
+    // Tela "nova senha": confere o token (hash, validade, uso unico) e grava o novo hash.
+    private RespostaDeRedefinicaoDeSenha tratarRedefinicao(PedidoDeRedefinicaoDeSenha p)
+    {
+        String erro = ValidadorUsuario.validarSenha(p.getNovaSenha());
+        if (erro != null)
+            return new RespostaDeRedefinicaoDeSenha(false, erro);
+
+        String token = p.getToken() == null ? "" : p.getToken().trim();
+        if (token.isEmpty() || token.length() > 100)
+            return new RespostaDeRedefinicaoDeSenha(false, "Link invalido ou expirado. Solicite um novo.");
+
+        try
+        {
+            String novoHash = BCrypt.withDefaults().hashToString(12, p.getNovaSenha().toCharArray());
+            boolean trocou  = this.dao.redefinirSenha(TokenRecuperacao.hash(token), novoHash);
+
+            if (!trocou)
+                return new RespostaDeRedefinicaoDeSenha(false, "Link invalido ou expirado. Solicite um novo.");
+            return new RespostaDeRedefinicaoDeSenha(true, "Senha alterada com sucesso!");
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao redefinir senha: " + e);
+            return new RespostaDeRedefinicaoDeSenha(false, "Erro interno. Tente novamente.");
         }
     }
 

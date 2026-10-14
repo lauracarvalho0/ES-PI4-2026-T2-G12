@@ -19,6 +19,8 @@ public class AuthController
 {
     public record CadastroRequest(String nome, String email, String cpf, String telefone, String senha) {}
     public record LoginRequest(String email, String senha) {}
+    public record RecuperarRequest(String email, String urlBase) {}
+    public record RedefinirRequest(String token, String senha) {}
 
     @Autowired
     private ConexaoComServidor servidor;
@@ -63,6 +65,48 @@ public class AuthController
                 corpo.put("usuario", usuario);
             }
             return ResponseEntity.status(r.isSucesso() ? HttpStatus.OK : HttpStatus.UNAUTHORIZED).body(corpo);
+        }
+        catch (Exception e)
+        {
+            return indisponivel();
+        }
+    }
+
+    // "Esqueci minha senha": o servidor gera o token e envia o e-mail com o link.
+    @PostMapping("/recuperar-senha")
+    public ResponseEntity<Map<String, Object>> recuperarSenha(@RequestBody RecuperarRequest req)
+    {
+        try
+        {
+            Comunicado resposta = servidor.enviarEReceber(
+                new PedidoDeRecuperacaoDeSenha(req.email(), req.urlBase()));
+
+            RespostaDeRecuperacaoDeSenha r = (RespostaDeRecuperacaoDeSenha) resposta;
+            Map<String, Object> corpo = new LinkedHashMap<>();
+            corpo.put("sucesso", r.isSucesso());
+            corpo.put("mensagem", r.getMensagem());
+            return ResponseEntity.status(r.isSucesso() ? HttpStatus.OK : HttpStatus.BAD_REQUEST).body(corpo);
+        }
+        catch (Exception e)
+        {
+            return indisponivel();
+        }
+    }
+
+    // Tela "nova senha": o servidor confere o token e grava a senha nova.
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<Map<String, Object>> redefinirSenha(@RequestBody RedefinirRequest req)
+    {
+        try
+        {
+            Comunicado resposta = servidor.enviarEReceber(
+                new PedidoDeRedefinicaoDeSenha(req.token(), req.senha()));
+
+            RespostaDeRedefinicaoDeSenha r = (RespostaDeRedefinicaoDeSenha) resposta;
+            Map<String, Object> corpo = new LinkedHashMap<>();
+            corpo.put("sucesso", r.isSucesso());
+            corpo.put("mensagem", r.getMensagem());
+            return ResponseEntity.status(r.isSucesso() ? HttpStatus.OK : HttpStatus.BAD_REQUEST).body(corpo);
         }
         catch (Exception e)
         {
