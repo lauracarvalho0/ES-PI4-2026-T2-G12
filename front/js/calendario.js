@@ -1,20 +1,32 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-  // ===== DADOS DE EXEMPLO =====
-  // Em produção isso viria da API, indexado por data "YYYY-MM-DD".
-  const events = {
-    '2025-05-01': [{ title: 'Adubação de cobertura', location: 'Talhão 01 - Milho', category: 'adubacao' }],
-    '2025-05-05': [{ title: 'Irrigação', location: 'Talhão 03 - Feijão', category: 'irrigacao' }],
-    '2025-05-07': [{ title: 'Inoculação', location: 'Talhão 02 - Soja', category: 'tratamento' }],
-    '2025-05-10': [{ title: 'Monitoramento', location: 'Talhão 02 - Soja', category: 'monitoramento' }],
-    '2025-05-13': [{ title: 'Aplicação de defensivo', location: 'Talhão 01 - Milho', category: 'tratamento', warning: true }],
-    '2025-05-15': [{ title: 'Irrigação', location: 'Talhão 03 - Feijão', category: 'irrigacao' }],
-    '2025-05-20': [{ title: 'Adubação de cobertura', location: 'Talhão 01 - Milho', category: 'adubacao' }],
-    '2025-05-21': [{ title: 'Inoculação', location: 'Talhão 02 - Soja', category: 'tratamento' }],
-    '2025-05-26': [{ title: 'Monitoramento', location: 'Talhão 02 - Soja', category: 'monitoramento' }],
-    '2025-05-28': [{ title: 'Irrigação', location: 'Talhão 03 - Feijão', category: 'irrigacao' }],
-    '2025-05-30': [{ title: 'Colheita', location: 'Talhão 04 - Algodão', category: 'colheita' }]
+  // Se o front foi aberto pelo Spring (porta 8080) usa caminho relativo;
+  // se foi aberto por outro lugar (ex.: Live Server), aponta para o backend.
+  const API = window.location.port === '8080' ? '' : 'http://localhost:8080';
+
+  // ===== DADOS =====
+  // As atividades vêm da API (GET /api/atividades) e ficam indexadas por data "YYYY-MM-DD".
+  // Cada item: { title, location, category, warning, tooltip }
+  let events = {};
+
+  // Tipo do dicionário de dados -> texto exibido e categoria (cor) do calendário
+  const tipoTexto = {
+    PLANTIO: 'Plantio',
+    IRRIGACAO: 'Irrigação',
+    ADUBACAO: 'Adubação de cobertura',
+    TRATAMENTO: 'Tratos culturais',
+    MONITORAMENTO: 'Monitoramento',
+    COLHEITA: 'Colheita'
   };
+  const tipoCategoria = {
+    PLANTIO: 'plantio',
+    IRRIGACAO: 'irrigacao',
+    ADUBACAO: 'adubacao',
+    TRATAMENTO: 'tratamento',
+    MONITORAMENTO: 'monitoramento',
+    COLHEITA: 'colheita'
+  };
+  const statusTexto = { CONCLUIDA: 'Concluída', PENDENTE: 'Pendente', ATRASADA: 'Atrasada' };
 
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -23,10 +35,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const monthNamesShort = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
   const weekdayNames = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
 
-  // Data de referência inicial (a base de exemplo tem eventos em maio/2025)
-  let currentDate = new Date(2025, 4, 1);
+  // Começa no mês atual
+  let currentDate = new Date();
   let currentView = 'month';
-  let activeCategories = new Set(['adubacao', 'irrigacao', 'tratamento', 'monitoramento', 'colheita']);
+  let activeCategories = new Set(['plantio', 'adubacao', 'irrigacao', 'tratamento', 'monitoramento', 'colheita']);
   let pickerYear = currentDate.getFullYear();
 
   const calendarGrid = document.getElementById('calendarGrid');
@@ -40,6 +52,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function pad(n) {
     return String(n).padStart(2, '0');
+  }
+
+  // Escapa texto digitado pelo usuário (nome do plantio, talhão) antes de colocar no HTML
+  function esc(texto) {
+    return String(texto == null ? '' : texto)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   function dateKey(year, month, day) {
@@ -56,6 +78,72 @@ document.addEventListener('DOMContentLoaded', function () {
     return dayEvents.filter((ev) => activeCategories.has(ev.category));
   }
 
+  // ===== MENSAGEM (erros / carregando) =====
+  let calendarMessage = document.getElementById('calendarMessage');
+  if (!calendarMessage) {
+    calendarMessage = document.createElement('p');
+    calendarMessage.id = 'calendarMessage';
+    calendarMessage.setAttribute('role', 'alert');
+    calendarMessage.style.cssText = 'display:none;margin:0 0 12px;font-size:14px;';
+    const toolbar = document.querySelector('.calendar-toolbar');
+    if (toolbar) toolbar.before(calendarMessage);
+  }
+
+  function mostrarMensagem(texto, ok) {
+    calendarMessage.style.color = ok ? '#2e7d32' : '#c62828';
+    calendarMessage.textContent = texto;
+    calendarMessage.style.display = texto ? 'block' : 'none';
+  }
+
+  // ===== API =====
+  // Transforma a lista da API no mapa { 'YYYY-MM-DD': [eventos] }.
+  // a.data já é a data certa: a realizada se concluída, senão a prevista (texto yyyy-MM-dd, sem fuso).
+  function montarEventos(atividades) {
+    const mapa = {};
+    atividades.forEach(function (a) {
+      const categoria = tipoCategoria[a.tipoAtividade];
+      if (!categoria || !a.data) return; // tipo desconhecido: ignora
+
+      const titulo = tipoTexto[a.tipoAtividade];
+      const local = a.talhao + ' - ' + a.plantioNome;
+      const status = statusTexto[a.status] || '';
+
+      if (!mapa[a.data]) mapa[a.data] = [];
+      mapa[a.data].push({
+        title: titulo,
+        location: local,
+        category: categoria,
+        warning: a.status === 'ATRASADA', // triângulo de aviso nas atrasadas
+        tooltip: titulo + ' · ' + local + (status ? ' (' + status + ')' : '')
+      });
+    });
+    return mapa;
+  }
+
+  function carregarAtividades(usuario) {
+    mostrarMensagem('Carregando atividades...', true);
+
+    fetch(API + '/api/atividades?usuarioCodigo=' + encodeURIComponent(usuario.codigo))
+      .then(function (resp) {
+        return resp.json().catch(function () {
+          return { sucesso: false, mensagem: 'Resposta inesperada do servidor.' };
+        });
+      })
+      .catch(function () {
+        return { sucesso: false, mensagem: 'Não foi possível conectar ao servidor.' };
+      })
+      .then(function (r) {
+        if (!r.sucesso) {
+          mostrarMensagem(r.mensagem, false);
+          return;
+        }
+        events = montarEventos(r.atividades || []);
+        mostrarMensagem('', true);
+        render();
+      });
+  }
+
+  // ===== DESENHO =====
   function warningIconSvg() {
     return `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"></path><path d="M12 10v4"></path><path d="M12 17h.01"></path></svg>`;
   }
@@ -63,9 +151,9 @@ document.addEventListener('DOMContentLoaded', function () {
   function buildEventChip(ev) {
     const warning = ev.warning ? warningIconSvg() : '';
     return `
-      <div class="calendar-event cat-${ev.category}">
-        <p class="calendar-event-title">${warning}<span>${ev.title}</span></p>
-        <p class="calendar-event-location"><span class="culture-dot"></span>${ev.location}</p>
+      <div class="calendar-event cat-${ev.category}" title="${esc(ev.tooltip)}">
+        <p class="calendar-event-title">${warning}<span>${esc(ev.title)}</span></p>
+        <p class="calendar-event-location"><span class="culture-dot"></span>${esc(ev.location)}</p>
       </div>
     `;
   }
@@ -158,10 +246,10 @@ document.addEventListener('DOMContentLoaded', function () {
       const d = new Date(year, month, group.day);
       const itemsHtml = group.events.map((ev) => `
         <div class="calendar-list-item">
-          <span class="calendar-list-item-dot cat-${ev.category}" style="background-color: var(--${categoryColorVar(ev.category)});"></span>
+          <span class="calendar-list-item-dot cat-${ev.category}" style="background-color: ${categoryColor(ev.category)};"></span>
           <div>
-            <p class="calendar-list-item-title">${ev.title}</p>
-            <p class="calendar-list-item-meta">${ev.location}</p>
+            <p class="calendar-list-item-title">${esc(ev.title)}</p>
+            <p class="calendar-list-item-meta">${esc(ev.location)}</p>
           </div>
         </div>
       `).join('');
@@ -178,15 +266,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }).join('');
   }
 
-  function categoryColorVar(category) {
+  // Cor de cada categoria (mesmas variáveis do dashboard.css; "plantio" usa o verde-escuro do site)
+  function categoryColor(category) {
     const map = {
-      adubacao: 'accent-green',
-      irrigacao: 'blue',
-      tratamento: 'amber',
-      monitoramento: 'purple',
-      colheita: 'pink'
+      plantio: 'var(--dark-green, #163a2b)',
+      adubacao: 'var(--accent-green)',
+      irrigacao: 'var(--blue)',
+      tratamento: 'var(--amber)',
+      monitoramento: 'var(--purple)',
+      colheita: 'var(--pink)'
     };
-    return map[category] || 'text-gray';
+    return map[category] || 'var(--text-gray)';
   }
 
   function renderMonthLabel() {
@@ -220,11 +310,13 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ===== NAVEGAÇÃO =====
+  // No modo mês vai sempre para o dia 1 do mês vizinho. Somar 1 mês a um dia 29-31
+  // pularia um mês (31/out + 1 mês = 3/dez).
   document.getElementById('btnPrev').addEventListener('click', function () {
     if (currentView === 'week') {
       currentDate.setDate(currentDate.getDate() - 7);
     } else {
-      currentDate.setMonth(currentDate.getMonth() - 1);
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
     }
     pickerYear = currentDate.getFullYear();
     render();
@@ -234,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (currentView === 'week') {
       currentDate.setDate(currentDate.getDate() + 7);
     } else {
-      currentDate.setMonth(currentDate.getMonth() + 1);
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
     }
     pickerYear = currentDate.getFullYear();
     render();
@@ -310,5 +402,16 @@ document.addEventListener('DOMContentLoaded', function () {
     filtersWrap.classList.remove('is-open');
   });
 
-  render();
+  // ===== INÍCIO =====
+  render(); // desenha o calendário vazio enquanto as atividades carregam
+
+  let usuario = null;
+  try { usuario = JSON.parse(sessionStorage.getItem('usuario')); } catch (err) {}
+
+  if (!usuario || !usuario.codigo) {
+    mostrarMensagem('Sua sessão expirou. Entre novamente.', false);
+    setTimeout(function () { window.location.href = '../auth/login.html'; }, 1500);
+  } else {
+    carregarAtividades(usuario);
+  }
 });
