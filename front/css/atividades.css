@@ -38,6 +38,28 @@
   border-bottom: none;
 }
 
+.btn-concluir {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--accent-green);
+  background: transparent;
+  border: 1px solid var(--accent-green);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.btn-concluir:hover {
+  background-color: var(--green-bg);
+}
+
+.btn-concluir:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .activity-date {
   width: 56px;
   flex-shrink: 0;

@@ -104,7 +104,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function mostrarPlantios(plantios) {
-    document.getElementById('statTotal').textContent = plantios.length;
+    // "Plantios ativos" = os que ainda estao em andamento (nao conta os concluidos)
+    document.getElementById('statTotal').textContent = plantios.length - contar(plantios, 'CONCLUIDO');
     document.getElementById('statInicial').textContent = contar(plantios, 'FASE_INICIAL');
     document.getElementById('statDesenvolvimento').textContent = contar(plantios, 'DESENVOLVIMENTO');
     document.getElementById('statFinal').textContent = contar(plantios, 'FASE_FINAL');

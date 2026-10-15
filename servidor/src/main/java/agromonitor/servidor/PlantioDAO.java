@@ -3,9 +3,12 @@ package agromonitor.servidor;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import agromonitor.comum.AtividadeResumo;
 import agromonitor.comum.PlantioResumo;
 
 import org.bson.Document;
@@ -13,6 +16,7 @@ import org.bson.Document;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.*;
+import com.mongodb.client.result.UpdateResult;
 
 // Unica classe que fala com o MongoDB para plantios.
 // Segue o dicionario de dados: a colecao plantios embute a lista de atividades.
@@ -126,7 +130,7 @@ public class PlantioDAO
             Date   dataProxima = null;
             for (Document a : atividades)
             {
-                if (!"PENDENTE".equals(a.getString("status")))
+                if ("CONCLUIDA".equals(a.getString("status")))
                     continue;
                 Date prevista = a.getDate("dataPrevista");
                 if (dataProxima == null || prevista.before(dataProxima))
@@ -146,9 +150,144 @@ public class PlantioDAO
                 atividades.size(),
                 tipoProxima,
                 dataProxima == null ? null : paraTexto(dataProxima),
-                d.getInteger("progresso"),
-                d.getString("status")));
+                calcularProgresso(atividades),
+                calcularFase(calcularProgresso(atividades))));
         }
+        return lista;
+    }
+
+    // Registra uma atividade dentro do plantio. So funciona se o plantio for desse usuario
+    // e estiver ativo. Devolve o codigo da atividade, ou 0 se o plantio nao foi encontrado.
+    // Se concluida, a data e a "realizada" (e tambem a prevista); senao e so a prevista.
+    public int registrarAtividade(int usuarioCodigo, int plantioCodigo, String tipo, String status,
+                                  LocalDate data, String quantidade, String responsavel, String observacoes)
+    {
+        int codigo = reservarCodigos("atividades", 1);
+
+        Document atividade = new Document("codigo", codigo)
+            .append("tipoAtividade", tipo)
+            .append("dataPrevista", paraData(data))
+            .append("dataRealizada", status.equals("CONCLUIDA") ? paraData(data) : null)
+            .append("status", status)
+            .append("observacoes", observacoes)
+            .append("quantidade", quantidade)
+            .append("responsavel", responsavel);
+
+        UpdateResult resultado = plantios().updateOne(
+            Filters.and(
+                Filters.eq("codigo", plantioCodigo),
+                Filters.eq("usuario.codigo", usuarioCodigo),
+                Filters.eq("ativo", true)),
+            Updates.push("atividades", atividade));
+
+        if (resultado.getMatchedCount() == 0)
+            return 0;
+
+        atualizarProgresso(plantioCodigo);
+        return codigo;
+    }
+
+    // ---------- progresso e fase do plantio (saem das atividades) ----------
+
+    // progresso = atividades concluidas / total de atividades, em %
+    private static int calcularProgresso(List<Document> atividades)
+    {
+        if (atividades.isEmpty())
+            return 0;
+
+        int concluidas = 0;
+        for (Document a : atividades)
+            if ("CONCLUIDA".equals(a.getString("status")))
+                concluidas++;
+
+        return concluidas * 100 / atividades.size();
+    }
+
+    // 0-33% inicial, 34-66% desenvolvimento, 67-99% fase final, 100% concluido
+    private static String calcularFase(int progresso)
+    {
+        if (progresso >= 100) return "CONCLUIDO";
+        if (progresso >= 67)  return "FASE_FINAL";
+        if (progresso >= 34)  return "DESENVOLVIMENTO";
+        return "FASE_INICIAL";
+    }
+
+    // Recalcula e grava o progresso e a fase no plantio (chamado sempre que as atividades mudam)
+    private void atualizarProgresso(int plantioCodigo)
+    {
+        Document d = plantios().find(Filters.eq("codigo", plantioCodigo)).first();
+        if (d == null)
+            return;
+
+        int progresso = calcularProgresso(d.getList("atividades", Document.class, new ArrayList<Document>()));
+
+        plantios().updateOne(Filters.eq("codigo", plantioCodigo),
+            Updates.combine(
+                Updates.set("progresso", progresso),
+                Updates.set("status", calcularFase(progresso))));
+    }
+
+    // Marca uma atividade existente como concluida (hoje). So funciona se o plantio for do usuario
+    // e a atividade ainda nao estiver concluida. Devolve false se nao encontrou.
+    public boolean concluirAtividade(int usuarioCodigo, int plantioCodigo, int atividadeCodigo)
+    {
+        UpdateResult resultado = plantios().updateOne(
+            Filters.and(
+                Filters.eq("codigo", plantioCodigo),
+                Filters.eq("usuario.codigo", usuarioCodigo),
+                Filters.eq("ativo", true),
+                Filters.elemMatch("atividades", Filters.and(
+                    Filters.eq("codigo", atividadeCodigo),
+                    Filters.ne("status", "CONCLUIDA")))),
+            Updates.combine(
+                Updates.set("atividades.$.status", "CONCLUIDA"),
+                Updates.set("atividades.$.dataRealizada", paraData(LocalDate.now()))));
+
+        if (resultado.getMatchedCount() == 0)
+            return false;
+
+        atualizarProgresso(plantioCodigo);
+        return true;
+    }
+
+    // Todas as atividades de todos os plantios ativos do usuario, da mais antiga para a mais recente.
+    // O status e calculado pela data (como diz o dicionario): pendente com data ja passada vira ATRASADA.
+    public ArrayList<AtividadeResumo> listarAtividadesPorUsuario(int usuarioCodigo)
+    {
+        ArrayList<AtividadeResumo> lista = new ArrayList<AtividadeResumo>();
+        LocalDate hoje = LocalDate.now();
+
+        for (Document d : plantios().find(Filters.and(
+                Filters.eq("usuario.codigo", usuarioCodigo), Filters.eq("ativo", true))))
+        {
+            String nome   = d.getString("nome");
+            String talhao = ((Document) d.get("talhao")).getString("nome");
+
+            for (Document a : d.getList("atividades", Document.class, new ArrayList<Document>()))
+            {
+                String status = a.getString("status");
+                Date   data   = "CONCLUIDA".equals(status) && a.getDate("dataRealizada") != null
+                                ? a.getDate("dataRealizada") : a.getDate("dataPrevista");
+                String texto  = paraTexto(data);
+
+                if ("PENDENTE".equals(status) && LocalDate.parse(texto).isBefore(hoje))
+                    status = "ATRASADA";
+
+                lista.add(new AtividadeResumo(
+                    a.getInteger("codigo"), d.getInteger("codigo"), nome, talhao,
+                    a.getString("tipoAtividade"), texto, status,
+                    a.getString("quantidade"), a.getString("responsavel"), a.getString("observacoes")));
+            }
+        }
+
+        Collections.sort(lista, new Comparator<AtividadeResumo>()
+        {
+            public int compare(AtividadeResumo x, AtividadeResumo y)
+            {
+                int c = x.getData().compareTo(y.getData()); // "yyyy-MM-dd" ordena como texto
+                return c != 0 ? c : Integer.compare(x.getCodigo(), y.getCodigo());
+            }
+        });
         return lista;
     }
 }
