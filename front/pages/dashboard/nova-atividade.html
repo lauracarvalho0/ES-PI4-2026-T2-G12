@@ -161,17 +161,15 @@
             <div class="field-group">
               <label for="plantio">Plantio</label>
               <select id="plantio" name="plantio">
-                <option value="Soja Safra 2025/26 - Talhão 01" selected>Soja Safra 2025/26 - Talhão 01</option>
-                <option value="Milho Verão 2025/26 - Talhão 01">Milho Verão 2025/26 - Talhão 01</option>
-                <option value="Soja 2025/26 - Talhão 02">Soja 2025/26 - Talhão 02</option>
-                <option value="Milho Verão 2025/26 - Talhão 03">Milho Verão 2025/26 - Talhão 03</option>
+                <option value="">Carregando plantios...</option>
               </select>
             </div>
 
             <div class="field-group">
               <label for="atividade">Atividade</label>
               <select id="atividade" name="atividade">
-                <option value="Irrigação" selected>Irrigação</option>
+                <option value="" selected>Selecione a atividade</option>
+                <option value="Irrigação">Irrigação</option>
                 <option value="Adubação de cobertura">Adubação de cobertura</option>
                 <option value="Aplicação de defensivo">Aplicação de defensivo</option>
                 <option value="Monitoramento">Monitoramento</option>
@@ -183,7 +181,8 @@
               <label for="status">Status da atividade</label>
               <span class="status-dot" id="statusDot"></span>
               <select id="status" name="status">
-                <option value="Concluída" selected>Concluída</option>
+                <option value="" selected>Selecione o status</option>
+                <option value="Concluída">Concluída</option>
                 <option value="Pendente">Pendente</option>
                 <option value="Atrasada">Atrasada</option>
                 <option value="Planejada">Planejada</option>
@@ -194,24 +193,23 @@
           <div class="field-grid">
             <div class="field-group">
               <label for="dataExecucao">Data de execução</label>
-              <input type="date" id="dataExecucao" name="dataExecucao" value="2025-05-22">
+              <input type="date" id="dataExecucao" name="dataExecucao">
             </div>
 
             <div class="field-group unit-field">
               <label for="quantidade">Quantidade / Dose (opcional)</label>
-              <input type="text" id="quantidade" name="quantidade" placeholder="0" value="22">
-              <span class="unit-suffix">mm</span>
+              <input type="text" id="quantidade" name="quantidade" maxlength="30" placeholder="Ex.: 22 mm ou 40 kg/ha">
             </div>
 
             <div class="field-group">
               <label for="responsavel">Responsável (opcional)</label>
-              <input type="text" id="responsavel" name="responsavel" placeholder="Nome do responsável" value="João da Silva">
+              <input type="text" id="responsavel" name="responsavel" maxlength="100" placeholder="Nome do responsável">
             </div>
           </div>
 
           <div class="field-group">
             <label for="observacoes">Observações (opcional)</label>
-            <textarea id="observacoes" name="observacoes" maxlength="200" placeholder="Adicione observações sobre a atividade">Irrigação realizada por gotejamento</textarea>
+            <textarea id="observacoes" name="observacoes" maxlength="200" placeholder="Adicione observações sobre a atividade"></textarea>
             <p class="char-counter"><span id="charCount">0</span>/200</p>
           </div>
         </div>
@@ -262,6 +260,8 @@
         </div>
 
       </form>
+
+      <p id="formMessage" role="alert" style="display:none;margin:12px 0 0;font-size:14px;color:#c62828;"></p>
 
       <!-- WIZARD ACTIONS -->
       <div class="wizard-actions">

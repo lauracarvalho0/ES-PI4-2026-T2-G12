@@ -121,6 +121,12 @@ public class SupervisoraDeConexao extends Thread
                     this.usuario.receba(tratarCadastroDePlantio((PedidoDeCadastroDePlantio) comunicado));
                 else if (comunicado instanceof PedidoDeListagemDePlantios)
                     this.usuario.receba(tratarListagemDePlantios((PedidoDeListagemDePlantios) comunicado));
+                else if (comunicado instanceof PedidoDeRegistroDeAtividade)
+                    this.usuario.receba(tratarRegistroDeAtividade((PedidoDeRegistroDeAtividade) comunicado));
+                else if (comunicado instanceof PedidoDeConclusaoDeAtividade)
+                    this.usuario.receba(tratarConclusaoDeAtividade((PedidoDeConclusaoDeAtividade) comunicado));
+                else if (comunicado instanceof PedidoDeListagemDeAtividades)
+                    this.usuario.receba(tratarListagemDeAtividades((PedidoDeListagemDeAtividades) comunicado));
                 else if (comunicado instanceof PedidoDeRecuperacaoDeSenha)
                     this.usuario.receba(tratarRecuperacao((PedidoDeRecuperacaoDeSenha) comunicado));
                 else if (comunicado instanceof PedidoDeRedefinicaoDeSenha)
@@ -285,6 +291,85 @@ public class SupervisoraDeConexao extends Thread
         {
             System.err.println("Erro ao listar plantios: " + e);
             return new RespostaDeListagemDePlantios(false, "Erro interno ao buscar os plantios. Tente novamente.", null);
+        }
+    }
+
+    private RespostaDeRegistroDeAtividade tratarRegistroDeAtividade(PedidoDeRegistroDeAtividade p)
+    {
+        String erro = primeiroErro(
+            ValidadorAtividade.validarIds(p.getUsuarioCodigo(), p.getPlantioCodigo()),
+            ValidadorAtividade.validarTipo(p.getTipoAtividade()),
+            ValidadorAtividade.validarStatus(p.getStatus()),
+            ValidadorAtividade.validarData(p.getDataExecucao(), p.getStatus()),
+            ValidadorAtividade.validarQuantidade(p.getQuantidade()),
+            ValidadorAtividade.validarResponsavel(p.getResponsavel()),
+            ValidadorAtividade.validarObservacoes(p.getObservacoes()));
+        if (erro != null)
+            return new RespostaDeRegistroDeAtividade(false, erro, 0);
+
+        try
+        {
+            String quantidade  = p.getQuantidade()  == null ? "" : p.getQuantidade().trim();
+            String responsavel = p.getResponsavel() == null ? "" : p.getResponsavel().trim();
+            String observacoes = p.getObservacoes() == null ? "" : p.getObservacoes().trim();
+
+            int codigo = this.plantioDao.registrarAtividade(
+                p.getUsuarioCodigo(),
+                p.getPlantioCodigo(),
+                p.getTipoAtividade(),
+                p.getStatus(),
+                ValidadorPlantio.lerData(p.getDataExecucao()),
+                quantidade.isEmpty()  ? null : quantidade,
+                responsavel.isEmpty() ? null : responsavel,
+                observacoes.isEmpty() ? null : observacoes);
+
+            if (codigo == 0)
+                return new RespostaDeRegistroDeAtividade(false, "Plantio nao encontrado.", 0);
+            return new RespostaDeRegistroDeAtividade(true, "Atividade registrada com sucesso!", codigo);
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao registrar atividade: " + e);
+            return new RespostaDeRegistroDeAtividade(false, "Erro interno ao registrar a atividade. Tente novamente.", 0);
+        }
+    }
+
+    private RespostaDeConclusaoDeAtividade tratarConclusaoDeAtividade(PedidoDeConclusaoDeAtividade p)
+    {
+        String erro = ValidadorAtividade.validarIds(p.getUsuarioCodigo(), p.getPlantioCodigo());
+        if (erro == null && p.getAtividadeCodigo() <= 0)
+            erro = "Atividade nao identificada.";
+        if (erro != null)
+            return new RespostaDeConclusaoDeAtividade(false, erro);
+
+        try
+        {
+            if (!this.plantioDao.concluirAtividade(p.getUsuarioCodigo(), p.getPlantioCodigo(), p.getAtividadeCodigo()))
+                return new RespostaDeConclusaoDeAtividade(false, "Atividade nao encontrada ou ja concluida.");
+            return new RespostaDeConclusaoDeAtividade(true, "Atividade concluida com sucesso!");
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao concluir atividade: " + e);
+            return new RespostaDeConclusaoDeAtividade(false, "Erro interno ao concluir a atividade. Tente novamente.");
+        }
+    }
+
+    private RespostaDeListagemDeAtividades tratarListagemDeAtividades(PedidoDeListagemDeAtividades p)
+    {
+        String erro = ValidadorPlantio.validarUsuario(p.getUsuarioCodigo());
+        if (erro != null)
+            return new RespostaDeListagemDeAtividades(false, erro, null);
+
+        try
+        {
+            return new RespostaDeListagemDeAtividades(true, "OK",
+                this.plantioDao.listarAtividadesPorUsuario(p.getUsuarioCodigo()));
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao listar atividades: " + e);
+            return new RespostaDeListagemDeAtividades(false, "Erro interno ao buscar as atividades. Tente novamente.", null);
         }
     }
 
