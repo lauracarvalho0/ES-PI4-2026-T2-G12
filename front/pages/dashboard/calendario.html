@@ -132,6 +132,8 @@
 
       <div class="calendar-panel">
 
+        <p id="calendarMessage" role="alert" style="display:none;margin:0 0 12px;font-size:14px;"></p>
+
         <!-- TOOLBAR -->
         <div class="calendar-toolbar">
           <div class="calendar-nav">
@@ -179,6 +181,11 @@
               <div class="calendar-filters-dropdown">
                 <p class="calendar-filters-title">Mostrar categorias</p>
                 <label class="calendar-filter-option">
+                  <input type="checkbox" value="plantio" checked>
+                  <span class="calendar-filter-dot" style="background-color: var(--dark-green, #163a2b);"></span>
+                  Plantio
+                </label>
+                <label class="calendar-filter-option">
                   <input type="checkbox" value="adubacao" checked>
                   <span class="calendar-filter-dot" style="background-color: var(--accent-green);"></span>
                   Adubação
@@ -221,6 +228,7 @@
 
         <!-- LEGEND -->
         <div class="calendar-legend">
+          <span class="calendar-legend-item"><span class="calendar-legend-dot cat-plantio"></span>Plantio</span>
           <span class="calendar-legend-item"><span class="calendar-legend-dot cat-adubacao"></span>Adubação</span>
           <span class="calendar-legend-item"><span class="calendar-legend-dot cat-irrigacao"></span>Irrigação</span>
           <span class="calendar-legend-item"><span class="calendar-legend-dot cat-tratamento"></span>Tratamento</span>
@@ -237,4 +245,4 @@
   <script src="/js/calendario.js"></script>
 
 </body>
-</html>
+</html> 
