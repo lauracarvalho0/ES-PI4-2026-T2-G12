@@ -7,6 +7,32 @@ import java.util.*;
 
 import agromonitor.comum.*;
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import agromonitor.comum.atividade.PedidoDeConclusaoDeAtividade;
+import agromonitor.comum.atividade.PedidoDeListagemDeAtividades;
+import agromonitor.comum.atividade.PedidoDeRegistroDeAtividade;
+import agromonitor.comum.atividade.RespostaDeConclusaoDeAtividade;
+import agromonitor.comum.atividade.RespostaDeListagemDeAtividades;
+import agromonitor.comum.atividade.RespostaDeRegistroDeAtividade;
+import agromonitor.comum.auth.PedidoDeCadastro;
+import agromonitor.comum.auth.PedidoDeLogin;
+import agromonitor.comum.auth.PedidoDeRecuperacaoDeSenha;
+import agromonitor.comum.auth.PedidoDeRedefinicaoDeSenha;
+import agromonitor.comum.auth.RespostaDeCadastro;
+import agromonitor.comum.auth.RespostaDeLogin;
+import agromonitor.comum.auth.RespostaDeRecuperacaoDeSenha;
+import agromonitor.comum.auth.RespostaDeRedefinicaoDeSenha;
+import agromonitor.comum.plantio.PedidoDeCadastroDePlantio;
+import agromonitor.comum.plantio.PedidoDeListagemDePlantios;
+import agromonitor.comum.plantio.RespostaDeCadastroDePlantio;
+import agromonitor.comum.plantio.RespostaDeListagemDePlantios;
+import agromonitor.servidor.dao.PlantioDAO;
+import agromonitor.servidor.dao.UsuarioDAO;
+import agromonitor.servidor.email.EmailService;
+import agromonitor.servidor.modelo.TokenRecuperacao;
+import agromonitor.servidor.modelo.Usuario;
+import agromonitor.servidor.validacao.ValidadorAtividade;
+import agromonitor.servidor.validacao.ValidadorPlantio;
+import agromonitor.servidor.validacao.ValidadorUsuario;
 
 // Uma thread por cliente conectado. Recebe os comunicados e atende cada um.
 // No exemplo do professor o "if instanceof" fazia a conta; aqui ele chama
@@ -85,7 +111,7 @@ public class SupervisoraDeConexao extends Thread
             receptor = new ObjectInputStream(this.conexao.getInputStream());
             // seguranca: so aceita desserializar classes do nosso pacote
             receptor.setObjectInputFilter(
-                ObjectInputFilter.Config.createFilter("agromonitor.comum.*;java.lang.*;!*"));
+                ObjectInputFilter.Config.createFilter("agromonitor.comum.**;java.lang.*;!*"));
         }
         catch (Exception erro)
         {

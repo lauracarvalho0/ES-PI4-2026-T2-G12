@@ -4,6 +4,9 @@ import java.net.*;
 import java.util.*;
 
 import agromonitor.comum.*;
+import agromonitor.servidor.dao.PlantioDAO;
+import agromonitor.servidor.dao.UsuarioDAO;
+import agromonitor.servidor.email.EmailService;
 
 // Thread que so aceita conexoes e, para cada uma, dispara uma SupervisoraDeConexao.
 // Fica curta e rapida de proposito, para voltar logo a aceitar novos clientes.

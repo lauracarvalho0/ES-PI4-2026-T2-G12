@@ -6,6 +6,9 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
 import agromonitor.comum.*;
+import agromonitor.servidor.dao.PlantioDAO;
+import agromonitor.servidor.dao.UsuarioDAO;
+import agromonitor.servidor.email.EmailService;
 
 public class Servidor
 {
