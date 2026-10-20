@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import agromonitor.comum.*;
 import agromonitor.backend.ConexaoComServidor;
 import agromonitor.comum.Comunicado;
 import agromonitor.comum.plantio.PedidoDeCadastroDePlantio;
