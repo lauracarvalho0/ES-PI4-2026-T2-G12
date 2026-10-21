@@ -71,11 +71,13 @@ body {
 .btn-solid {
   background-color: var(--dark-green);
   color: var(--white);
+  text-decoration: none;
 }
 
 .btn-outline {
   background-color: transparent;
   color: var(--dark-green);
+  text-decoration: none;
 }
 
 .hero-content {
