@@ -1,77 +1,173 @@
-// ===== DADOS MOCK (substitua por dados vindos do backend/API) =====
-const plantiosData = [
-  {
-    id: 1,
-    nome: 'Milho Verão 2025/26',
-    cultura: 'Milho',
-    culturaClass: 'milho',
-    talhao: 'Talhão 01',
-    dataPlantio: '20/05/2026',
-    concluidas: 7,
-    pendentes: 2,
-    atrasadas: 0,
-    progresso: 78
-  },
-  {
-    id: 2,
-    nome: 'Soja 2025/26',
-    cultura: 'Soja',
-    culturaClass: 'soja',
-    talhao: 'Talhão 02',
-    dataPlantio: '15/05/2026',
-    concluidas: 6,
-    pendentes: 1,
-    atrasadas: 1,
-    progresso: 60
-  },
-  {
-    id: 3,
-    nome: 'Milho Safrinha 2025/26',
-    cultura: 'Milho',
-    culturaClass: 'milho',
-    talhao: 'Talhão 03',
-    dataPlantio: '28/04/2026',
-    concluidas: 2,
-    pendentes: 2,
-    atrasadas: 1,
-    progresso: 40
-  },
-  {
-    id: 4,
-    nome: 'Feijão 2025/26',
-    cultura: 'Feijão',
-    culturaClass: 'feijao',
-    talhao: 'Talhão 01',
-    dataPlantio: '10/05/2026',
-    concluidas: 0,
-    pendentes: 0,
-    atrasadas: 0,
-    progresso: 0
-  }
-];
+// ===== DADOS (vindos do banco, pelo backend) =====
+// Nada aqui e fixo: tudo e carregado de GET /api/plantios e GET /api/atividades
+// e as contas (concluidas, pendentes, atrasadas...) sao feitas no navegador.
+let plantiosData = [];    // lista de plantios do usuario (PlantioResumo)
+let atividadesData = [];  // lista de atividades de todos os plantios (AtividadeResumo)
 
-const atividadesProximasData = [
-  { plantioId: 2, dia: '03', mes: 'JUN', titulo: 'Adubação de cobertura', status: 'pendente' },
-  { plantioId: 3, dia: '05', mes: 'JUN', titulo: 'Aplicação de defensivos', status: 'pendente' },
-  { plantioId: 2, dia: '07', mes: 'JUN', titulo: 'Monitoramento', status: 'atrasada' },
-  { plantioId: 1, dia: '10', mes: 'JUN', titulo: 'Tratos culturais', status: 'pendente' }
-];
+// Se o front foi aberto pelo Spring (porta 8080) usa caminho relativo;
+// se foi aberto por outro lugar (ex.: Live Server), aponta para o backend.
+const API = window.location.port === '8080' ? '' : 'http://localhost:8080';
 
-// Estado atual dos filtros
+// Estado atual dos filtros ('todos' / 'todas' = sem filtro)
 const filtros = {
-  periodo: '01/05/2026 - 31/05/2026',
-  plantio: 'Todos os plantios',
-  cultura: 'Todas as culturas',
-  talhao: 'Todos os talhões'
+  periodo: 'todo',
+  plantio: 'todos',
+  cultura: 'todas',
+  talhao: 'todos'
 };
 
 document.addEventListener('DOMContentLoaded', function () {
   setupDropdowns();
   setupExportar();
-  render();
+  carregarDados();
 });
 
-// ===== DROPDOWNS DOS FILTROS =====
+// ===== CARREGAMENTO =====
+function carregarDados() {
+  let usuario = null;
+  try { usuario = JSON.parse(sessionStorage.getItem('usuario')); } catch (err) {}
+
+  if (!usuario || !usuario.codigo) {
+    mostrarErro('Sua sessão expirou. Entre novamente.');
+    setTimeout(function () { window.location.href = '../auth/login.html'; }, 1500);
+    return;
+  }
+
+  mostrarErro('Carregando relatório...');
+
+  const codigo = encodeURIComponent(usuario.codigo);
+  Promise.all([
+    buscarJson(API + '/api/plantios?usuarioCodigo=' + codigo),
+    buscarJson(API + '/api/atividades?usuarioCodigo=' + codigo)
+  ]).then(function (respostas) {
+    const rPlantios = respostas[0];
+    const rAtividades = respostas[1];
+
+    if (!rPlantios.sucesso) { mostrarErro(rPlantios.mensagem); return; }
+    if (!rAtividades.sucesso) { mostrarErro(rAtividades.mensagem); return; }
+
+    plantiosData = rPlantios.plantios;
+    atividadesData = rAtividades.atividades;
+
+    montarFiltros();
+    render();
+
+    if (plantiosData.length === 0) {
+      mostrarErro('Você ainda não tem plantios. Cadastre um plantio para ver o relatório.');
+    }
+  });
+}
+
+// Faz o GET e sempre devolve um objeto {sucesso, mensagem, ...}, mesmo se der erro de rede
+function buscarJson(url) {
+  return fetch(url)
+    .then(function (resp) {
+      return resp.json().catch(function () {
+        return { sucesso: false, mensagem: 'Resposta inesperada do servidor.' };
+      });
+    })
+    .catch(function () {
+      return { sucesso: false, mensagem: 'Não foi possível conectar ao servidor.' };
+    });
+}
+
+// Mostra uma mensagem no lugar da tabela e esvazia o resto
+function mostrarErro(texto) {
+  plantiosData = [];
+  atividadesData = [];
+  render();
+  const emptyState = document.getElementById('emptyState');
+  emptyState.textContent = texto;
+  emptyState.style.display = 'block';
+}
+
+// ===== FUNCOES AUXILIARES =====
+
+// Escapa texto digitado pelo usuario antes de colocar no HTML (evita injecao de HTML/JS)
+function esc(texto) {
+  return String(texto == null ? '' : texto)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// "Café" -> "cafe" (usado na cor da bolinha da cultura)
+function normalizar(texto) {
+  return String(texto).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+// Date -> "yyyy-MM-dd" (no fuso do computador)
+function paraIso(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+// "2026-10-20" -> "20/10/2026"
+function formatarData(iso) {
+  const p = iso.split('-');
+  return p[2] + '/' + p[1] + '/' + p[0];
+}
+
+const tipoTexto = {
+  PLANTIO: 'Plantio',
+  IRRIGACAO: 'Irrigação',
+  ADUBACAO: 'Adubação de cobertura',
+  TRATAMENTO: 'Tratos culturais',
+  MONITORAMENTO: 'Monitoramento',
+  COLHEITA: 'Colheita'
+};
+
+const meses = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+
+// Intervalo [inicio, fim] em "yyyy-MM-dd" do periodo escolhido, ou null para "todo o periodo"
+function intervaloDoPeriodo(periodo) {
+  const hoje = new Date();
+  if (periodo === 'mes') {
+    return [paraIso(new Date(hoje.getFullYear(), hoje.getMonth(), 1)),
+            paraIso(new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0))];
+  }
+  if (periodo === 'ultimos30') {
+    return [paraIso(new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - 30)), paraIso(hoje)];
+  }
+  if (periodo === 'proximos30') {
+    return [paraIso(hoje), paraIso(new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + 30))];
+  }
+  return null;
+}
+
+// ===== FILTROS =====
+
+// Preenche os selects de plantio, cultura e talhao com o que existe no banco
+function montarFiltros() {
+  preencherSelect('filtroPlantio', plantiosData.map(function (p) {
+    return { valor: String(p.codigo), texto: p.nome };
+  }));
+  preencherSelect('filtroCultura', unicos(plantiosData.map(function (p) { return p.cultura; })).map(function (c) {
+    return { valor: c, texto: c };
+  }));
+  preencherSelect('filtroTalhao', unicos(plantiosData.map(function (p) { return p.talhao; })).map(function (t) {
+    return { valor: t, texto: t };
+  }));
+}
+
+function unicos(lista) {
+  return lista.filter(function (x, i) { return lista.indexOf(x) === i; }).sort();
+}
+
+// Mantem a primeira opcao ("Todos...") e acrescenta as demais
+function preencherSelect(id, opcoes) {
+  const select = document.getElementById(id);
+  while (select.options.length > 1) select.remove(1);
+  opcoes.forEach(function (o) {
+    const opt = document.createElement('option');
+    opt.value = o.valor;
+    opt.textContent = o.texto; // textContent: nao interpreta HTML
+    select.appendChild(opt);
+  });
+  select.value = select.options[0].value;
+}
+
 function setupDropdowns() {
   document.querySelectorAll('.rel-native-select').forEach(function (select) {
     select.addEventListener('change', function () {
@@ -81,51 +177,62 @@ function setupDropdowns() {
   });
 }
 
-// ===== FILTRAGEM =====
+// Plantios que passam nos filtros de plantio, cultura e talhao
 function getPlantiosFiltrados() {
   return plantiosData.filter(function (p) {
-    const okPlantio = filtros.plantio === 'Todos os plantios' || p.nome === filtros.plantio;
-    const okCultura = filtros.cultura === 'Todas as culturas' || p.cultura === filtros.cultura;
-    const okTalhao = filtros.talhao === 'Todos os talhões' || p.talhao === filtros.talhao;
+    const okPlantio = filtros.plantio === 'todos' || String(p.codigo) === filtros.plantio;
+    const okCultura = filtros.cultura === 'todas' || p.cultura === filtros.cultura;
+    const okTalhao = filtros.talhao === 'todos' || p.talhao === filtros.talhao;
     return okPlantio && okCultura && okTalhao;
+  });
+}
+
+// Atividades dos plantios filtrados; se comPeriodo, so as que caem no periodo escolhido
+function getAtividadesFiltradas(plantios, comPeriodo) {
+  const codigos = plantios.map(function (p) { return p.codigo; });
+  const intervalo = comPeriodo ? intervaloDoPeriodo(filtros.periodo) : null;
+
+  return atividadesData.filter(function (a) {
+    if (codigos.indexOf(a.plantioCodigo) === -1) return false;
+    if (intervalo && (a.data < intervalo[0] || a.data > intervalo[1])) return false; // "yyyy-MM-dd" compara como texto
+    return true;
   });
 }
 
 // ===== RENDERIZAÇÃO GERAL =====
 function render() {
   const plantiosFiltrados = getPlantiosFiltrados();
+  const atividadesNoPeriodo = getAtividadesFiltradas(plantiosFiltrados, true);
 
-  renderResumo(plantiosFiltrados);
-  renderDonut(plantiosFiltrados);
-  renderProximasAtividades(plantiosFiltrados);
-  renderTabela(plantiosFiltrados);
+  renderResumo(plantiosFiltrados, atividadesNoPeriodo);
+  renderDonut(atividadesNoPeriodo);
+  renderProximasAtividades(getAtividadesFiltradas(plantiosFiltrados, false));
+  renderTabela(plantiosFiltrados, atividadesNoPeriodo);
 }
 
 // ===== RESUMO (cards no topo) =====
-function renderResumo(lista) {
-  const totais = calcularTotais(lista);
-  const totalAtividades = totais.concluidas + totais.pendentes + totais.atrasadas;
+function renderResumo(plantios, atividades) {
+  const totais = calcularTotais(atividades);
+  const totalAtividades = atividades.length;
 
-  document.getElementById('numPlantios').textContent = lista.length;
+  // "Plantios ativos" = os que ainda estao em andamento (nao conta os concluidos)
+  document.getElementById('numPlantios').textContent = plantios.filter(function (p) { return p.status !== 'CONCLUIDO'; }).length;
   document.getElementById('numTotal').textContent = totalAtividades;
   document.getElementById('numConcluidas').textContent = totais.concluidas;
   document.getElementById('numPendentes').textContent = totais.pendentes;
   document.getElementById('numAtrasadas').textContent = totais.atrasadas;
 
-  const pctConcluidas = pct(totais.concluidas, totalAtividades);
-  const pctPendentes = pct(totais.pendentes, totalAtividades);
-  const pctAtrasadas = pct(totais.atrasadas, totalAtividades);
-
-  document.getElementById('pctConcluidas').textContent = pctConcluidas + '% do total';
-  document.getElementById('pctPendentes').textContent = pctPendentes + '% do total';
-  document.getElementById('pctAtrasadas').textContent = pctAtrasadas + '% no total';
+  document.getElementById('pctConcluidas').textContent = pct(totais.concluidas, totalAtividades) + '% do total';
+  document.getElementById('pctPendentes').textContent = pct(totais.pendentes, totalAtividades) + '% do total';
+  document.getElementById('pctAtrasadas').textContent = pct(totais.atrasadas, totalAtividades) + '% do total';
 }
 
-function calcularTotais(lista) {
-  return lista.reduce(function (acc, p) {
-    acc.concluidas += p.concluidas;
-    acc.pendentes += p.pendentes;
-    acc.atrasadas += p.atrasadas;
+// Conta as atividades por status (CONCLUIDA, PENDENTE, ATRASADA)
+function calcularTotais(atividades) {
+  return atividades.reduce(function (acc, a) {
+    if (a.status === 'CONCLUIDA') acc.concluidas++;
+    else if (a.status === 'ATRASADA') acc.atrasadas++;
+    else acc.pendentes++;
     return acc;
   }, { concluidas: 0, pendentes: 0, atrasadas: 0 });
 }
@@ -136,10 +243,9 @@ function pct(valor, total) {
 }
 
 // ===== GRÁFICO DE ROSCA (status das atividades) =====
-function renderDonut(lista) {
-  const totais = calcularTotais(lista);
-  const planejadas = 0; // reservado para status "planejada"
-  const total = totais.concluidas + totais.pendentes + totais.atrasadas + planejadas;
+function renderDonut(atividades) {
+  const totais = calcularTotais(atividades);
+  const total = atividades.length;
 
   const donut = document.getElementById('donutChart');
   document.getElementById('donutTotal').textContent = total;
@@ -147,13 +253,9 @@ function renderDonut(lista) {
   if (total === 0) {
     donut.style.background = 'conic-gradient(var(--gray-bg) 0 100%)';
   } else {
-    const pConcluidas = (totais.concluidas / total) * 100;
-    const pPendentes = (totais.pendentes / total) * 100;
-    const pAtrasadas = (totais.atrasadas / total) * 100;
-
-    const fim1 = pConcluidas;
-    const fim2 = fim1 + pPendentes;
-    const fim3 = fim2 + pAtrasadas;
+    const fim1 = (totais.concluidas / total) * 100;
+    const fim2 = fim1 + (totais.pendentes / total) * 100;
+    const fim3 = fim2 + (totais.atrasadas / total) * 100;
 
     donut.style.background =
       'conic-gradient(' +
@@ -166,44 +268,44 @@ function renderDonut(lista) {
   document.getElementById('legendConcluidas').textContent = totais.concluidas;
   document.getElementById('legendPendentes').textContent = totais.pendentes;
   document.getElementById('legendAtrasadas').textContent = totais.atrasadas;
-  document.getElementById('legendPlanejadas').textContent = planejadas;
 
   document.getElementById('legendConcluidasPct').textContent = pct(totais.concluidas, total) + '%';
   document.getElementById('legendPendentesPct').textContent = pct(totais.pendentes, total) + '%';
   document.getElementById('legendAtrasadasPct').textContent = pct(totais.atrasadas, total) + '%';
-  document.getElementById('legendPlanejadasPct').textContent = pct(planejadas, total) + '%';
 }
 
 // ===== PRÓXIMAS ATIVIDADES =====
-function renderProximasAtividades(lista) {
-  const idsPermitidos = lista.map(function (p) { return p.id; });
+// As 5 atividades ainda nao concluidas com as datas mais proximas (as atrasadas aparecem primeiro)
+function renderProximasAtividades(atividades) {
   const container = document.getElementById('proximasList');
   container.innerHTML = '';
 
-  const filtradas = atividadesProximasData.filter(function (a) {
-    return idsPermitidos.indexOf(a.plantioId) !== -1;
-  });
+  const proximas = atividades
+    .filter(function (a) { return a.status !== 'CONCLUIDA'; })
+    .sort(function (x, y) { return x.data < y.data ? -1 : (x.data > y.data ? 1 : 0); })
+    .slice(0, 5);
 
-  if (filtradas.length === 0) {
-    container.innerHTML = '<p class="rel-empty-state">Nenhuma atividade encontrada para os filtros selecionados.</p>';
+  if (proximas.length === 0) {
+    container.innerHTML = '<p class="rel-empty-state">Nenhuma atividade pendente para os filtros selecionados.</p>';
     return;
   }
 
-  filtradas.forEach(function (a) {
-    const plantio = plantiosData.find(function (p) { return p.id === a.plantioId; });
+  proximas.forEach(function (a) {
+    const partes = a.data.split('-'); // [ano, mes, dia]
+    const status = a.status === 'ATRASADA' ? 'atrasada' : 'pendente';
     const item = document.createElement('div');
     item.className = 'rel-next-item';
 
     item.innerHTML =
       '<div class="rel-next-date">' +
-        '<span class="rel-next-day">' + a.dia + '</span>' +
-        '<span class="rel-next-month">' + a.mes + '</span>' +
+        '<span class="rel-next-day">' + esc(partes[2]) + '</span>' +
+        '<span class="rel-next-month">' + esc(meses[parseInt(partes[1], 10) - 1]) + '</span>' +
       '</div>' +
       '<div class="rel-next-info">' +
-        '<p class="rel-next-title">' + a.titulo + '</p>' +
-        '<p class="rel-next-subtitle">' + plantio.cultura + ' · ' + plantio.talhao + '</p>' +
+        '<p class="rel-next-title">' + esc(tipoTexto[a.tipoAtividade] || a.tipoAtividade) + '</p>' +
+        '<p class="rel-next-subtitle">' + esc(a.plantioNome) + ' · ' + esc(a.talhao) + '</p>' +
       '</div>' +
-      '<span class="badge-status badge-' + a.status + '">' + capitalizar(a.status) + '</span>';
+      '<span class="badge-status badge-' + status + '">' + capitalizar(status) + '</span>';
 
     container.appendChild(item);
   });
@@ -213,39 +315,57 @@ function capitalizar(texto) {
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
+// Uma linha da tabela: dados do plantio + contagem das atividades dele no periodo
+function linhaDoPlantio(p, atividades) {
+  const dele = atividades.filter(function (a) { return a.plantioCodigo === p.codigo; });
+  const totais = calcularTotais(dele);
+  return {
+    nome: p.nome,
+    cultura: p.cultura,
+    talhao: p.talhao,
+    dataPlantio: formatarData(p.dataPlantio),
+    concluidas: totais.concluidas,
+    pendentes: totais.pendentes,
+    atrasadas: totais.atrasadas,
+    progresso: p.progresso
+  };
+}
+
 // ===== TABELA DE RESUMO DOS PLANTIOS =====
-function renderTabela(lista) {
+function renderTabela(plantios, atividades) {
   const tbody = document.getElementById('plantiosTableBody');
   const emptyState = document.getElementById('emptyState');
   tbody.innerHTML = '';
 
-  if (lista.length === 0) {
+  if (plantios.length === 0) {
+    emptyState.textContent = 'Nenhum plantio encontrado para os filtros selecionados.';
     emptyState.style.display = 'block';
     return;
   }
   emptyState.style.display = 'none';
 
-  lista.forEach(function (p) {
+  plantios.forEach(function (p) {
+    const l = linhaDoPlantio(p, atividades);
     const tr = document.createElement('tr');
 
     tr.innerHTML =
       '<td>' +
         '<div class="plantio-culture">' +
-          '<span class="culture-dot ' + p.culturaClass + '"></span>' +
-          '<span class="plantio-name" style="font-size:14px;">' + p.nome + '</span>' +
+          '<span class="culture-dot ' + esc(normalizar(l.cultura)) + '"></span>' +
+          '<span class="plantio-name" style="font-size:14px;">' + esc(l.nome) + '</span>' +
         '</div>' +
       '</td>' +
-      '<td>' + p.cultura + '</td>' +
-      '<td>' + p.talhao + '</td>' +
-      '<td>' + p.dataPlantio + '</td>' +
-      '<td style="color: var(--accent-green); font-weight:600;">' + p.concluidas + '</td>' +
-      '<td style="color: var(--amber); font-weight:600;">' + p.pendentes + '</td>' +
-      '<td style="color: var(--red); font-weight:600;">' + p.atrasadas + '</td>' +
+      '<td>' + esc(l.cultura) + '</td>' +
+      '<td>' + esc(l.talhao) + '</td>' +
+      '<td>' + esc(l.dataPlantio) + '</td>' +
+      '<td style="color: var(--accent-green); font-weight:600;">' + l.concluidas + '</td>' +
+      '<td style="color: var(--amber); font-weight:600;">' + l.pendentes + '</td>' +
+      '<td style="color: var(--red); font-weight:600;">' + l.atrasadas + '</td>' +
       '<td>' +
         '<div class="progress-wrap">' +
-          '<span class="progress-percent">' + p.progresso + '%</span>' +
+          '<span class="progress-percent">' + l.progresso + '%</span>' +
           '<div class="progress-bar">' +
-            '<div class="progress-fill" style="width:' + p.progresso + '%;"></div>' +
+            '<div class="progress-fill" style="width:' + l.progresso + '%;"></div>' +
           '</div>' +
         '</div>' +
       '</td>';
@@ -255,21 +375,29 @@ function renderTabela(lista) {
 }
 
 // ===== EXPORTAR RELATÓRIO (CSV) =====
+// Coloca aspas se o texto tiver ; ou " (senao o CSV quebra as colunas)
+function csvCampo(valor) {
+  const texto = String(valor);
+  return /[;"\n]/.test(texto) ? '"' + texto.replace(/"/g, '""') + '"' : texto;
+}
+
 function setupExportar() {
   const btn = document.getElementById('btnExportar');
   if (!btn) return;
 
   btn.addEventListener('click', function () {
-    const lista = getPlantiosFiltrados();
+    const plantios = getPlantiosFiltrados();
 
-    if (lista.length === 0) {
+    if (plantios.length === 0) {
       alert('Não há dados para exportar com os filtros selecionados.');
       return;
     }
 
+    const atividades = getAtividadesFiltradas(plantios, true);
     const cabecalho = ['Plantio', 'Cultura', 'Talhão', 'Data do plantio', 'Concluídas', 'Pendentes', 'Atrasadas', 'Progresso (%)'];
-    const linhas = lista.map(function (p) {
-      return [p.nome, p.cultura, p.talhao, p.dataPlantio, p.concluidas, p.pendentes, p.atrasadas, p.progresso].join(';');
+    const linhas = plantios.map(function (p) {
+      const l = linhaDoPlantio(p, atividades);
+      return [l.nome, l.cultura, l.talhao, l.dataPlantio, l.concluidas, l.pendentes, l.atrasadas, l.progresso].map(csvCampo).join(';');
     });
 
     const csv = [cabecalho.join(';')].concat(linhas).join('\n');

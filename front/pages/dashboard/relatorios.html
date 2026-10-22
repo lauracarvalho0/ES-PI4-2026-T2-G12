@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <title>AgroMonitor - Relatórios</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -139,41 +138,31 @@
         <div class="rel-field">
             <label for="filtroPeriodo">Período</label>
             <select id="filtroPeriodo" class="rel-native-select" data-filter="periodo">
-            <option value="01/05/2026 - 31/05/2026" selected>01/05/2026 - 31/05/2026</option>
-            <option value="Últimos 30 dias">Últimos 30 dias</option>
-            <option value="Este mês">Este mês</option>
-            <option value="Safra 2025/26">Safra 2025/26</option>
+            <option value="todo" selected>Todo o período</option>
+            <option value="mes">Este mês</option>
+            <option value="ultimos30">Últimos 30 dias</option>
+            <option value="proximos30">Próximos 30 dias</option>
             </select>
         </div>
 
         <div class="rel-field">
             <label for="filtroPlantio">Plantio</label>
             <select id="filtroPlantio" class="rel-native-select" data-filter="plantio">
-            <option value="Todos os plantios" selected>Todos os plantios</option>
-            <option value="Milho Verão 2025/26">Milho Verão 2025/26</option>
-            <option value="Soja 2025/26">Soja 2025/26</option>
-            <option value="Milho Safrinha 2025/26">Milho Safrinha 2025/26</option>
-            <option value="Feijão 2025/26">Feijão 2025/26</option>
+            <option value="todos" selected>Todos os plantios</option>
             </select>
         </div>
 
         <div class="rel-field">
             <label for="filtroCultura">Cultura</label>
             <select id="filtroCultura" class="rel-native-select" data-filter="cultura">
-            <option value="Todas as culturas" selected>Todas as culturas</option>
-            <option value="Milho">Milho</option>
-            <option value="Soja">Soja</option>
-            <option value="Feijão">Feijão</option>
+            <option value="todas" selected>Todas as culturas</option>
             </select>
         </div>
 
         <div class="rel-field">
             <label for="filtroTalhao">Talhão</label>
             <select id="filtroTalhao" class="rel-native-select" data-filter="talhao">
-            <option value="Todos os talhões" selected>Todos os talhões</option>
-            <option value="Talhão 01">Talhão 01</option>
-            <option value="Talhão 02">Talhão 02</option>
-            <option value="Talhão 03">Talhão 03</option>
+            <option value="todos" selected>Todos os talhões</option>
             </select>
         </div>
 
@@ -201,7 +190,7 @@
               </svg>
             </div>
             <div>
-              <p class="rel-summary-number" id="numPlantios">4</p>
+              <p class="rel-summary-number" id="numPlantios">0</p>
               <p class="rel-summary-label">Plantios ativos</p>
             </div>
           </div>
@@ -214,7 +203,7 @@
               </svg>
             </div>
             <div>
-              <p class="rel-summary-number" id="numTotal">22</p>
+              <p class="rel-summary-number" id="numTotal">0</p>
               <p class="rel-summary-label">Atividades no total</p>
             </div>
           </div>
@@ -227,9 +216,9 @@
               </svg>
             </div>
             <div>
-              <p class="rel-summary-number" id="numConcluidas">15</p>
+              <p class="rel-summary-number" id="numConcluidas">0</p>
               <p class="rel-summary-label">Concluídas</p>
-              <p class="rel-summary-sub" id="pctConcluidas">68% do total</p>
+              <p class="rel-summary-sub" id="pctConcluidas">0% do total</p>
             </div>
           </div>
 
@@ -241,9 +230,9 @@
               </svg>
             </div>
             <div>
-              <p class="rel-summary-number" id="numPendentes">5</p>
+              <p class="rel-summary-number" id="numPendentes">0</p>
               <p class="rel-summary-label">Pendentes</p>
-              <p class="rel-summary-sub" id="pctPendentes">23% do total</p>
+              <p class="rel-summary-sub" id="pctPendentes">0% do total</p>
             </div>
           </div>
 
@@ -256,9 +245,9 @@
               </svg>
             </div>
             <div>
-              <p class="rel-summary-number" id="numAtrasadas">2</p>
+              <p class="rel-summary-number" id="numAtrasadas">0</p>
               <p class="rel-summary-label">Atrasadas</p>
-              <p class="rel-summary-sub" id="pctAtrasadas">9% no total</p>
+              <p class="rel-summary-sub" id="pctAtrasadas">0% do total</p>
             </div>
           </div>
         </div>
@@ -270,12 +259,12 @@
           <div class="panel-header">
             <h2 class="panel-title">Status das atividades</h2>
           </div>
-          <p class="rel-panel-subtitle">Distribuição por status no período</p>
+          <p class="rel-panel-subtitle">Distribuição por status no período selecionado</p>
 
           <div class="rel-donut-wrap">
             <div class="rel-donut" id="donutChart">
               <div class="rel-donut-center">
-                <span class="rel-donut-total" id="donutTotal">22</span>
+                <span class="rel-donut-total" id="donutTotal">0</span>
                 <span class="rel-donut-total-label">Total</span>
               </div>
             </div>
@@ -284,22 +273,17 @@
               <li>
                 <span class="legend-dot" style="background: var(--accent-green);"></span>
                 Concluídas
-                <span class="legend-value"><span id="legendConcluidas">15</span> (<span id="legendConcluidasPct">68%</span>)</span>
+                <span class="legend-value"><span id="legendConcluidas">0</span> (<span id="legendConcluidasPct">0%</span>)</span>
               </li>
               <li>
                 <span class="legend-dot" style="background: var(--amber);"></span>
                 Pendentes
-                <span class="legend-value"><span id="legendPendentes">5</span> (<span id="legendPendentesPct">23%</span>)</span>
+                <span class="legend-value"><span id="legendPendentes">0</span> (<span id="legendPendentesPct">0%</span>)</span>
               </li>
               <li>
                 <span class="legend-dot" style="background: var(--red);"></span>
                 Atrasadas
-                <span class="legend-value"><span id="legendAtrasadas">2</span> (<span id="legendAtrasadasPct">9%</span>)</span>
-              </li>
-              <li>
-                <span class="legend-dot" style="background: var(--gray-bg); border: 1px solid var(--border-gray);"></span>
-                Planejadas
-                <span class="legend-value"><span id="legendPlanejadas">0</span> (<span id="legendPlanejadasPct">0%</span>)</span>
+                <span class="legend-value"><span id="legendAtrasadas">0</span> (<span id="legendAtrasadasPct">0%</span>)</span>
               </li>
             </ul>
           </div>
