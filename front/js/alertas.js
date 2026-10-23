@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
     `).join('');
 
     document.getElementById('detailForecastGrid').innerHTML = alert.detail.forecast.map((day) => `
-      <div class="forecast-day">
+      <div class="forecast-day${day.emAlerta ? ' is-alert' : ''}">
         <p class="forecast-day-label">${day.label}</p>
         <p class="forecast-day-date">${day.date}</p>
         <div class="forecast-day-icon">${weatherIcon(day.rain)}</div>
@@ -247,8 +247,6 @@ document.addEventListener('DOMContentLoaded', function () {
         <p class="forecast-day-rain">${day.rain}% de chuva</p>
       </div>
     `).join('');
-
-    document.getElementById('detailTips').innerHTML = alert.detail.tips;
 
     const btnMarcarLido = document.getElementById('btnMarcarLido');
     updateMarcarLidoButton(alert, btnMarcarLido);

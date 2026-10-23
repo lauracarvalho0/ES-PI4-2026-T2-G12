@@ -11,6 +11,12 @@
   const LIMITE_CALOR = 35;        // °C maxima
   const LIMITE_VENTO = 40;        // km/h
 
+  // Open-Meteo entrega no maximo 16 dias de previsao.
+  // A previsao completa mostra todos; os alertas so olham os primeiros dias,
+  // porque a precisao cai bastante depois disso.
+  const DIAS_PREVISAO = 16;
+  const DIAS_ALERTA = 7;
+
   const ESTADOS = {
     AC: 'Acre', AL: 'Alagoas', AP: 'Amapá', AM: 'Amazonas', BA: 'Bahia', CE: 'Ceará',
     DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão',
@@ -98,7 +104,7 @@
       latitude: lugar.latitude,
       longitude: lugar.longitude,
       daily: 'temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max',
-      forecast_days: '7',
+      forecast_days: String(DIAS_PREVISAO),
       timezone: 'auto'
     });
     const resp = await fetch('https://api.open-meteo.com/v1/forecast?' + query.toString());
@@ -142,7 +148,7 @@
     const local = plantio.localizacao.trim();
     const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
     const porTipo = {};
-    dias.time.forEach((_, i) => {
+    dias.time.slice(0, DIAS_ALERTA).forEach((_, i) => {
       riscosDoDia(dias, i, local).forEach((r) => {
         const lista = porTipo[r.tipo] = porTipo[r.tipo] || [];
         const ultimo = lista[lista.length - 1];
@@ -167,17 +173,20 @@
         const prioridade = ev.risco.nivel === 0 ? 'Crítico' : 'Alta';
         const relativo = diff === 0 ? 'Hoje' : diff === 1 ? 'Amanhã' : `Em ${diff} dias`;
 
-        const forecast = [];
-        for (let k = ev.inicio; k < Math.min(ev.inicio + 4, dias.time.length); k++) {
-          const d = dataLocal(dias.time[k]);
-          forecast.push({
-            label: k === ev.inicio ? label : d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''),
+        // Previsao completa (todos os dias disponiveis); marca os dias do alerta
+        const forecast = dias.time.map((iso, k) => {
+          const d = dataLocal(iso);
+          const diffK = Math.round((d - hoje) / 86400000);
+          return {
+            label: diffK === 0 ? 'Hoje' : diffK === 1 ? 'Amanhã'
+              : capitalizar(d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')),
             date: ddmm(d),
             tempMax: Math.round(dias.temperature_2m_max[k]),
             tempMin: Math.round(dias.temperature_2m_min[k]),
-            rain: Math.round(dias.precipitation_probability_max[k] || 0)
-          });
-        }
+            rain: Math.round(dias.precipitation_probability_max[k] || 0),
+            emAlerta: k >= ev.inicio && k <= ev.fim
+          };
+        });
 
         const desc = ev.fim > ev.inicio
           ? `${ev.risco.desc}<br>Condição prevista de ${periodo}.`
@@ -199,8 +208,7 @@
               tone: prioridade === 'Crítico' ? 'red' : 'amber'
             },
             recommendations: [ev.risco.recommendation, 'Confira novamente as condições antes de realizar atividades no campo.'],
-            forecast,
-            tips: `Previsão para ${escaparHtml(lugar.name || local)}. Os dados são atualizados ao abrir esta tela.`
+            forecast
           }
         });
       });

@@ -355,7 +355,7 @@
 }
 
 .detail-row.forecast-row {
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr;
 }
 
 .detail-panel {
@@ -422,9 +422,8 @@
 
 .forecast-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
   gap: 12px;
-  margin-bottom: 16px;
 }
 
 .forecast-day {
@@ -432,6 +431,11 @@
   border: 1px solid var(--border-gray);
   border-radius: 10px;
   padding: 14px 8px;
+}
+
+.forecast-day.is-alert {
+  border-color: var(--amber);
+  background-color: var(--amber-bg);
 }
 
 .forecast-day-label {
@@ -462,35 +466,6 @@
 .forecast-day-rain {
   font-size: 11px;
   color: var(--blue);
-}
-
-.forecast-full-link {
-  display: block;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--accent-green);
-  text-decoration: none;
-}
-
-.forecast-full-link:hover {
-  text-decoration: underline;
-}
-
-.tips-panel {
-  background-color: var(--green-bg);
-  border-color: var(--green-bg);
-}
-
-.tips-text {
-  font-size: 13px;
-  line-height: 1.6;
-  color: #1a1a1a;
-}
-
-.tips-text .highlight {
-  color: var(--accent-green);
-  font-weight: 700;
 }
 
 .detail-actions {
@@ -572,7 +547,7 @@
   }
 
   .forecast-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   }
 }
 
