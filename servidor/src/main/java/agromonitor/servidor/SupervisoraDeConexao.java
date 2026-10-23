@@ -13,6 +13,10 @@ import agromonitor.comum.atividade.PedidoDeRegistroDeAtividade;
 import agromonitor.comum.atividade.RespostaDeConclusaoDeAtividade;
 import agromonitor.comum.atividade.RespostaDeListagemDeAtividades;
 import agromonitor.comum.atividade.RespostaDeRegistroDeAtividade;
+import agromonitor.comum.alerta.PedidoDeListagemDeAlertas;
+import agromonitor.comum.alerta.PedidoDeMarcacaoDeAlertaLido;
+import agromonitor.comum.alerta.RespostaDeListagemDeAlertas;
+import agromonitor.comum.alerta.RespostaDeMarcacaoDeAlertaLido;
 import agromonitor.comum.auth.PedidoDeCadastro;
 import agromonitor.comum.auth.PedidoDeLogin;
 import agromonitor.comum.auth.PedidoDeRecuperacaoDeSenha;
@@ -32,6 +36,7 @@ import agromonitor.comum.plantio.PedidoDeCadastroDePlantio;
 import agromonitor.comum.plantio.PedidoDeListagemDePlantios;
 import agromonitor.comum.plantio.RespostaDeCadastroDePlantio;
 import agromonitor.comum.plantio.RespostaDeListagemDePlantios;
+import agromonitor.servidor.dao.AlertaDAO;
 import agromonitor.servidor.dao.PlantioDAO;
 import agromonitor.servidor.dao.UsuarioDAO;
 import agromonitor.servidor.email.EmailService;
@@ -52,6 +57,7 @@ public class SupervisoraDeConexao extends Thread
     private ArrayList<Parceiro> usuarios;
     private UsuarioDAO          dao;
     private PlantioDAO          plantioDao;
+    private AlertaDAO           alertaDao;
     private EmailService        email;
 
     private static final int VALIDADE_TOKEN_MINUTOS     = 30;
@@ -80,7 +86,7 @@ public class SupervisoraDeConexao extends Thread
     }
 
     public SupervisoraDeConexao(Socket conexao, ArrayList<Parceiro> usuarios, UsuarioDAO dao,
-                                PlantioDAO plantioDao, EmailService email) throws Exception
+                                PlantioDAO plantioDao, AlertaDAO alertaDao, EmailService email) throws Exception
     {
         if (conexao == null)
             throw new Exception("Conexao ausente");
@@ -90,6 +96,8 @@ public class SupervisoraDeConexao extends Thread
             throw new Exception("DAO ausente");
        if (plantioDao == null)
             throw new Exception("DAO de plantio ausente");
+        if (alertaDao == null)
+            throw new Exception("DAO de alerta ausente");
         if (email == null)
             throw new Exception("Servico de e-mail ausente");
 
@@ -97,6 +105,7 @@ public class SupervisoraDeConexao extends Thread
         this.usuarios   = usuarios;
         this.dao        = dao;
         this.plantioDao = plantioDao;
+        this.alertaDao  = alertaDao;
         this.email      = email;
     }
 
@@ -161,6 +170,10 @@ public class SupervisoraDeConexao extends Thread
                     this.usuario.receba(tratarConclusaoDeAtividade((PedidoDeConclusaoDeAtividade) comunicado));
                 else if (comunicado instanceof PedidoDeListagemDeAtividades)
                     this.usuario.receba(tratarListagemDeAtividades((PedidoDeListagemDeAtividades) comunicado));
+                else if (comunicado instanceof PedidoDeListagemDeAlertas)
+                    this.usuario.receba(tratarListagemDeAlertas((PedidoDeListagemDeAlertas) comunicado));
+                else if (comunicado instanceof PedidoDeMarcacaoDeAlertaLido)
+                    this.usuario.receba(tratarMarcacaoDeAlertaLido((PedidoDeMarcacaoDeAlertaLido) comunicado));
                 else if (comunicado instanceof PedidoDeRecuperacaoDeSenha)
                     this.usuario.receba(tratarRecuperacao((PedidoDeRecuperacaoDeSenha) comunicado));
                 else if (comunicado instanceof PedidoDeRedefinicaoDeSenha)
@@ -390,6 +403,17 @@ public class SupervisoraDeConexao extends Thread
         {
             if (!this.plantioDao.concluirAtividade(p.getUsuarioCodigo(), p.getPlantioCodigo(), p.getAtividadeCodigo()))
                 return new RespostaDeConclusaoDeAtividade(false, "Atividade nao encontrada ou ja concluida.");
+
+            // os alertas de uma atividade ja feita nao fazem mais sentido: marca como lidos
+            try
+            {
+                this.alertaDao.marcarLidosDaAtividade(p.getAtividadeCodigo());
+            }
+            catch (Exception e)
+            {
+                System.err.println("Erro ao marcar os alertas da atividade como lidos: " + e);
+            }
+
             return new RespostaDeConclusaoDeAtividade(true, "Atividade concluida com sucesso!");
         }
         catch (Exception e)
@@ -414,6 +438,44 @@ public class SupervisoraDeConexao extends Thread
         {
             System.err.println("Erro ao listar atividades: " + e);
             return new RespostaDeListagemDeAtividades(false, "Erro interno ao buscar as atividades. Tente novamente.", null);
+        }
+    }
+
+    private RespostaDeListagemDeAlertas tratarListagemDeAlertas(PedidoDeListagemDeAlertas p)
+    {
+        String erro = ValidadorPlantio.validarUsuario(p.getUsuarioCodigo());
+        if (erro != null)
+            return new RespostaDeListagemDeAlertas(false, erro, null);
+
+        try
+        {
+            return new RespostaDeListagemDeAlertas(true, "OK", this.alertaDao.listarPorUsuario(p.getUsuarioCodigo()));
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao listar alertas: " + e);
+            return new RespostaDeListagemDeAlertas(false, "Erro interno ao buscar os alertas. Tente novamente.", null);
+        }
+    }
+
+    private RespostaDeMarcacaoDeAlertaLido tratarMarcacaoDeAlertaLido(PedidoDeMarcacaoDeAlertaLido p)
+    {
+        String erro = ValidadorPlantio.validarUsuario(p.getUsuarioCodigo());
+        if (erro == null && p.getAlertaCodigo() <= 0)
+            erro = "Alerta nao identificado.";
+        if (erro != null)
+            return new RespostaDeMarcacaoDeAlertaLido(false, erro);
+
+        try
+        {
+            if (!this.alertaDao.marcarComoLido(p.getUsuarioCodigo(), p.getAlertaCodigo()))
+                return new RespostaDeMarcacaoDeAlertaLido(false, "Alerta nao encontrado.");
+            return new RespostaDeMarcacaoDeAlertaLido(true, "Alerta marcado como lido.");
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao marcar alerta como lido: " + e);
+            return new RespostaDeMarcacaoDeAlertaLido(false, "Erro interno ao marcar o alerta como lido. Tente novamente.");
         }
     }
 

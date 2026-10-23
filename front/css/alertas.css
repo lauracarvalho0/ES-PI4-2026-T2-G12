@@ -355,7 +355,7 @@
 }
 
 .detail-row.forecast-row {
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr !important;
 }
 
 .detail-panel {
