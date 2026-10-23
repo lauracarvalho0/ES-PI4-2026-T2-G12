@@ -1,3 +1,20 @@
+// Mostra o nome do usuario logado (guardado na sessao pelo login) no menu lateral
+// de todas as telas e na saudacao "Ola, ..." quando a tela tiver #saudacaoTitulo.
+document.addEventListener('DOMContentLoaded', function () {
+  var usuario = null;
+  try { usuario = JSON.parse(sessionStorage.getItem('usuario')); } catch (err) {}
+
+  var nome = usuario && usuario.nome ? String(usuario.nome).trim() : '';
+  if (!nome) return;
+
+  document.querySelectorAll('.sidebar-user-name').forEach(function (el) {
+    el.textContent = nome;
+  });
+
+  var saudacao = document.getElementById('saudacaoTitulo');
+  if (saudacao) saudacao.textContent = 'Olá, ' + nome.split(/\s+/)[0] + '!';
+});
+
 // Abre/fecha o menu lateral no mobile (botao hamburguer + overlay)
 document.addEventListener('DOMContentLoaded', function () {
   var sidebar = document.querySelector('.sidebar');

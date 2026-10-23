@@ -136,28 +136,28 @@
 
         <div class="alert-stats-grid">
           <div class="alert-stat-card">
-            <span class="alert-stat-number">2</span>
+            <span class="alert-stat-number" id="resumoCriticos">–</span>
             <div>
               <p class="alert-stat-label">Críticos</p>
               <p class="alert-stat-sub tone-red">Exigem atenção imediata</p>
             </div>
           </div>
           <div class="alert-stat-card">
-            <span class="alert-stat-number">5</span>
+            <span class="alert-stat-number" id="resumoHoje">–</span>
             <div>
               <p class="alert-stat-label">Para hoje</p>
               <p class="alert-stat-sub tone-amber">Vencem ainda hoje</p>
             </div>
           </div>
           <div class="alert-stat-card">
-            <span class="alert-stat-number">6</span>
+            <span class="alert-stat-number" id="resumoSemana">–</span>
             <div>
               <p class="alert-stat-label">Próximos 7 dias</p>
               <p class="alert-stat-sub tone-blue">Fique atento</p>
             </div>
           </div>
           <div class="alert-stat-card">
-            <span class="alert-stat-number">8</span>
+            <span class="alert-stat-number" id="resumoResolvidos">–</span>
             <div>
               <p class="alert-stat-label">Resolvidos</p>
               <p class="alert-stat-sub tone-gray">Últimos 30 dias</p>
@@ -187,20 +187,12 @@
             <label for="filtroCultura">Cultura</label>
             <select id="filtroCultura">
               <option value="">Todas</option>
-              <option value="Milho">Milho</option>
-              <option value="Soja">Soja</option>
-              <option value="Feijão">Feijão</option>
-              <option value="Algodão">Algodão</option>
             </select>
           </div>
           <div class="alert-filter-field">
             <label for="filtroTalhao">Talhão</label>
             <select id="filtroTalhao">
               <option value="">Todos</option>
-              <option value="Talhão 01">Talhão 01</option>
-              <option value="Talhão 02">Talhão 02</option>
-              <option value="Talhão 03">Talhão 03</option>
-              <option value="Talhão 04">Talhão 04</option>
             </select>
           </div>
           <div class="alert-filter-field">
@@ -324,6 +316,7 @@
   </div>
 
   <script src="/js/dashboard.js"></script>
+  <script src="/js/clima.js"></script>
   <script src="/js/alertas.js"></script>
 
 </body>

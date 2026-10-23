@@ -21,6 +21,13 @@ import agromonitor.comum.auth.RespostaDeCadastro;
 import agromonitor.comum.auth.RespostaDeLogin;
 import agromonitor.comum.auth.RespostaDeRecuperacaoDeSenha;
 import agromonitor.comum.auth.RespostaDeRedefinicaoDeSenha;
+import agromonitor.comum.conta.PedidoDeAlteracaoDeSenha;
+import agromonitor.comum.conta.PedidoDeAtualizacaoDePerfil;
+import agromonitor.comum.conta.PedidoDeAtualizacaoDePreferencias;
+import agromonitor.comum.conta.PedidoDeBuscaDePerfil;
+import agromonitor.comum.conta.PedidoDeExclusaoDeConta;
+import agromonitor.comum.conta.RespostaDeBuscaDePerfil;
+import agromonitor.comum.conta.RespostaDeConta;
 import agromonitor.comum.plantio.PedidoDeCadastroDePlantio;
 import agromonitor.comum.plantio.PedidoDeListagemDePlantios;
 import agromonitor.comum.plantio.RespostaDeCadastroDePlantio;
@@ -28,6 +35,7 @@ import agromonitor.comum.plantio.RespostaDeListagemDePlantios;
 import agromonitor.servidor.dao.PlantioDAO;
 import agromonitor.servidor.dao.UsuarioDAO;
 import agromonitor.servidor.email.EmailService;
+import agromonitor.servidor.modelo.Perfil;
 import agromonitor.servidor.modelo.TokenRecuperacao;
 import agromonitor.servidor.modelo.Usuario;
 import agromonitor.servidor.validacao.ValidadorAtividade;
@@ -157,6 +165,16 @@ public class SupervisoraDeConexao extends Thread
                     this.usuario.receba(tratarRecuperacao((PedidoDeRecuperacaoDeSenha) comunicado));
                 else if (comunicado instanceof PedidoDeRedefinicaoDeSenha)
                     this.usuario.receba(tratarRedefinicao((PedidoDeRedefinicaoDeSenha) comunicado));
+                else if (comunicado instanceof PedidoDeBuscaDePerfil)
+                    this.usuario.receba(tratarBuscaDePerfil((PedidoDeBuscaDePerfil) comunicado));
+                else if (comunicado instanceof PedidoDeAtualizacaoDePerfil)
+                    this.usuario.receba(tratarAtualizacaoDePerfil((PedidoDeAtualizacaoDePerfil) comunicado));
+                else if (comunicado instanceof PedidoDeAtualizacaoDePreferencias)
+                    this.usuario.receba(tratarAtualizacaoDePreferencias((PedidoDeAtualizacaoDePreferencias) comunicado));
+                else if (comunicado instanceof PedidoDeAlteracaoDeSenha)
+                    this.usuario.receba(tratarAlteracaoDeSenha((PedidoDeAlteracaoDeSenha) comunicado));
+                else if (comunicado instanceof PedidoDeExclusaoDeConta)
+                    this.usuario.receba(tratarExclusaoDeConta((PedidoDeExclusaoDeConta) comunicado));
                 else if (comunicado instanceof PedidoParaSair)
                 {
                     synchronized (this.usuarios)
@@ -493,6 +511,141 @@ public class SupervisoraDeConexao extends Thread
         {
             System.err.println("Erro ao redefinir senha: " + e);
             return new RespostaDeRedefinicaoDeSenha(false, "Erro interno. Tente novamente.");
+        }
+    }
+
+    // ---------- tela Configuracoes ----------
+
+    private RespostaDeBuscaDePerfil tratarBuscaDePerfil(PedidoDeBuscaDePerfil p)
+    {
+        String erro = ValidadorUsuario.validarCodigo(p.getUsuarioCodigo());
+        if (erro != null)
+            return new RespostaDeBuscaDePerfil(false, erro, null, null, null, null, null, true);
+
+        try
+        {
+            Perfil perfil = this.dao.buscarPerfil(p.getUsuarioCodigo());
+            if (perfil == null)
+                return new RespostaDeBuscaDePerfil(false, "Usuario nao encontrado. Entre novamente.",
+                                                   null, null, null, null, null, true);
+            return new RespostaDeBuscaDePerfil(true, "OK", perfil.getNome(), perfil.getEmail(),
+                perfil.getTelefone(), perfil.getFusoHorario(), perfil.getIdioma(), perfil.isReceberAlertasPorEmail());
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao buscar perfil: " + e);
+            return new RespostaDeBuscaDePerfil(false, "Erro interno ao buscar seus dados. Tente novamente.",
+                                               null, null, null, null, null, true);
+        }
+    }
+
+    private RespostaDeConta tratarAtualizacaoDePerfil(PedidoDeAtualizacaoDePerfil p)
+    {
+        String erro = primeiroErro(
+            ValidadorUsuario.validarCodigo(p.getUsuarioCodigo()),
+            ValidadorUsuario.validarNome(p.getNome()),
+            ValidadorUsuario.validarEmail(p.getEmail()),
+            ValidadorUsuario.validarTelefone(p.getTelefone()));
+        if (erro != null)
+            return new RespostaDeConta(false, erro);
+
+        try
+        {
+            String telefone = p.getTelefone() == null ? "" : p.getTelefone().trim();
+            boolean ok = this.dao.atualizarPerfil(p.getUsuarioCodigo(), p.getNome().trim(),
+                p.getEmail().trim().toLowerCase(), telefone.isEmpty() ? null : telefone);
+            if (!ok)
+                return new RespostaDeConta(false, "Usuario nao encontrado. Entre novamente.");
+            return new RespostaDeConta(true, "Informacoes atualizadas com sucesso.");
+        }
+        catch (UsuarioDAO.EmailJaCadastradoException e)
+        {
+            return new RespostaDeConta(false, "Este e-mail ja esta cadastrado.");
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao atualizar perfil: " + e);
+            return new RespostaDeConta(false, "Erro interno ao salvar. Tente novamente.");
+        }
+    }
+
+    private RespostaDeConta tratarAtualizacaoDePreferencias(PedidoDeAtualizacaoDePreferencias p)
+    {
+        String erro = primeiroErro(
+            ValidadorUsuario.validarCodigo(p.getUsuarioCodigo()),
+            ValidadorUsuario.validarFusoHorario(p.getFusoHorario()),
+            ValidadorUsuario.validarIdioma(p.getIdioma()));
+        if (erro != null)
+            return new RespostaDeConta(false, erro);
+
+        try
+        {
+            if (!this.dao.atualizarPreferencias(p.getUsuarioCodigo(), p.getFusoHorario(),
+                                                p.getIdioma(), p.isReceberAlertasPorEmail()))
+                return new RespostaDeConta(false, "Usuario nao encontrado. Entre novamente.");
+            return new RespostaDeConta(true, "Preferencias salvas.");
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao salvar preferencias: " + e);
+            return new RespostaDeConta(false, "Erro interno ao salvar. Tente novamente.");
+        }
+    }
+
+    private RespostaDeConta tratarAlteracaoDeSenha(PedidoDeAlteracaoDeSenha p)
+    {
+        String erro = primeiroErro(
+            ValidadorUsuario.validarCodigo(p.getUsuarioCodigo()),
+            ValidadorUsuario.validarSenha(p.getNovaSenha()));
+        if (erro != null)
+            return new RespostaDeConta(false, erro);
+        if (p.getSenhaAtual() == null || p.getSenhaAtual().isEmpty())
+            return new RespostaDeConta(false, "Informe a senha atual.");
+
+        try
+        {
+            String hashAtual = this.dao.buscarSenhaHash(p.getUsuarioCodigo());
+            if (hashAtual == null)
+                return new RespostaDeConta(false, "Usuario nao encontrado. Entre novamente.");
+            if (!BCrypt.verifyer().verify(p.getSenhaAtual().toCharArray(), hashAtual).verified)
+                return new RespostaDeConta(false, "Senha atual incorreta.");
+            if (p.getSenhaAtual().equals(p.getNovaSenha()))
+                return new RespostaDeConta(false, "A nova senha deve ser diferente da atual.");
+
+            String novoHash = BCrypt.withDefaults().hashToString(12, p.getNovaSenha().toCharArray());
+            this.dao.alterarSenha(p.getUsuarioCodigo(), novoHash);
+            return new RespostaDeConta(true, "Senha alterada com sucesso.");
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao alterar senha: " + e);
+            return new RespostaDeConta(false, "Erro interno ao alterar a senha. Tente novamente.");
+        }
+    }
+
+    private RespostaDeConta tratarExclusaoDeConta(PedidoDeExclusaoDeConta p)
+    {
+        String erro = ValidadorUsuario.validarCodigo(p.getUsuarioCodigo());
+        if (erro != null)
+            return new RespostaDeConta(false, erro);
+        if (p.getSenha() == null || p.getSenha().isEmpty())
+            return new RespostaDeConta(false, "Informe sua senha para confirmar a exclusao.");
+
+        try
+        {
+            String hash = this.dao.buscarSenhaHash(p.getUsuarioCodigo());
+            if (hash == null)
+                return new RespostaDeConta(false, "Usuario nao encontrado. Entre novamente.");
+            if (!BCrypt.verifyer().verify(p.getSenha().toCharArray(), hash).verified)
+                return new RespostaDeConta(false, "Senha incorreta.");
+
+            this.dao.desativar(p.getUsuarioCodigo());
+            return new RespostaDeConta(true, "Conta excluida.");
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erro ao excluir conta: " + e);
+            return new RespostaDeConta(false, "Erro interno ao excluir a conta. Tente novamente.");
         }
     }
 
