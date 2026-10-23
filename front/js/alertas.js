@@ -546,11 +546,70 @@ document.addEventListener('DOMContentLoaded', function () {
       const max = Math.round(dias.temperature_2m_max[i]);
       const vento = Math.round(dias.wind_speed_10m_max[i] || 0);
       const riscos = [];
-      if (chuva >= 60) riscos.push({ title: 'Chuva intensa prevista', priority: chuva >= 80 ? 'Crítico' : 'Alta', desc: `Chance de chuva de ${chuva}% em ${escaparHtml(localizacao)}.`, recommendation: 'Evite pulverizações e planeje atividades de campo considerando a chuva prevista.' });
-      if (min <= 3) riscos.push({ title: 'Risco de geada', priority: min <= 0 ? 'Crítico' : 'Alta', desc: `Temperatura mínima prevista de ${min}°C em ${escaparHtml(localizacao)}.`, recommendation: 'Monitore as áreas mais sensíveis e avalie medidas de proteção contra o frio.' });
-      if (max >= 35) riscos.push({ title: 'Temperatura muito alta', priority: max >= 38 ? 'Crítico' : 'Alta', desc: `Temperatura máxima prevista de ${max}°C em ${escaparHtml(localizacao)}.`, recommendation: 'Evite atividades nos horários mais quentes e monitore sinais de estresse térmico.' });
-      if (vento >= 40) riscos.push({ title: 'Ventos fortes previstos', priority: vento >= 60 ? 'Crítico' : 'Alta', desc: `Ventos de até ${vento} km/h previstos em ${escaparHtml(localizacao)}.`, recommendation: 'Adie pulverizações para reduzir deriva e aguarde condições de vento mais fracas.' });
-
+      if (chuva >= 60) riscos.push({
+        title: 'Chuva intensa prevista',
+        priority: chuva >= 80 ? 'Crítico' : 'Alta',
+        desc: `Chance de chuva de ${chuva}% em ${escaparHtml(localizacao)}.`,
+        recommendations: chuva >= 80
+          ? [
+              `A chance de chuva é de ${chuva}%. Adie pulverizações: a água pode reduzir a eficácia do produto.`,
+              'Antes de reagendar uma aplicação, confira no rótulo o intervalo sem chuva indicado para o produto usado.',
+              'Evite tráfego de máquinas em solo encharcado e verifique se os canais de drenagem estão desobstruídos.'
+            ]
+          : [
+              `A chance de chuva é de ${chuva}%. Reavalie atividades ao ar livre e acompanhe atualizações da previsão.`,
+              'Se houver aplicação planejada, confira o intervalo sem chuva indicado no rótulo do produto.',
+              'Observe a drenagem do talhão para evitar acúmulo de água.'
+            ]
+      });
+      if (min <= 3) riscos.push({
+        title: 'Risco de geada',
+        priority: min <= 0 ? 'Crítico' : 'Alta',
+        desc: `Temperatura mínima prevista de ${min}°C em ${escaparHtml(localizacao)}.`,
+        recommendations: min <= 0
+          ? [
+              `A previsão indica ${min}°C. Priorize a inspeção das áreas baixas, onde o frio pode se concentrar.`,
+              'Identifique culturas em fase sensível e avalie medidas de proteção adequadas à cultura e à propriedade.',
+              'Monitore a temperatura local antes do amanhecer; a previsão pode variar conforme o talhão.'
+            ]
+          : [
+              `A mínima prevista é ${min}°C. Monitore mudas e culturas sensíveis ao frio, sobretudo em áreas baixas.`,
+              'Adie atividades que possam aumentar o estresse das plantas até a condição melhorar.',
+              'Confira a temperatura no próprio talhão durante a madrugada, pois ela pode diferir da previsão regional.'
+            ]
+      });
+      if (max >= 35) riscos.push({
+        title: 'Temperatura muito alta',
+        priority: max >= 38 ? 'Crítico' : 'Alta',
+        desc: `Temperatura máxima prevista de ${max}°C em ${escaparHtml(localizacao)}.`,
+        recommendations: max >= 38
+          ? [
+              `Com máxima prevista de ${max}°C, evite atividades de campo nos horários mais quentes.`,
+              'Monitore sinais de murcha ou estresse térmico e confira a umidade do solo antes de ajustar a irrigação.',
+              'Se possível, transfira tarefas externas para o início da manhã ou o fim da tarde.'
+            ]
+          : [
+              `A máxima prevista é ${max}°C. Planeje tarefas externas para horários mais frescos.`,
+              'Acompanhe a umidade do solo e os sinais de estresse térmico da cultura.',
+              'Evite alterar a irrigação sem avaliar a necessidade do solo e da cultura.'
+            ]
+      });
+      if (vento >= 40) riscos.push({
+        title: 'Ventos fortes previstos',
+        priority: vento >= 60 ? 'Crítico' : 'Alta',
+        desc: `Ventos de até ${vento} km/h previstos em ${escaparHtml(localizacao)}.`,
+        recommendations: vento >= 60
+          ? [
+              `Rajadas de até ${vento} km/h podem aumentar a deriva. Adie pulverizações enquanto o vento estiver forte.`,
+              'Proteja materiais leves e equipamentos que possam ser deslocados pelo vento.',
+              'Retome aplicações somente quando as condições estiverem dentro das orientações do produto e do equipamento.'
+            ]
+          : [
+              `Vento de até ${vento} km/h previsto. Reavalie pulverizações para reduzir o risco de deriva.`,
+              'Considere adiar atividades com materiais leves ou equipamentos expostos.',
+              'Confira as condições no talhão antes de iniciar uma aplicação.'
+            ]
+      });
       return riscos.map((risco, riscoIndex) => {
         const dataObj = new Date(data + 'T12:00:00');
         const diferenca = Math.round((dataObj - hoje) / 86400000);
@@ -573,7 +632,7 @@ document.addEventListener('DOMContentLoaded', function () {
           detail: {
             dataAlertaFull: new Date().toLocaleString('pt-BR'), origem: 'Previsão do tempo (Open-Meteo)',
             impact: { activity: 'Atividades de campo', reference: `${plantio.nome} - ${plantio.talhao || 'Talhão'}`, dateLabel: `${label} ${display.slice(0, 5)}`, tone: risco.priority === 'Crítico' ? 'red' : 'amber' },
-            recommendations: [risco.recommendation, 'Confira novamente as condições antes de realizar atividades no campo.'],
+            recommendations: risco.recommendations,
             forecast,
             tips: `Previsão para ${escaparHtml(lugar.name || localizacao)}. Os dados são atualizados ao abrir esta tela.`
           }
