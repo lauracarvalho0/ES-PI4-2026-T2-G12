@@ -19,11 +19,12 @@ public class PlantioResumo implements Serializable
     private String proximaAtividadeData;  // null se nao ha atividade pendente
     private int    progresso;
     private String status;                // FASE_INICIAL, DESENVOLVIMENTO, FASE_FINAL, CONCLUIDO
+    private String localizacao;
 
     public PlantioResumo(int codigo, String nome, String cultura, String talhao, double areaPlantada,
                          String dataPlantio, int quantidadeAtividades,
                          String proximaAtividadeTipo, String proximaAtividadeData,
-                         int progresso, String status)
+                         int progresso, String status, String localizacao)
     {
         this.codigo               = codigo;
         this.nome                 = nome;
@@ -36,6 +37,7 @@ public class PlantioResumo implements Serializable
         this.proximaAtividadeData = proximaAtividadeData;
         this.progresso            = progresso;
         this.status               = status;
+        this.localizacao          = localizacao;
     }
 
     public int    getCodigo()               { return this.codigo; }
@@ -49,4 +51,5 @@ public class PlantioResumo implements Serializable
     public String getProximaAtividadeData() { return this.proximaAtividadeData; }
     public int    getProgresso()            { return this.progresso; }
     public String getStatus()               { return this.status; }
+    public String getLocalizacao()          { return this.localizacao; }
 }

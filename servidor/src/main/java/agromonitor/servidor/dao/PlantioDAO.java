@@ -151,7 +151,8 @@ public class PlantioDAO
                 tipoProxima,
                 dataProxima == null ? null : paraTexto(dataProxima),
                 calcularProgresso(atividades),
-                calcularFase(calcularProgresso(atividades))));
+                calcularFase(calcularProgresso(atividades)),
+                d.getString("localizacao")));
         }
         return lista;
     }

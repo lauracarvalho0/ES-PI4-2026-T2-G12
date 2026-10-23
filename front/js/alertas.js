@@ -252,6 +252,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   ];
 
+  // Os alertas climáticos antigos eram exemplos fixos. A partir daqui eles
+  // são gerados pela previsão atual para a localização de cada plantio.
+  alerts.splice(0, alerts.length, ...alerts.filter((alert) => alert.type !== 'Climático'));
+  
   const PAGE_SIZE = 5;
   let currentPage = 1;
 
@@ -379,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function () {
   tableBody.addEventListener('click', function (e) {
     const btn = e.target.closest('button[data-alert-id]');
     if (!btn) return;
-    const alertId = parseInt(btn.dataset.alertId, 10);
+    const alertId = btn.dataset.alertId;
     openDetail(alertId);
   });
 
@@ -395,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function openDetail(alertId) {
-    const alert = alerts.find((a) => a.id === alertId);
+    const alert = alerts.find((a) => String(a.id) === String(alertId));
     if (!alert) return;
 
     const pClass = priorityClass(alert.priority);
@@ -479,4 +483,106 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   renderTable();
+  carregarAlertasClimaticos();
+
+  async function carregarAlertasClimaticos() {
+    const API = window.location.port === '8080' ? '' : 'http://localhost:8080';
+    let usuario;
+    try { usuario = JSON.parse(sessionStorage.getItem('usuario')); } catch (e) {}
+    if (!usuario || !usuario.codigo) return;
+
+    try {
+      const resposta = await fetch(API + '/api/plantios?usuarioCodigo=' + encodeURIComponent(usuario.codigo));
+      const dados = await resposta.json();
+      if (!resposta.ok || !dados.sucesso) throw new Error(dados.mensagem || 'Não foi possível carregar os plantios.');
+
+      const plantiosComLocal = (dados.plantios || []).filter((p) => p.localizacao && p.localizacao.trim());
+      const previsoes = await Promise.all(plantiosComLocal.map(async (plantio) => {
+        try { return await buscarPrevisaoDoPlantio(plantio); }
+        catch (e) { console.warn('Não foi possível consultar o clima de ' + plantio.nome, e); return []; }
+      }));
+      alerts.push(...previsoes.flat());
+      renderTable();
+
+      if (plantiosComLocal.length === 0) {
+        const aviso = document.createElement('p');
+        aviso.className = 'weather-source-note';
+        aviso.textContent = 'Cadastre a localização do plantio para receber alertas climáticos.';
+        tableBody.closest('table').insertAdjacentElement('afterend', aviso);
+      }
+    } catch (e) {
+      console.error('Falha ao carregar alertas climáticos:', e);
+    }
+  }
+
+  async function buscarPrevisaoDoPlantio(plantio) {
+    const localizacao = plantio.localizacao.trim();
+    const geocodeUrl = 'https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(localizacao) + '&count=1&language=pt&format=json';
+    const geoResponse = await fetch(geocodeUrl);
+    if (!geoResponse.ok) throw new Error('Falha ao localizar ' + localizacao);
+    const geo = await geoResponse.json();
+    const lugar = geo.results && geo.results[0];
+    if (!lugar) return [];
+
+    const query = new URLSearchParams({
+      latitude: lugar.latitude,
+      longitude: lugar.longitude,
+      daily: 'temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max',
+      forecast_days: '7',
+      timezone: 'auto'
+
+    });
+    const weatherResponse = await fetch('https://api.open-meteo.com/v1/forecast?' + query.toString());
+    if (!weatherResponse.ok) throw new Error('Falha ao consultar previsão do tempo');
+    const weather = await weatherResponse.json();
+    const dias = weather.daily;
+    if (!dias || !dias.time) return [];
+
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    return dias.time.flatMap((data, i) => {
+      const chuva = Math.round(dias.precipitation_probability_max[i] || 0);
+      const min = Math.round(dias.temperature_2m_min[i]);
+      const max = Math.round(dias.temperature_2m_max[i]);
+      const vento = Math.round(dias.wind_speed_10m_max[i] || 0);
+      const riscos = [];
+      if (chuva >= 60) riscos.push({ title: 'Chuva intensa prevista', priority: chuva >= 80 ? 'Crítico' : 'Alta', desc: `Chance de chuva de ${chuva}% em ${escaparHtml(localizacao)}.`, recommendation: 'Evite pulverizações e planeje atividades de campo considerando a chuva prevista.' });
+      if (min <= 3) riscos.push({ title: 'Risco de geada', priority: min <= 0 ? 'Crítico' : 'Alta', desc: `Temperatura mínima prevista de ${min}°C em ${escaparHtml(localizacao)}.`, recommendation: 'Monitore as áreas mais sensíveis e avalie medidas de proteção contra o frio.' });
+      if (max >= 35) riscos.push({ title: 'Temperatura muito alta', priority: max >= 38 ? 'Crítico' : 'Alta', desc: `Temperatura máxima prevista de ${max}°C em ${escaparHtml(localizacao)}.`, recommendation: 'Evite atividades nos horários mais quentes e monitore sinais de estresse térmico.' });
+      if (vento >= 40) riscos.push({ title: 'Ventos fortes previstos', priority: vento >= 60 ? 'Crítico' : 'Alta', desc: `Ventos de até ${vento} km/h previstos em ${escaparHtml(localizacao)}.`, recommendation: 'Adie pulverizações para reduzir deriva e aguarde condições de vento mais fracas.' });
+
+      return riscos.map((risco, riscoIndex) => {
+        const dataObj = new Date(data + 'T12:00:00');
+        const diferenca = Math.round((dataObj - hoje) / 86400000);
+        const label = diferenca === 0 ? 'Hoje' : diferenca === 1 ? 'Amanhã' : dataObj.toLocaleDateString('pt-BR', { weekday: 'long' });
+        const display = dataObj.toLocaleDateString('pt-BR');
+        const forecast = dias.time.slice(i, i + 4).map((dia, offset) => ({
+          label: offset === 0 ? label : new Date(dia + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'short' }),
+          date: new Date(dia + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+          tempMax: Math.round(dias.temperature_2m_max[i + offset]),
+          tempMin: Math.round(dias.temperature_2m_min[i + offset]),
+          rain: Math.round(dias.precipitation_probability_max[i + offset] || 0)
+        }));
+        return {
+          id: `weather-${plantio.codigo}-${data}-${riscoIndex}`,
+          title: risco.title, desc: risco.desc, type: 'Climático', culture: plantio.cultura,
+          reference: plantio.nome, talhao: plantio.talhao || 'Talhão não informado',
+          dateISO: data, dateDisplay: display,
+          dateRelative: diferenca === 0 ? 'Hoje' : diferenca === 1 ? 'Amanhã' : `Em ${diferenca} dias`,
+          priority: risco.priority, situacao: 'Não Lido',
+          detail: {
+            dataAlertaFull: new Date().toLocaleString('pt-BR'), origem: 'Previsão do tempo (Open-Meteo)',
+            impact: { activity: 'Atividades de campo', reference: `${plantio.nome} - ${plantio.talhao || 'Talhão'}`, dateLabel: `${label} ${display.slice(0, 5)}`, tone: risco.priority === 'Crítico' ? 'red' : 'amber' },
+            recommendations: [risco.recommendation, 'Confira novamente as condições antes de realizar atividades no campo.'],
+            forecast,
+            tips: `Previsão para ${escaparHtml(lugar.name || localizacao)}. Os dados são atualizados ao abrir esta tela.`
+          }
+        };
+      });
+    });
+  }
+
+  function escaparHtml(texto) {
+    return String(texto == null ? '' : texto).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
 });
