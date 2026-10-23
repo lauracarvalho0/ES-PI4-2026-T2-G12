@@ -79,7 +79,7 @@
   background-color: var(--cream-bg);
 }
 
-/* ===== PERFIL / PREFERÊNCIAS GRID ===== */
+/* ===== PERFIL  ===== */
 .settings-field-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
