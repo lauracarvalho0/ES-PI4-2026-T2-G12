@@ -251,8 +251,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // Salva as três preferências juntas; se falhar, volta ao valor anterior.
   function salvarPreferencias(mensagemOk) {
     const novas = {
-      fusoHorario: selectFuso.value,
-      idioma: selectIdioma.value,
       receberAlertasPorEmail: toggleEmail.checked
     };
     chamar('PUT', '/api/conta/preferencias', novas).then(function (r) {
@@ -266,8 +264,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  selectFuso.addEventListener('change', function () { salvarPreferencias('Fuso horário atualizado.'); });
-  selectIdioma.addEventListener('change', function () { salvarPreferencias('Idioma atualizado.'); });
   toggleEmail.addEventListener('change', function () {
     salvarPreferencias(toggleEmail.checked ? 'Alertas por e-mail ativados.' : 'Alertas por e-mail desativados.');
   });
