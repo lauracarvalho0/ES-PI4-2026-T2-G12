@@ -6,6 +6,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
 import agromonitor.comum.*;
+import agromonitor.servidor.dao.AlertaDAO;
 import agromonitor.servidor.dao.PlantioDAO;
 import agromonitor.servidor.dao.UsuarioDAO;
 import agromonitor.servidor.email.EmailService;
@@ -37,13 +38,16 @@ public class Servidor
 
         UsuarioDAO dao;
         PlantioDAO plantioDao;
+        AlertaDAO alertaDao;
         try
         {
             MongoClient cliente = MongoClients.create(uri);
             dao = new UsuarioDAO(cliente.getDatabase("agromonitor"));
             plantioDao = new PlantioDAO(cliente.getDatabase("agromonitor"));
+            alertaDao = new AlertaDAO(cliente.getDatabase("agromonitor"));
             dao.garantirIndices(); // tambem testa a conexao
             plantioDao.garantirIndices();
+            alertaDao.garantirIndices();
         }
         catch (Exception erro)
         {
@@ -66,13 +70,23 @@ public class Servidor
         AceitadoraDeConexao aceitadora = null;
         try
         {
-            aceitadora = new AceitadoraDeConexao(porta, usuarios, dao, plantioDao, email);
+            aceitadora = new AceitadoraDeConexao(porta, usuarios, dao, plantioDao, alertaDao, email);
             aceitadora.start();
         }
         catch (Exception erro)
         {
             System.err.println("Escolha uma porta liberada para uso!\n");
             return;
+        }
+
+        // vigia de alertas: confere as atividades agora e depois de hora em hora
+        try
+        {
+            new VigiaDeAlertas(alertaDao).start();
+        }
+        catch (Exception erro)
+        {
+            System.err.println("Nao foi possivel iniciar o vigia de alertas: " + erro.getMessage());
         }
 
         // tarefa simultanea da main: interagir com o administrador

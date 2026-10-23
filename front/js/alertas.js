@@ -3,6 +3,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // Começa vazio: só aparece o que vier de Clima.carregar()
   const alerts = [];
 
+  // Se o front foi aberto pelo Spring (porta 8080) usa caminho relativo;
+  // se foi aberto por outro lugar (ex.: Live Server), aponta para o backend.
+  const API = window.location.port === '8080' ? '' : 'http://localhost:8080';
+
   const PAGE_SIZE = 5;
   let currentPage = 1;
 
@@ -239,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
     `).join('');
 
     document.getElementById('detailForecastGrid').innerHTML = alert.detail.forecast.map((day) => `
-      <div class="forecast-day${day.emAlerta ? ' is-alert' : ''}">
+      <div class="forecast-day">
         <p class="forecast-day-label">${day.label}</p>
         <p class="forecast-day-date">${day.date}</p>
         <div class="forecast-day-icon">${weatherIcon(day.rain)}</div>
@@ -248,12 +252,32 @@ document.addEventListener('DOMContentLoaded', function () {
       </div>
     `).join('');
 
+    // alertas de atividade não têm previsão do tempo: esconde esse painel
+    document.getElementById('detailForecastGrid').closest('.detail-panel').style.display =
+      alert.detail.forecast.length ? '' : 'none';
+
+    // o painel "Dicas" pode não existir na página: só preenche se existir
+    const dicasEl = document.getElementById('detailTips');
+    if (dicasEl) dicasEl.innerHTML = alert.detail.tips;
+
     const btnMarcarLido = document.getElementById('btnMarcarLido');
     updateMarcarLidoButton(alert, btnMarcarLido);
 
-    btnMarcarLido.onclick = function () {
+    btnMarcarLido.onclick = async function () {
+      if (alert.doServidor) {
+        btnMarcarLido.disabled = true;
+        try {
+          await marcarLidoNoServidor(alert.alertaCodigo);
+        } catch (e) {
+          console.error('Falha ao marcar alerta como lido:', e);
+          btnMarcarLido.disabled = false;
+          mostrarAviso(['Não foi possível marcar o alerta como lido agora. Tente novamente.']);
+          return;
+        }
+      } else {
+        Clima.marcarLido(alert.id);
+      }
       alert.situacao = 'Lido';
-      Clima.marcarLido(alert.id);
       situacaoEl.textContent = 'Lido';
       situacaoEl.className = 'detail-meta-value tone-green';
       updateMarcarLidoButton(alert, btnMarcarLido);
@@ -283,26 +307,135 @@ document.addEventListener('DOMContentLoaded', function () {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
+  // ===== ALERTAS DE ATIVIDADE (vêm do servidor / banco) =====
+  function usuarioLogado() {
+    try {
+      const u = JSON.parse(sessionStorage.getItem('usuario'));
+      return u && u.codigo ? u : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  const prioridadeTexto = { CRITICO: 'Crítico', ALTA: 'Alta', MEDIA: 'Média' };
+
+  // "2026-10-23 08:30" -> "23/10/2026 08:30"
+  function formatarDataHora(texto) {
+    const partes = String(texto || '').split(' ');
+    const dia = (partes[0] || '').split('-');
+    if (dia.length !== 3) return texto || '-';
+    return `${dia[2]}/${dia[1]}/${dia[0]}${partes[1] ? ' ' + partes[1] : ''}`;
+  }
+
+  // Alerta como o servidor manda -> alerta como a tela usa (mesmo formato dos alertas climáticos).
+  // Título, descrição e recomendações entram na tela como HTML, então são escapados aqui.
+  function paraAlertaDaTela(a) {
+    const prioridade = prioridadeTexto[a.prioridade] || 'Média';
+
+    const p = String(a.dataAtividade).split('-').map(Number);
+    const data = new Date(p[0], p[1] - 1, p[2]);
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const diff = Math.round((data - hoje) / 86400000);
+    const relativo = diff === 0 ? 'Hoje'
+      : diff === 1 ? 'Amanhã'
+      : diff > 1 ? `Em ${diff} dias`
+      : diff === -1 ? 'Há 1 dia'
+      : `Há ${-diff} dias`;
+    const ddmm = String(p[2]).padStart(2, '0') + '/' + String(p[1]).padStart(2, '0');
+    const talhao = a.talhao || 'Talhão não informado';
+
+    return {
+      id: 'atividade-' + a.codigo,
+      alertaCodigo: a.codigo,
+      doServidor: true,
+      title: escaparHtml(a.titulo),
+      desc: escaparHtml(a.descricao),
+      type: 'Atividade',
+      culture: a.cultura,
+      reference: a.plantioNome,
+      talhao: talhao,
+      dateISO: a.dataAtividade,
+      dateDisplay: ddmm,
+      dateRelative: relativo,
+      priority: prioridade,
+      situacao: a.situacao === 'LIDO' ? 'Lido' : 'Não Lido',
+      detail: {
+        dataAlertaFull: formatarDataHora(a.dataAlerta),
+        origem: 'Monitoramento das atividades',
+        impact: {
+          activity: a.impactoAtividade || 'Atividade',
+          reference: `${a.plantioNome} - ${talhao}`,
+          dateLabel: a.impactoDataLabel || '-',
+          tone: prioridade === 'Crítico' ? 'red' : 'amber'
+        },
+        recommendations: (a.recomendacoes || []).map(escaparHtml),
+        forecast: [],
+        tips: 'Este alerta foi gerado automaticamente a partir das atividades do plantio. Ao concluir a atividade, ele é marcado como lido.'
+      }
+    };
+  }
+
+  async function buscarAlertasDeAtividades() {
+    const usuario = usuarioLogado();
+    if (!usuario) return [];
+    const resp = await fetch(API + '/api/alertas?usuarioCodigo=' + encodeURIComponent(usuario.codigo));
+    const dados = await resp.json();
+    if (!resp.ok || !dados.sucesso) throw new Error(dados.mensagem || 'Não foi possível carregar os alertas.');
+    return (dados.alertas || []).map(paraAlertaDaTela);
+  }
+
+  async function marcarLidoNoServidor(alertaCodigo) {
+    const usuario = usuarioLogado();
+    if (!usuario) throw new Error('Sessão expirada.');
+    const resp = await fetch(API + '/api/alertas/lido', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuarioCodigo: usuario.codigo, alertaCodigo: alertaCodigo })
+    });
+    const dados = await resp.json();
+    if (!resp.ok || !dados.sucesso) throw new Error(dados.mensagem || 'Não foi possível marcar como lido.');
+  }
+
   // ===== CARREGAMENTO INICIAL =====
   mostrarCarregando();
-  carregarAlertasClimaticos();
+  carregarAlertas();
 
-  async function carregarAlertasClimaticos() {
+  // Junta os dois tipos: climáticos (calculados no navegador) e de atividade (do banco).
+  // Se um falhar, o outro continua aparecendo.
+  async function carregarAlertas() {
     const avisos = [];
-    try {
-      const r = await Clima.carregar();
-      alerts.push(...r.alertas);
-      preencherFiltros(r.plantios || []);
-      if (r.semLocalizacao) avisos.push('Cadastre a localização do plantio para receber alertas climáticos.');
-      if (r.naoEncontrados.length) avisos.push('Não encontramos a localização: ' + r.naoEncontrados.join('; ') + '. Use o formato "Cidade, UF".');
-      if (r.falhas.length) avisos.push('Não foi possível consultar a previsão do tempo de: ' + r.falhas.join(', ') + '. Tente novamente mais tarde.');
-    } catch (e) {
-      console.error('Falha ao carregar alertas climáticos:', e);
-      avisos.push('Não foi possível carregar os alertas climáticos agora.');
-    } finally {
-      renderTable();
-      mostrarAviso(avisos);
-    }
+    let plantiosDosFiltros = [];
+
+    await Promise.all([
+      (async function () {
+        try {
+          const r = await Clima.carregar();
+          alerts.push(...r.alertas);
+          plantiosDosFiltros = plantiosDosFiltros.concat(r.plantios || []);
+          if (r.semLocalizacao) avisos.push('Cadastre a localização do plantio para receber alertas climáticos.');
+          if (r.naoEncontrados.length) avisos.push('Não encontramos a localização: ' + r.naoEncontrados.join('; ') + '. Use o formato "Cidade, UF".');
+          if (r.falhas.length) avisos.push('Não foi possível consultar a previsão do tempo de: ' + r.falhas.join(', ') + '. Tente novamente mais tarde.');
+        } catch (e) {
+          console.error('Falha ao carregar alertas climáticos:', e);
+          avisos.push('Não foi possível carregar os alertas climáticos agora.');
+        }
+      })(),
+      (async function () {
+        try {
+          const lista = await buscarAlertasDeAtividades();
+          alerts.push(...lista);
+          plantiosDosFiltros = plantiosDosFiltros.concat(lista.map((a) => ({ cultura: a.culture, talhao: a.talhao })));
+        } catch (e) {
+          console.error('Falha ao carregar alertas de atividades:', e);
+          avisos.push('Não foi possível carregar os alertas de atividades agora.');
+        }
+      })()
+    ]);
+
+    preencherFiltros(plantiosDosFiltros);
+    renderTable();
+    mostrarAviso(avisos);
   }
 
   function mostrarAviso(avisos) {

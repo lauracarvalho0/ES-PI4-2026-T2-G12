@@ -4,6 +4,7 @@ import java.net.*;
 import java.util.*;
 
 import agromonitor.comum.*;
+import agromonitor.servidor.dao.AlertaDAO;
 import agromonitor.servidor.dao.PlantioDAO;
 import agromonitor.servidor.dao.UsuarioDAO;
 import agromonitor.servidor.email.EmailService;
@@ -16,10 +17,11 @@ public class AceitadoraDeConexao extends Thread
     private ArrayList<Parceiro> usuarios;
     private UsuarioDAO          dao;
     private PlantioDAO          plantioDao;
+    private AlertaDAO           alertaDao;
     private EmailService        email;
 
     public AceitadoraDeConexao(String porta, ArrayList<Parceiro> usuarios, UsuarioDAO dao,
-                               PlantioDAO plantioDao, EmailService email) throws Exception
+                               PlantioDAO plantioDao, AlertaDAO alertaDao, EmailService email) throws Exception
     {
         if (porta == null)
             throw new Exception("Porta ausente");
@@ -39,12 +41,15 @@ public class AceitadoraDeConexao extends Thread
             throw new Exception("DAO ausente");
         if (plantioDao == null)
             throw new Exception("DAO de plantio ausente");
+        if (alertaDao == null)
+            throw new Exception("DAO de alerta ausente");
         if (email == null)
             throw new Exception("Servico de e-mail ausente");
 
         this.usuarios   = usuarios;
         this.dao        = dao;
         this.plantioDao = plantioDao;
+        this.alertaDao  = alertaDao;
         this.email      = email;
     }
 
@@ -65,7 +70,7 @@ public class AceitadoraDeConexao extends Thread
             SupervisoraDeConexao supervisora = null;
             try
             {
-                supervisora = new SupervisoraDeConexao(conexao, this.usuarios, this.dao, this.plantioDao, this.email);
+                supervisora = new SupervisoraDeConexao(conexao, this.usuarios, this.dao, this.plantioDao, this.alertaDao, this.email);
             }
             catch (Exception erro)
             {} // sei que passei parametros corretos
