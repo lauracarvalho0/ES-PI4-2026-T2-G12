@@ -3,12 +3,14 @@ package agromonitor.servidor.dao;
 import java.util.Date;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import com.mongodb.ErrorCategory;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.*;
+import agromonitor.servidor.modelo.Perfil;
 import agromonitor.servidor.modelo.Usuario;
 
 // Unica classe que fala com o MongoDB para usuarios.
@@ -151,5 +153,81 @@ public class UsuarioDAO
             return null;
         return new Usuario(d.getInteger("codigo"), d.getString("nome"),
                            d.getString("email"), d.getString("senhaHash"));
+    }
+
+    // ---------- tela Configuracoes ----------
+
+    private Bson ativoComCodigo(int codigo)
+    {
+        return Filters.and(Filters.eq("codigo", codigo), Filters.eq("ativo", true));
+    }
+
+    // Dados da conta do usuario ativo, ou null.
+    public Perfil buscarPerfil(int codigo)
+    {
+        Document d = usuarios().find(ativoComCodigo(codigo)).first();
+        if (d == null)
+            return null;
+        Boolean alertas = d.getBoolean("receberAlertasPorEmail");
+        return new Perfil(d.getString("nome"), d.getString("email"), d.getString("telefone"),
+                          d.getString("fusoHorario"), d.getString("idioma"),
+                          alertas == null || alertas);
+    }
+
+    // Altera nome, e-mail e telefone. Devolve false se o usuario nao existe/esta inativo.
+    public boolean atualizarPerfil(int codigo, String nome, String email, String telefone)
+        throws EmailJaCadastradoException
+    {
+        try
+        {
+            return usuarios().updateOne(ativoComCodigo(codigo), Updates.combine(
+                    Updates.set("nome", nome),
+                    Updates.set("email", email),
+                    Updates.set("telefone", telefone))).getMatchedCount() > 0;
+        }
+        catch (MongoWriteException erro)
+        {
+            if (erro.getError().getCategory() == ErrorCategory.DUPLICATE_KEY)
+                throw new EmailJaCadastradoException();
+            throw erro;
+        }
+    }
+
+    public boolean atualizarPreferencias(int codigo, String fusoHorario, String idioma, boolean alertasPorEmail)
+    {
+        return usuarios().updateOne(ativoComCodigo(codigo), Updates.combine(
+                Updates.set("fusoHorario", fusoHorario),
+                Updates.set("idioma", idioma),
+                Updates.set("receberAlertasPorEmail", alertasPorEmail))).getMatchedCount() > 0;
+    }
+
+    // Hash da senha do usuario ativo, ou null.
+    public String buscarSenhaHash(int codigo)
+    {
+        Document d = usuarios().find(ativoComCodigo(codigo)).first();
+        return d == null ? null : d.getString("senhaHash");
+    }
+
+    // Troca a senha e invalida qualquer link de recuperacao pendente.
+    public boolean alterarSenha(int codigo, String novoSenhaHash)
+    {
+        return usuarios().updateOne(ativoComCodigo(codigo), Updates.combine(
+                Updates.set("senhaHash", novoSenhaHash),
+                Updates.unset("recuperacaoSenha"))).getMatchedCount() > 0;
+    }
+
+    // Exclusao logica (dicionario: "ativo" fica falso) e encerra a assinatura vigente.
+    public boolean desativar(int codigo)
+    {
+        Date agora = new Date();
+        boolean ok = usuarios().updateOne(ativoComCodigo(codigo), Updates.combine(
+                Updates.set("ativo", false),
+                Updates.unset("recuperacaoSenha"),
+                Updates.set("assinaturaAtiva.status", "CANCELADA"))).getMatchedCount() > 0;
+        if (ok)
+            banco.getCollection("assinaturas_historico").updateMany(
+                Filters.and(Filters.eq("usuarioCodigo", codigo), Filters.eq("status", "ATIVA")),
+                Updates.combine(Updates.set("status", "CANCELADA"), Updates.set("dataFim", agora)));
+        return ok;
     }
 }

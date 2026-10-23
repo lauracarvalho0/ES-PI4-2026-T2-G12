@@ -108,7 +108,7 @@
             </svg>
           </div>
           <div>
-            <p class="sidebar-user-name" id="sidebarUserName">João da Silva</p>
+            <p class="sidebar-user-name" id="sidebarUserName"></p>
             <p class="sidebar-user-role">Produtor Rural</p>
           </div>
         </div>
@@ -154,15 +154,15 @@
           <div class="settings-field-grid">
             <div class="settings-field">
               <label>Nome completo</label>
-              <div class="settings-field-value" id="displayNome">João da Silva</div>
+              <div class="settings-field-value" id="displayNome"></div>
             </div>
             <div class="settings-field">
               <label>E-mail</label>
-              <div class="settings-field-value" id="displayEmail">João.silva@gmail.com</div>
+              <div class="settings-field-value" id="displayEmail"></div>
             </div>
             <div class="settings-field">
               <label>Telefone</label>
-              <div class="settings-field-value" id="displayTelefone">(19) 998765647</div>
+              <div class="settings-field-value" id="displayTelefone"></div>
             </div>
           </div>
         </div>
@@ -208,17 +208,17 @@
             <div class="settings-field">
               <label for="fusoHorario">Fuso Horário</label>
               <select id="fusoHorario">
-                <option selected>(GMT - 03:00) Brasília</option>
-                <option>(GMT - 04:00) Manaus</option>
-                <option>(GMT - 05:00) Rio Branco</option>
+                <option value="(GMT-03:00) Brasília" selected>(GMT - 03:00) Brasília</option>
+                <option value="(GMT-04:00) Manaus">(GMT - 04:00) Manaus</option>
+                <option value="(GMT-05:00) Rio Branco">(GMT - 05:00) Rio Branco</option>
               </select>
             </div>
             <div class="settings-field">
               <label for="idioma">Idioma</label>
               <select id="idioma">
-                <option selected>Português</option>
-                <option>English</option>
-                <option>Español</option>
+                <option value="Português" selected>Português</option>
+                <option value="English">English</option>
+                <option value="Español">Español</option>
               </select>
             </div>
           </div>
@@ -294,6 +294,7 @@
           <label for="inputTelefone">Telefone</label>
           <input type="text" id="inputTelefone" placeholder="Digite seu telefone">
         </div>
+        <p class="modal-error" id="erroInfo"></p>
         <div class="modal-actions">
           <button type="button" class="modal-btn-cancel" data-close-modal="modalEditarInfo">Cancelar</button>
           <button type="submit" class="modal-btn-save">Salvar</button>
@@ -346,6 +347,14 @@
     <div class="modal-box">
       <p class="modal-title">Excluir conta</p>
       <p class="modal-danger-text">Tem certeza que deseja excluir sua conta? Todos os seus dados, plantios e histórico serão apagados permanentemente. Essa ação não pode ser desfeita.</p>
+      <div class="modal-field modal-field-password">
+        <label for="inputSenhaExclusao">Digite sua senha para confirmar</label>
+        <input type="password" id="inputSenhaExclusao" placeholder="Digite sua senha" autocomplete="current-password">
+        <button type="button" class="modal-toggle-password" data-target="inputSenhaExclusao">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+      </div>
+      <p class="modal-error" id="erroExclusao"></p>
       <div class="modal-actions">
         <button type="button" class="modal-btn-cancel" data-close-modal="modalExcluirConta">Cancelar</button>
         <button type="button" class="modal-btn-danger" id="btnConfirmarExclusao">Excluir conta</button>

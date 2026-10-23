@@ -1,22 +1,55 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-  // ===== ESTADO DO PERFIL (viria da API) =====
-  const profile = {
-    nome: 'João da Silva',
-    email: 'João.silva@gmail.com',
-    telefone: '(19) 998765647'
-  };
+  const API = window.location.port === '8080' ? '' : 'http://localhost:8080';
+
+  // ===== SESSÃO =====
+  let usuario = null;
+  try { usuario = JSON.parse(sessionStorage.getItem('usuario')); } catch (err) {}
+
+  if (!usuario || !usuario.codigo) {
+    window.location.href = '../auth/login.html';
+    return;
+  }
+
+  // Chama o backend. Sempre devolve { sucesso, mensagem, ... }.
+  function chamar(metodo, caminho, corpo) {
+    const opcoes = { method: metodo, headers: { 'Content-Type': 'application/json' } };
+    if (corpo) opcoes.body = JSON.stringify(Object.assign({ usuarioCodigo: usuario.codigo }, corpo));
+    const url = API + caminho + (metodo === 'GET' ? '?usuarioCodigo=' + encodeURIComponent(usuario.codigo) : '');
+    return fetch(url, opcoes)
+      .then(function (resp) {
+        return resp.json().catch(function () {
+          return { sucesso: false, mensagem: 'Resposta inesperada do servidor.' };
+        });
+      })
+      .catch(function () {
+        return { sucesso: false, mensagem: 'Não foi possível conectar ao servidor.' };
+      });
+  }
+
+  // ===== ESTADO DA CONTA (vem da API) =====
+  const profile = { nome: '', email: '', telefone: '' };
+  const prefs = { fusoHorario: '(GMT-03:00) Brasília', idioma: 'Português', receberAlertasPorEmail: true };
 
   const displayNome = document.getElementById('displayNome');
   const displayEmail = document.getElementById('displayEmail');
   const displayTelefone = document.getElementById('displayTelefone');
   const sidebarUserName = document.getElementById('sidebarUserName');
+  const selectFuso = document.getElementById('fusoHorario');
+  const selectIdioma = document.getElementById('idioma');
+  const toggleEmail = document.getElementById('toggleAlertasEmail');
 
   function refreshProfileDisplay() {
     displayNome.textContent = profile.nome;
     displayEmail.textContent = profile.email;
-    displayTelefone.textContent = profile.telefone;
+    displayTelefone.textContent = profile.telefone || 'Não informado';
     sidebarUserName.textContent = profile.nome;
+  }
+
+  function refreshPrefs() {
+    selectFuso.value = prefs.fusoHorario;
+    selectIdioma.value = prefs.idioma;
+    toggleEmail.checked = prefs.receberAlertasPorEmail;
   }
 
   // ===== HELPERS DE MODAL =====
@@ -50,6 +83,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  function mostrarErro(el, texto) {
+    el.textContent = texto;
+    el.classList.add('is-visible');
+  }
+
+  function limparErro(el) {
+    el.classList.remove('is-visible');
+  }
+
+  // Desabilita o botão de envio enquanto a chamada está em andamento
+  function comEspera(botao, promessa) {
+    botao.disabled = true;
+    return promessa.finally(function () { botao.disabled = false; });
+  }
+
   // ===== TOAST =====
   let toastTimeout;
   function showToast(message) {
@@ -62,26 +110,61 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 2600);
   }
 
+  // ===== CARREGAR DADOS =====
+  chamar('GET', '/api/conta').then(function (r) {
+    if (!r.sucesso) {
+      showToast(r.mensagem || 'Não foi possível carregar seus dados.');
+      return;
+    }
+    profile.nome = r.conta.nome || '';
+    profile.email = r.conta.email || '';
+    profile.telefone = r.conta.telefone || '';
+    prefs.fusoHorario = r.conta.fusoHorario || prefs.fusoHorario;
+    prefs.idioma = r.conta.idioma || prefs.idioma;
+    prefs.receberAlertasPorEmail = r.conta.receberAlertasPorEmail !== false;
+    refreshProfileDisplay();
+    refreshPrefs();
+  });
+
   // ===== MODAL: ALTERAR INFORMAÇÕES =====
   const inputNome = document.getElementById('inputNome');
   const inputEmail = document.getElementById('inputEmail');
   const inputTelefone = document.getElementById('inputTelefone');
+  const erroInfo = document.getElementById('erroInfo');
 
   document.getElementById('btnAbrirEditarInfo').addEventListener('click', function () {
     inputNome.value = profile.nome;
     inputEmail.value = profile.email;
     inputTelefone.value = profile.telefone;
+    limparErro(erroInfo);
     openModal('modalEditarInfo');
   });
 
   document.getElementById('formEditarInfo').addEventListener('submit', function (e) {
     e.preventDefault();
-    profile.nome = inputNome.value.trim() || profile.nome;
-    profile.email = inputEmail.value.trim() || profile.email;
-    profile.telefone = inputTelefone.value.trim() || profile.telefone;
-    refreshProfileDisplay();
-    closeModal('modalEditarInfo');
-    showToast('Informações atualizadas com sucesso.');
+    const dados = {
+      nome: inputNome.value.trim(),
+      email: inputEmail.value.trim(),
+      telefone: inputTelefone.value.trim()
+    };
+    const botao = e.target.querySelector('.modal-btn-save');
+
+    comEspera(botao, chamar('PUT', '/api/conta', dados)).then(function (r) {
+      if (!r.sucesso) {
+        mostrarErro(erroInfo, r.mensagem);
+        return;
+      }
+      profile.nome = dados.nome;
+      profile.email = dados.email.toLowerCase();
+      profile.telefone = dados.telefone;
+      // mantém o nome/e-mail da sessão em sincronia com o que foi salvo
+      usuario.nome = profile.nome;
+      usuario.email = profile.email;
+      try { sessionStorage.setItem('usuario', JSON.stringify(usuario)); } catch (err) {}
+      refreshProfileDisplay();
+      closeModal('modalEditarInfo');
+      showToast('Informações atualizadas com sucesso.');
+    });
   });
 
   // ===== MODAL: ALTERAR SENHA =====
@@ -92,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.getElementById('btnAbrirAlterarSenha').addEventListener('click', function () {
     document.getElementById('formAlterarSenha').reset();
-    erroSenha.classList.remove('is-visible');
+    limparErro(erroSenha);
     openModal('modalAlterarSenha');
   });
 
@@ -100,20 +183,31 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
 
     if (inputNovaSenha.value !== inputConfirmaSenha.value) {
-      erroSenha.textContent = 'As senhas não coincidem.';
-      erroSenha.classList.add('is-visible');
+      mostrarErro(erroSenha, 'As senhas não coincidem.');
       return;
     }
 
     if (inputNovaSenha.value.length < 6) {
-      erroSenha.textContent = 'A nova senha deve ter pelo menos 6 caracteres.';
-      erroSenha.classList.add('is-visible');
+      mostrarErro(erroSenha, 'A nova senha deve ter pelo menos 6 caracteres.');
       return;
     }
 
-    erroSenha.classList.remove('is-visible');
-    closeModal('modalAlterarSenha');
-    showToast('Senha alterada com sucesso.');
+    limparErro(erroSenha);
+    const botao = e.target.querySelector('.modal-btn-save');
+    const pedido = chamar('PUT', '/api/conta/senha', {
+      senhaAtual: inputSenhaAtual.value,
+      novaSenha: inputNovaSenha.value
+    });
+
+    comEspera(botao, pedido).then(function (r) {
+      if (!r.sucesso) {
+        mostrarErro(erroSenha, r.mensagem);
+        return;
+      }
+      document.getElementById('formAlterarSenha').reset();
+      closeModal('modalAlterarSenha');
+      showToast('Senha alterada com sucesso.');
+    });
   });
 
   // Alternar visibilidade dos campos de senha
@@ -126,19 +220,56 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // ===== MODAL: EXCLUIR CONTA =====
+  const inputSenhaExclusao = document.getElementById('inputSenhaExclusao');
+  const erroExclusao = document.getElementById('erroExclusao');
+
   document.getElementById('btnAbrirExcluirConta').addEventListener('click', function () {
+    inputSenhaExclusao.value = '';
+    inputSenhaExclusao.type = 'password';
+    limparErro(erroExclusao);
     openModal('modalExcluirConta');
   });
 
   document.getElementById('btnConfirmarExclusao').addEventListener('click', function () {
-    // Aqui entraria a chamada para excluir a conta na API
-    closeModal('modalExcluirConta');
-    window.location.href = '/pages/auth/login.html';
+    if (!inputSenhaExclusao.value) {
+      mostrarErro(erroExclusao, 'Digite sua senha para confirmar.');
+      return;
+    }
+    limparErro(erroExclusao);
+
+    comEspera(this, chamar('POST', '/api/conta/excluir', { senha: inputSenhaExclusao.value })).then(function (r) {
+      if (!r.sucesso) {
+        mostrarErro(erroExclusao, r.mensagem);
+        return;
+      }
+      try { sessionStorage.removeItem('usuario'); } catch (err) {}
+      window.location.href = '../auth/login.html';
+    });
   });
 
-  // ===== TOGGLE DE NOTIFICAÇÕES =====
-  document.getElementById('toggleAlertasEmail').addEventListener('change', function (e) {
-    showToast(e.target.checked ? 'Alertas por e-mail ativados.' : 'Alertas por e-mail desativados.');
+  // ===== PREFERÊNCIAS E NOTIFICAÇÕES =====
+  // Salva as três preferências juntas; se falhar, volta ao valor anterior.
+  function salvarPreferencias(mensagemOk) {
+    const novas = {
+      fusoHorario: selectFuso.value,
+      idioma: selectIdioma.value,
+      receberAlertasPorEmail: toggleEmail.checked
+    };
+    chamar('PUT', '/api/conta/preferencias', novas).then(function (r) {
+      if (!r.sucesso) {
+        refreshPrefs();
+        showToast(r.mensagem || 'Não foi possível salvar.');
+        return;
+      }
+      Object.assign(prefs, novas);
+      showToast(mensagemOk);
+    });
+  }
+
+  selectFuso.addEventListener('change', function () { salvarPreferencias('Fuso horário atualizado.'); });
+  selectIdioma.addEventListener('change', function () { salvarPreferencias('Idioma atualizado.'); });
+  toggleEmail.addEventListener('change', function () {
+    salvarPreferencias(toggleEmail.checked ? 'Alertas por e-mail ativados.' : 'Alertas por e-mail desativados.');
   });
 
   // ===== PLANO (sincronizado com a tela de Planos) =====
@@ -153,6 +284,5 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('planoAtualLabel').textContent = planNames[planoId] || 'Gratuito';
   }
 
-  refreshProfileDisplay();
   refreshPlanoAtualLabel();
 });
