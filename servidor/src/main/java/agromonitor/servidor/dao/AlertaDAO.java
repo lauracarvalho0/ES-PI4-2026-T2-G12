@@ -24,9 +24,12 @@ import com.mongodb.client.model.*;
 
 // Unica classe que fala com o MongoDB para a colecao alertas (dicionario de dados, entidade Alerta).
 // As recomendacoes ficam embutidas no proprio documento do alerta.
-// Os alertas CLIMATICOS ainda nao passam por aqui: sao gerados no front (clima.js).
+// O front gera os riscos climaticos e esta classe evita e-mails duplicados por evento.
 public class AlertaDAO
 {
+    public record AlertaEmail(int codigo, int usuarioCodigo, String titulo, String descricao,
+                              String plantio, String data, String prioridade) {}
+
     private final MongoDatabase banco;
 
     public AlertaDAO(MongoDatabase banco)
@@ -43,6 +46,8 @@ public class AlertaDAO
         alertas().createIndex(Indexes.ascending("usuario.codigo", "situacao"));
         // garante que nunca saem dois alertas iguais (mesma atividade + mesmo motivo)
         alertas().createIndex(Indexes.ascending("atividade.codigo", "motivo"), new IndexOptions().unique(true));
+        banco.getCollection("alertas_climaticos_email").createIndex(
+            Indexes.ascending("chave"), new IndexOptions().unique(true));
     }
 
     // Mesma ideia do PlantioDAO: reserva codigos na colecao de contadores
@@ -207,5 +212,60 @@ public class AlertaDAO
         alertas().updateMany(
             Filters.and(Filters.eq("atividade.codigo", atividadeCodigo), Filters.eq("situacao", "NAO_LIDO")),
             Updates.set("situacao", "LIDO"));
+    }
+
+    // Alertas de atividade novos aguardando processamento de e-mail.
+    public List<AlertaEmail> listarPendentesDeEmail()
+    {
+        List<AlertaEmail> lista = new ArrayList<>();
+        for (Document d : alertas().find(Filters.and(
+                Filters.eq("tipoAlerta", "ATIVIDADE"),
+                Filters.ne("emailEnviado", true))))
+        {
+            Document plantio = (Document) d.get("plantio");
+            lista.add(new AlertaEmail(d.getInteger("codigo"),
+                ((Document) d.get("usuario")).getInteger("codigo"), d.getString("titulo"),
+                d.getString("descricao"), plantio.getString("nome"),
+                paraLocalDate(d.getDate("dataAtividade")).toString(), d.getString("prioridade")));
+        }
+        return lista;
+    }
+
+    public void marcarEmailProcessado(int alertaCodigo)
+    {
+        alertas().updateOne(Filters.eq("codigo", alertaCodigo), Updates.set("emailEnviado", true));
+    }
+
+    // Registra cada evento climatico uma unica vez para evitar e-mails duplicados a cada visita.
+    public boolean registrarAlertaClimaticoEmail(String chave, int usuarioCodigo, int plantioCodigo,
+            String plantio, String titulo, String descricao, String prioridade, String data)
+    {
+        MongoCollection<Document> colecao = banco.getCollection("alertas_climaticos_email");
+        if (colecao.countDocuments(Filters.eq("chave", chave)) > 0)
+            return false;
+        try
+        {
+            colecao.insertOne(new Document("chave", chave)
+                .append("usuarioCodigo", usuarioCodigo).append("plantioCodigo", plantioCodigo)
+                .append("plantio", plantio).append("titulo", titulo).append("descricao", descricao)
+                .append("prioridade", prioridade).append("data", data).append("criadoEm", new Date())
+                .append("emailProcessado", false));
+            return true;
+        }
+        catch (MongoWriteException erro)
+        {
+            if (erro.getError().getCategory() == ErrorCategory.DUPLICATE_KEY)
+            {
+                Document existente = colecao.find(Filters.eq("chave", chave)).first();
+                return existente != null && !existente.getBoolean("emailProcessado", false);
+            }
+            throw erro;
+        }
+    }
+
+    public void marcarEmailClimaticoProcessado(String chave)
+    {
+        banco.getCollection("alertas_climaticos_email").updateOne(
+            Filters.eq("chave", chave), Updates.set("emailProcessado", true));
     }
 }

@@ -168,10 +168,9 @@ public class UsuarioDAO
         Document d = usuarios().find(ativoComCodigo(codigo)).first();
         if (d == null)
             return null;
-        Boolean alertas = d.getBoolean("receberAlertasPorEmail");
         return new Perfil(d.getString("nome"), d.getString("email"), d.getString("telefone"),
                           d.getString("fusoHorario"), d.getString("idioma"),
-                          alertas == null || alertas);
+                          d.getBoolean("receberAlertasPorEmail", true));
     }
 
     // Altera nome, e-mail e telefone. Devolve false se o usuario nao existe/esta inativo.
@@ -198,7 +197,22 @@ public class UsuarioDAO
         return usuarios().updateOne(ativoComCodigo(codigo), Updates.combine(
                 Updates.set("fusoHorario", fusoHorario),
                 Updates.set("idioma", idioma),
-                Updates.set("receberAlertasPorEmail", alertasPorEmail))).getMatchedCount() > 0;
+                Updates.set("receberAlertasPorEmail", alertasPorEmail)))
+            .getMatchedCount() > 0;
+    }
+
+    // E-mail so e devolvido quando a conta esta ativa e autorizou alertas por e-mail.
+    public String emailParaAlerta(int codigo)
+    {
+        Document d = usuarios().find(ativoComCodigo(codigo))
+            .projection(Projections.include("email", "receberAlertasPorEmail"))
+            .first();
+        if (d == null)
+            return null;
+
+        if (!d.getBoolean("receberAlertasPorEmail", true))
+            return null;
+        return d.getString("email");
     }
 
     // Hash da senha do usuario ativo, ou null.

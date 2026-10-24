@@ -2,7 +2,7 @@ package agromonitor.comum.conta;
 
 import agromonitor.comum.Comunicado;
 
-// Cliente -> Servidor: altera fuso horario, idioma e preferencia de alertas por e-mail.
+// Cliente -> Servidor: altera preferencias da conta, incluindo alertas por e-mail.
 public class PedidoDeAtualizacaoDePreferencias extends Comunicado
 {
     private static final long serialVersionUID = 1L;
@@ -12,7 +12,8 @@ public class PedidoDeAtualizacaoDePreferencias extends Comunicado
     private String idioma;
     private boolean receberAlertasPorEmail;
 
-    public PedidoDeAtualizacaoDePreferencias(int usuarioCodigo, String fusoHorario, String idioma, boolean receberAlertasPorEmail)
+    public PedidoDeAtualizacaoDePreferencias(int usuarioCodigo, String fusoHorario, String idioma,
+            boolean receberAlertasPorEmail)
     {
         this.usuarioCodigo = usuarioCodigo;
         this.fusoHorario = fusoHorario;

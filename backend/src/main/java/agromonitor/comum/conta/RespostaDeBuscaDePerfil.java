@@ -16,7 +16,8 @@ public class RespostaDeBuscaDePerfil extends Comunicado
     private String idioma;
     private boolean receberAlertasPorEmail;
 
-    public RespostaDeBuscaDePerfil(boolean sucesso, String mensagem, String nome, String email, String telefone, String fusoHorario, String idioma, boolean receberAlertasPorEmail)
+    public RespostaDeBuscaDePerfil(boolean sucesso, String mensagem, String nome, String email, String telefone,
+            String fusoHorario, String idioma, boolean receberAlertasPorEmail)
     {
         this.sucesso = sucesso;
         this.mensagem = mensagem;
