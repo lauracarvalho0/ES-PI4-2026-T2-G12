@@ -5,10 +5,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const filterPlantio = document.getElementById('filterPlantioAtiv');
   const filterStatus = document.getElementById('filterStatusAtiv');
+  const chkConcluidos = document.getElementById('mostrarPlantiosConcluidos');
   const noResults = document.getElementById('noActivityResults');
   const lista = document.querySelector('.activity-list');
 
-  if (!filterPlantio || !filterStatus || !lista || !noResults) return;
+  if (!filterPlantio || !filterStatus || !chkConcluidos || !lista || !noResults) return;
 
   const tipoTexto = {
     PLANTIO: 'Plantio',
@@ -43,6 +44,22 @@ document.addEventListener('DOMContentLoaded', function () {
     return h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0');
   }
 
+  // plantio concluído = todas as atividades dele estão concluídas
+  let plantiosConcluidos = {};
+  let ultimas = [];
+
+  function calcularPlantiosConcluidos(atividades) {
+    const info = {};
+    atividades.forEach(function (a) {
+      const i = info[a.plantioCodigo] || (info[a.plantioCodigo] = { total: 0, concluidas: 0 });
+      i.total++;
+      if (a.status === 'CONCLUIDA') i.concluidas++;
+    });
+    const r = {};
+    Object.keys(info).forEach(function (k) { r[k] = info[k].total === info[k].concluidas; });
+    return r;
+  }
+
   function montarLinha(a) {
     const st = statusInfo[a.status] || statusInfo.PENDENTE;
     const partes = a.data.split('-'); // [ano, mes, dia]
@@ -68,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '" data-atividade="' + esc(a.codigo) + '" data-titulo="' + esc(tipoTexto[a.tipoAtividade] || a.tipoAtividade) +
       '">Concluir</button>';
 
-    return '<div class="activity-row" data-plantio="' + esc(a.plantioCodigo) + '" data-status="' + esc(st.filtro) + '">' +
+    return '<div class="activity-row" data-plantio="' + esc(a.plantioCodigo) + '" data-status="' + esc(st.filtro) + '" data-plantio-concluido="' + (plantiosConcluidos[a.plantioCodigo] ? '1' : '0') + '">' +
       '<div class="activity-date">' +
         '<span class="' + diaClasse + '">' + esc(dia) + '</span>' +
         '<span class="' + mesClasse + '">' + esc(mesTexto) + '</span>' +
@@ -103,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const vistos = {};
     atividades.forEach(function (a) {
       if (vistos[a.plantioCodigo]) return;
+      if (plantiosConcluidos[a.plantioCodigo] && !chkConcluidos.checked) return;
       vistos[a.plantioCodigo] = true;
       const opt = document.createElement('option');
       opt.value = a.plantioCodigo;
@@ -120,7 +138,8 @@ document.addEventListener('DOMContentLoaded', function () {
     todas.forEach(function (row) {
       const okPlantio = plantio === 'todos' || row.dataset.plantio === plantio;
       const okStatus = status === 'todos' || row.dataset.status === status;
-      const mostrar = okPlantio && okStatus;
+      const okConcluido = chkConcluidos.checked || row.dataset.plantioConcluido !== '1';
+      const mostrar = okPlantio && okStatus && okConcluido;
 
       row.style.display = mostrar ? '' : 'none';
       if (mostrar) visiveis++;
@@ -132,6 +151,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function mostrarAtividades(atividades) {
+    ultimas = atividades;
+    plantiosConcluidos = calcularPlantiosConcluidos(atividades);
     limparLinhas();
     montarFiltroDePlantios(atividades);
     noResults.insertAdjacentHTML('beforebegin', atividades.map(montarLinha).join(''));
@@ -140,6 +161,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   filterPlantio.addEventListener('change', aplicarFiltros);
   filterStatus.addEventListener('change', aplicarFiltros);
+  chkConcluidos.addEventListener('change', function () {
+    filterPlantio.value = 'todos';
+    mostrarAtividades(ultimas);
+  });
 
   function concluirAtividade(botao) {
     if (!window.confirm('Marcar "' + botao.dataset.titulo + '" como concluída hoje?')) return;
