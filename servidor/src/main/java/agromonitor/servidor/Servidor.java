@@ -56,12 +56,12 @@ public class Servidor
         }
         System.out.println("Conectado ao MongoDB.");
 
-        // servico de e-mail (recuperacao de senha); sem SMTP_USER/SMTP_PASS, so imprime o link no console
+        // servico de e-mail (recuperacao de senha e alertas); usa SMTP_USER/SMTP_PASS
         EmailService email = EmailService.doAmbiente();
         if (email.isAtivo())
             System.out.println("E-mail: SMTP configurado.");
         else
-            System.out.println("E-mail: SMTP_USER/SMTP_PASS nao definidas. MODO DESENVOLVIMENTO: os links de recuperacao aparecerao aqui no console.");
+            System.out.println("E-mail: SMTP_USER/SMTP_PASS nao definidas. Alertas nao serao enviados ate configurar o SMTP.");
 
         // 2) estrutura de dados compartilhada com os clientes conectados
         ArrayList<Parceiro> usuarios = new ArrayList<Parceiro>();
@@ -82,7 +82,7 @@ public class Servidor
         // vigia de alertas: confere as atividades agora e depois de hora em hora
         try
         {
-            new VigiaDeAlertas(alertaDao).start();
+            new VigiaDeAlertas(alertaDao, dao, email).start();
         }
         catch (Exception erro)
         {

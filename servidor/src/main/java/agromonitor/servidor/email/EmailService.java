@@ -12,14 +12,13 @@ import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 
-// Envia e-mails por SMTP. Configurado por variaveis de ambiente:
+// Envia recuperacoes de senha e alertas por SMTP. Configurado por variaveis de ambiente:
 //   SMTP_USER  (obrigatoria)  ex.: agromonitor.sistema@gmail.com
 //   SMTP_PASS  (obrigatoria)  senha de app do Gmail (16 letras, sem espacos)
 //   SMTP_HOST  (opcional)     padrao: smtp.gmail.com
 //   SMTP_PORT  (opcional)     padrao: 587
 //   SMTP_FROM  (opcional)     padrao: o proprio SMTP_USER
-// Sem SMTP_USER/SMTP_PASS o servidor entra em "modo desenvolvimento":
-// em vez de enviar, imprime o link no console do servidor.
+// Sem SMTP_USER/SMTP_PASS, recuperacoes imprimem o link no console e alertas ficam pendentes.
 public class EmailService
 {
     private final String usuario;
@@ -127,6 +126,60 @@ public class EmailService
         mensagem.setContent(corpo);
 
         Transport.send(mensagem);
+    }
+
+    // Envia um alerta de atividade ou clima. Retorna false se SMTP nao estiver configurado.
+    public boolean enviarAlerta(String destino, String categoria, String titulo, String descricao,
+                                String plantio, String data, String prioridade) throws Exception
+    {
+        if (!isAtivo())
+            return false;
+
+        Properties props = new Properties();
+        props.put("mail.smtp.host", this.host);
+        props.put("mail.smtp.port", this.porta);
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.starttls.required", "true");
+        props.put("mail.smtp.connectiontimeout", "10000");
+        props.put("mail.smtp.timeout", "10000");
+        props.put("mail.smtp.writetimeout", "10000");
+
+        final String u = this.usuario;
+        final String s = this.senha;
+        Session sessao = Session.getInstance(props, new Authenticator()
+        {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication()
+            {
+                return new PasswordAuthentication(u, s);
+            }
+        });
+
+        String texto = categoria + " - AgroMonitor\n\n" + titulo + "\n" + descricao
+            + "\n\nPlantio: " + plantio + "\nData: " + data + "\nPrioridade: " + prioridade
+            + "\n\nAcesse o AgroMonitor para ver os detalhes.";
+        String html = "<div style=\"font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#1a1a1a\">"
+            + "<h2 style=\"color:#163a2b\">AgroMonitor</h2><p><strong>" + escapar(titulo) + "</strong></p>"
+            + "<p>" + escapar(descricao) + "</p><p><strong>Plantio:</strong> " + escapar(plantio)
+            + "<br><strong>Data:</strong> " + escapar(data) + "<br><strong>Prioridade:</strong> "
+            + escapar(prioridade) + "</p><p>Acesse o AgroMonitor para ver os detalhes.</p></div>";
+
+        MimeBodyPart parteTexto = new MimeBodyPart();
+        parteTexto.setText(texto, "UTF-8");
+        MimeBodyPart parteHtml = new MimeBodyPart();
+        parteHtml.setContent(html, "text/html; charset=UTF-8");
+        MimeMultipart corpo = new MimeMultipart("alternative");
+        corpo.addBodyPart(parteTexto);
+        corpo.addBodyPart(parteHtml);
+
+        MimeMessage mensagem = new MimeMessage(sessao);
+        mensagem.setFrom(new InternetAddress(this.remetente, "AgroMonitor", "UTF-8"));
+        mensagem.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destino, false));
+        mensagem.setSubject("[AgroMonitor] " + categoria + ": " + titulo, "UTF-8");
+        mensagem.setContent(corpo);
+        Transport.send(mensagem);
+        return true;
     }
 
     private static String escapar(String s)

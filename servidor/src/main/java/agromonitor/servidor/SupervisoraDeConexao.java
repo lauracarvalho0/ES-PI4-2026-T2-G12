@@ -15,8 +15,10 @@ import agromonitor.comum.atividade.RespostaDeListagemDeAtividades;
 import agromonitor.comum.atividade.RespostaDeRegistroDeAtividade;
 import agromonitor.comum.alerta.PedidoDeListagemDeAlertas;
 import agromonitor.comum.alerta.PedidoDeMarcacaoDeAlertaLido;
+import agromonitor.comum.alerta.PedidoDeEnvioDeAlertaClimatico;
 import agromonitor.comum.alerta.RespostaDeListagemDeAlertas;
 import agromonitor.comum.alerta.RespostaDeMarcacaoDeAlertaLido;
+import agromonitor.comum.alerta.RespostaDeEnvioDeAlertaClimatico;
 import agromonitor.comum.auth.PedidoDeCadastro;
 import agromonitor.comum.auth.PedidoDeLogin;
 import agromonitor.comum.auth.PedidoDeRecuperacaoDeSenha;
@@ -174,6 +176,8 @@ public class SupervisoraDeConexao extends Thread
                     this.usuario.receba(tratarListagemDeAlertas((PedidoDeListagemDeAlertas) comunicado));
                 else if (comunicado instanceof PedidoDeMarcacaoDeAlertaLido)
                     this.usuario.receba(tratarMarcacaoDeAlertaLido((PedidoDeMarcacaoDeAlertaLido) comunicado));
+                else if (comunicado instanceof PedidoDeEnvioDeAlertaClimatico)
+                    this.usuario.receba(tratarEnvioDeAlertaClimatico((PedidoDeEnvioDeAlertaClimatico) comunicado));
                 else if (comunicado instanceof PedidoDeRecuperacaoDeSenha)
                     this.usuario.receba(tratarRecuperacao((PedidoDeRecuperacaoDeSenha) comunicado));
                 else if (comunicado instanceof PedidoDeRedefinicaoDeSenha)
@@ -479,6 +483,55 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    private RespostaDeEnvioDeAlertaClimatico tratarEnvioDeAlertaClimatico(PedidoDeEnvioDeAlertaClimatico p)
+    {
+        if (p.getUsuarioCodigo() <= 0 || p.getPlantioCodigo() <= 0
+                || p.getChave() == null || p.getChave().length() > 160
+                || p.getTitulo() == null || p.getTitulo().isBlank() || p.getTitulo().length() > 160
+                || p.getDescricao() == null || p.getDescricao().isBlank() || p.getDescricao().length() > 1000
+                || p.getPrioridade() == null || p.getData() == null)
+            return new RespostaDeEnvioDeAlertaClimatico(false, "Alerta climatico invalido.");
+
+        final LocalDate data;
+        try { data = LocalDate.parse(p.getData()); }
+        catch (Exception erro) { return new RespostaDeEnvioDeAlertaClimatico(false, "Data do alerta invalida."); }
+
+        try
+        {
+            String nomePlantio = this.plantioDao.nomeAtivoDoUsuario(p.getUsuarioCodigo(), p.getPlantioCodigo());
+            if (nomePlantio == null)
+                return new RespostaDeEnvioDeAlertaClimatico(false, "Plantio nao encontrado.");
+            if (!this.dao.existeAtivoPorCodigo(p.getUsuarioCodigo()))
+                return new RespostaDeEnvioDeAlertaClimatico(false, "Usuario nao encontrado.");
+
+            boolean pendente = this.alertaDao.registrarAlertaClimaticoEmail(
+                p.getChave(), p.getUsuarioCodigo(), p.getPlantioCodigo(), nomePlantio, p.getTitulo(),
+                p.getDescricao(), p.getPrioridade(), data.toString());
+            if (!pendente)
+                return new RespostaDeEnvioDeAlertaClimatico(true, "Alerta ja processado.");
+
+            String destino = this.dao.emailParaAlerta(p.getUsuarioCodigo());
+            if (destino == null)
+            {
+                this.alertaDao.marcarEmailClimaticoProcessado(p.getChave());
+                return new RespostaDeEnvioDeAlertaClimatico(true, "Alertas climaticos por e-mail desativados.");
+            }
+
+            boolean enviado = this.email.enviarAlerta(destino, "Alerta climatico", p.getTitulo(),
+                p.getDescricao(), nomePlantio, data.toString(), p.getPrioridade());
+            if (enviado)
+                this.alertaDao.marcarEmailClimaticoProcessado(p.getChave());
+            else
+                System.err.println("Alerta climatico pendente: SMTP nao configurado.");
+            return new RespostaDeEnvioDeAlertaClimatico(true, "Alerta climatico registrado.");
+        }
+        catch (Exception erro)
+        {
+            System.err.println("Erro ao processar alerta climatico por e-mail: " + erro);
+            return new RespostaDeEnvioDeAlertaClimatico(false, "Nao foi possivel processar o alerta climatico.");
+        }
+    }
+
     // lerData nao aceita null; este auxiliar devolve "" quando nao veio nada
     private static String vazioParaNull(String texto)
     {
@@ -589,15 +642,16 @@ public class SupervisoraDeConexao extends Thread
             Perfil perfil = this.dao.buscarPerfil(p.getUsuarioCodigo());
             if (perfil == null)
                 return new RespostaDeBuscaDePerfil(false, "Usuario nao encontrado. Entre novamente.",
-                                                   null, null, null, null, null, true);
+                    null, null, null, null, null, true);
             return new RespostaDeBuscaDePerfil(true, "OK", perfil.getNome(), perfil.getEmail(),
-                perfil.getTelefone(), perfil.getFusoHorario(), perfil.getIdioma(), perfil.isReceberAlertasPorEmail());
+                perfil.getTelefone(), perfil.getFusoHorario(), perfil.getIdioma(),
+                perfil.isReceberAlertasPorEmail());
         }
         catch (Exception e)
         {
             System.err.println("Erro ao buscar perfil: " + e);
             return new RespostaDeBuscaDePerfil(false, "Erro interno ao buscar seus dados. Tente novamente.",
-                                               null, null, null, null, null, true);
+                    null, null, null, null, null, true);
         }
     }
 
@@ -642,8 +696,8 @@ public class SupervisoraDeConexao extends Thread
 
         try
         {
-            if (!this.dao.atualizarPreferencias(p.getUsuarioCodigo(), p.getFusoHorario(),
-                                                p.getIdioma(), p.isReceberAlertasPorEmail()))
+            if (!this.dao.atualizarPreferencias(p.getUsuarioCodigo(), p.getFusoHorario(), p.getIdioma(),
+                    p.isReceberAlertasPorEmail()))
                 return new RespostaDeConta(false, "Usuario nao encontrado. Entre novamente.");
             return new RespostaDeConta(true, "Preferencias salvas.");
         }

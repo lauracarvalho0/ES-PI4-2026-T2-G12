@@ -29,7 +29,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // ===== ESTADO DA CONTA (vem da API) =====
   const profile = { nome: '', email: '', telefone: '' };
-  const prefs = { fusoHorario: '(GMT-03:00) Brasília', idioma: 'Português', receberAlertasPorEmail: true };
+  const prefs = {
+    fusoHorario: '(GMT-03:00) Brasília', idioma: 'Português', receberAlertasPorEmail: true
+  };
 
   const displayNome = document.getElementById('displayNome');
   const displayEmail = document.getElementById('displayEmail');
@@ -47,8 +49,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function refreshPrefs() {
-    selectFuso.value = prefs.fusoHorario;
-    selectIdioma.value = prefs.idioma;
+    if (selectFuso) selectFuso.value = prefs.fusoHorario;
+    if (selectIdioma) selectIdioma.value = prefs.idioma;
     toggleEmail.checked = prefs.receberAlertasPorEmail;
   }
 
@@ -253,7 +255,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const novas = {
       receberAlertasPorEmail: toggleEmail.checked
     };
-    chamar('PUT', '/api/conta/preferencias', novas).then(function (r) {
+    const corpo = Object.assign({ fusoHorario: prefs.fusoHorario, idioma: prefs.idioma }, novas);
+    chamar('PUT', '/api/conta/preferencias', corpo).then(function (r) {
       if (!r.sucesso) {
         refreshPrefs();
         showToast(r.mensagem || 'Não foi possível salvar.');
