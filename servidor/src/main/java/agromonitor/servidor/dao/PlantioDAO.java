@@ -157,6 +157,15 @@ public class PlantioDAO
         return lista;
     }
 
+    public String nomeAtivoDoUsuario(int usuarioCodigo, int plantioCodigo)
+    {
+        Document d = plantios().find(Filters.and(
+            Filters.eq("codigo", plantioCodigo),
+            Filters.eq("usuario.codigo", usuarioCodigo),
+            Filters.eq("ativo", true))).first();
+        return d == null ? null : d.getString("nome");
+    }
+
     // Registra uma atividade dentro do plantio. So funciona se o plantio for desse usuario
     // e estiver ativo. Devolve o codigo da atividade, ou 0 se o plantio nao foi encontrado.
     // Se concluida, a data e a "realizada" (e tambem a prevista); senao e so a prevista.

@@ -194,6 +194,7 @@
 
         saida.push({
           id: `weather-${plantio.codigo}-${tipo}-${dias.time[ev.inicio]}`,
+          plantioCodigo: plantio.codigo,
           title: ev.risco.title, desc, type: 'Climático', culture: plantio.cultura,
           reference: plantio.nome, talhao: plantio.talhao || 'Talhão não informado',
           dateISO: dias.time[ev.inicio], dateDisplay: periodo, dateRelative: relativo,
@@ -253,6 +254,26 @@
 
     resultado.alertas.forEach((a) => { if (lidos.has(a.id)) a.situacao = 'Lido'; });
     resultado.naoEncontrados = [...new Set(resultado.naoEncontrados)];
+
+    // O alerta e calculado no navegador; envia o evento ao servidor para disparo
+    // do e-mail e deduplicacao entre as telas Inicio e Alertas.
+    resultado.alertas.forEach((a) => {
+      const descricao = String(a.desc || '').replace(/<br\s*\/?\s*>/gi, ' ').replace(/<[^>]*>/g, ' ');
+      fetch(API + '/api/alertas/climaticos/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          usuarioCodigo: usuario.codigo,
+          plantioCodigo: a.plantioCodigo,
+          chave: a.id,
+          titulo: a.title,
+          descricao: descricao,
+          prioridade: a.priority,
+          data: a.dateISO
+        })
+      }).catch((erro) => console.warn('Não foi possível registrar o alerta climático para e-mail.', erro));
+    });
+
     return resultado;
   }
 

@@ -12,8 +12,10 @@ import agromonitor.backend.ConexaoComServidor;
 import agromonitor.comum.Comunicado;
 import agromonitor.comum.alerta.PedidoDeListagemDeAlertas;
 import agromonitor.comum.alerta.PedidoDeMarcacaoDeAlertaLido;
+import agromonitor.comum.alerta.PedidoDeEnvioDeAlertaClimatico;
 import agromonitor.comum.alerta.RespostaDeListagemDeAlertas;
 import agromonitor.comum.alerta.RespostaDeMarcacaoDeAlertaLido;
+import agromonitor.comum.alerta.RespostaDeEnvioDeAlertaClimatico;
 
 // Recebe JSON do front (fetch) e repassa ao servidor como objetos Comunicado.
 // Nao valida regra de negocio: quem valida e grava no Mongo e o SERVIDOR.
@@ -23,6 +25,8 @@ import agromonitor.comum.alerta.RespostaDeMarcacaoDeAlertaLido;
 public class AlertaController
 {
     public record MarcarLidoRequest(Integer usuarioCodigo, Integer alertaCodigo) {}
+    public record AlertaClimaticoRequest(Integer usuarioCodigo, Integer plantioCodigo, String chave,
+            String titulo, String descricao, String prioridade, String data) {}
 
     @Autowired
     private ConexaoComServidor servidor;
@@ -61,6 +65,27 @@ public class AlertaController
             Comunicado resposta = servidor.enviarEReceber(new PedidoDeMarcacaoDeAlertaLido(usuario, alerta));
 
             RespostaDeMarcacaoDeAlertaLido r = (RespostaDeMarcacaoDeAlertaLido) resposta;
+            Map<String, Object> corpo = new LinkedHashMap<>();
+            corpo.put("sucesso", r.isSucesso());
+            corpo.put("mensagem", r.getMensagem());
+            return ResponseEntity.status(r.isSucesso() ? HttpStatus.OK : HttpStatus.BAD_REQUEST).body(corpo);
+        }
+        catch (Exception e)
+        {
+            return indisponivel();
+        }
+    }
+
+    @PostMapping("/alertas/climaticos/email")
+    public ResponseEntity<Map<String, Object>> registrarAlertaClimatico(@RequestBody AlertaClimaticoRequest req)
+    {
+        try
+        {
+            Comunicado resposta = servidor.enviarEReceber(new PedidoDeEnvioDeAlertaClimatico(
+                req.usuarioCodigo() == null ? 0 : req.usuarioCodigo(),
+                req.plantioCodigo() == null ? 0 : req.plantioCodigo(), req.chave(), req.titulo(),
+                req.descricao(), req.prioridade(), req.data()));
+            RespostaDeEnvioDeAlertaClimatico r = (RespostaDeEnvioDeAlertaClimatico) resposta;
             Map<String, Object> corpo = new LinkedHashMap<>();
             corpo.put("sucesso", r.isSucesso());
             corpo.put("mensagem", r.getMensagem());
