@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const tableBody = document.getElementById('alertsTableBody');
   const pagination = document.getElementById('alertsPagination');
 
+  const filtroSituacao = document.getElementById('filtroSituacao');
   const filtroTipo = document.getElementById('filtroTipo');
   const filtroPrioridade = document.getElementById('filtroPrioridade');
   const filtroCultura = document.getElementById('filtroCultura');
@@ -32,6 +33,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getFilteredSortedAlerts() {
     let result = alerts.filter((alert) => {
+      // por padrão só os pendentes; os lidos aparecem se o usuário pedir
+      if (filtroSituacao.value === 'pendentes' && alert.situacao === 'Lido') return false;
+      if (filtroSituacao.value === 'lidos' && alert.situacao !== 'Lido') return false;
       if (filtroTipo.value && alert.type !== filtroTipo.value) return false;
       if (filtroPrioridade.value && alert.priority !== filtroPrioridade.value) return false;
       if (filtroCultura.value && alert.culture !== filtroCultura.value) return false;
@@ -118,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const pageItems = filtered.slice(start, start + PAGE_SIZE);
 
     if (pageItems.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="7"><div class="alerts-empty-state">Nenhum alerta encontrado com os filtros selecionados.</div></td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="7"><div class="alerts-empty-state">${filtroSituacao.value === 'pendentes' ? 'Nenhum alerta pendente. 🎉 Use o filtro Situação para ver os já lidos.' : 'Nenhum alerta encontrado com os filtros selecionados.'}</div></td></tr>`;
     } else {
       tableBody.innerHTML = pageItems.map((alert) => {
         const pClass = priorityClass(alert.priority);
@@ -180,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  [filtroTipo, filtroPrioridade, filtroCultura, filtroTalhao, ordenarPor].forEach((el) => {
+  [filtroSituacao, filtroTipo, filtroPrioridade, filtroCultura, filtroTalhao, ordenarPor].forEach((el) => {
     el.addEventListener('change', function () {
       currentPage = 1;
       renderTable();
