@@ -195,6 +195,7 @@ body {
   color: var(--dark-green);
   cursor: pointer;
   flex-shrink: 0;
+  text-decoration: none;
 }
 
 .notification-dot {

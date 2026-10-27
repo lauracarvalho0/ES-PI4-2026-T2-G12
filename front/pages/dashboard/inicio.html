@@ -128,39 +128,39 @@
           <h1 class="main-title" id="saudacaoTitulo">Olá!</h1>
           <p class="main-subtitle">Aqui está o resumo da sua lavoura hoje.</p>
         </div>
-        <button class="notification-btn" aria-label="Notificações">
+        <a href="alertas.html" class="notification-btn" aria-label="Ver notificações">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 4a5.5 5.5 0 0 0-5.5 5.5c0 4-2 5-2 7.5h15c0-2.5-2-3.5-2-7.5A5.5 5.5 0 0 0 12 4Z"></path>
             <path d="M9.5 20a2.5 2.5 0 0 0 5 0"></path>
           </svg>
-          <span class="notification-dot"></span>
-        </button>
+          <span class="notification-dot" id="notificationDot" hidden></span>
+        </a>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card">
-          <span class="stat-number">4</span>
+          <span class="stat-number" id="statPlantiosAtivos">—</span>
           <div>
             <p class="stat-label">Plantios ativos</p>
             <a href="plantios.html" class="stat-link">Ver todos →</a>
           </div>
         </div>
         <div class="stat-card">
-          <span class="stat-number">3</span>
+          <span class="stat-number" id="statAtividadesHoje">—</span>
           <div>
             <p class="stat-label">Atividades hoje</p>
             <a href="atividades.html" class="stat-link">Ver todos →</a>
           </div>
         </div>
         <div class="stat-card">
-          <span class="stat-number" id="statAlertaImportante">0</span>
+          <span class="stat-number" id="statAlertaImportante">—</span>
           <div>
             <p class="stat-label">Alerta importante</p>
             <a href="alertas.html" class="stat-link">Ver todos →</a>
           </div>
         </div>
         <div class="stat-card">
-          <span class="stat-number" id="statAvisosClimaticos">0</span>
+          <span class="stat-number" id="statAvisosClimaticos">—</span>
           <div>
             <p class="stat-label">Avisos climáticos</p>
             <a href="alertas.html" class="stat-link">Ver todos →</a>
@@ -182,65 +182,8 @@
             <a href="calendario.html" class="panel-link">Ver calendário completo →</a>
           </div>
 
-          <div class="timeline">
-            <div class="timeline-item">
-              <div class="timeline-marker">
-                <div class="timeline-dot is-today"></div>
-                <div class="timeline-line"></div>
-                <span class="timeline-date"><span class="timeline-day">Hoje</span><span class="timeline-month">01/06</span></span>
-              </div>
-              <div class="timeline-content">
-                <div>
-                  <p class="timeline-activity">Irrigação</p>
-                  <p class="timeline-detail">Milho - Talhão 01</p>
-                </div>
-                <span class="badge badge-green">Hoje</span>
-              </div>
-            </div>
-
-            <div class="timeline-item">
-              <div class="timeline-marker">
-                <div class="timeline-dot is-amber"></div>
-                <div class="timeline-line"></div>
-                <span class="timeline-date"><span class="timeline-day">03</span><span class="timeline-month">Jun</span></span>
-              </div>
-              <div class="timeline-content">
-                <div>
-                  <p class="timeline-activity">Adubação de cobertura</p>
-                  <p class="timeline-detail">Soja - Talhão 02</p>
-                </div>
-                <span class="badge badge-amber">Em 2 dias</span>
-              </div>
-            </div>
-
-            <div class="timeline-item">
-              <div class="timeline-marker">
-                <div class="timeline-dot is-blue"></div>
-                <div class="timeline-line"></div>
-                <span class="timeline-date"><span class="timeline-day">05</span><span class="timeline-month">Jun</span></span>
-              </div>
-              <div class="timeline-content">
-                <div>
-                  <p class="timeline-activity">Aplicação de defensivo</p>
-                  <p class="timeline-detail">Milho - Talhão 03</p>
-                </div>
-                <span class="badge badge-blue">Em 4 dias</span>
-              </div>
-            </div>
-
-            <div class="timeline-item">
-              <div class="timeline-marker">
-                <div class="timeline-dot"></div>
-                <span class="timeline-date"><span class="timeline-day">07</span><span class="timeline-month">Jun</span></span>
-              </div>
-              <div class="timeline-content">
-                <div>
-                  <p class="timeline-activity">Monitoramento</p>
-                  <p class="timeline-detail">Soja - Talhão 02</p>
-                </div>
-                <span class="badge badge-gray">Em 6 dias</span>
-              </div>
-            </div>
+          <div class="timeline" id="proximasAtividades">
+            <p class="alert-text">Carregando atividades...</p>
           </div>
 
           <a href="atividades.html" class="panel-footer-link">Ver todas as atividades →</a>
