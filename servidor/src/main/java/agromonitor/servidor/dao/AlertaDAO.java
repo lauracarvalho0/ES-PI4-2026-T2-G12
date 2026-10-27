@@ -215,11 +215,16 @@ public class AlertaDAO
     }
 
     // Alertas de atividade novos aguardando processamento de e-mail.
+    // So os ainda nao lidos e das ultimas 24h: assim, ao configurar o SMTP, alertas antigos ou
+    // de atividades ja concluidas nao saem todos de uma vez por e-mail.
     public List<AlertaEmail> listarPendentesDeEmail()
     {
         List<AlertaEmail> lista = new ArrayList<>();
+        Date limite = new Date(System.currentTimeMillis() - 24L * 60L * 60L * 1000L);
         for (Document d : alertas().find(Filters.and(
                 Filters.eq("tipoAlerta", "ATIVIDADE"),
+                Filters.eq("situacao", "NAO_LIDO"),
+                Filters.gte("dataAlerta", limite),
                 Filters.ne("emailEnviado", true))))
         {
             Document plantio = (Document) d.get("plantio");

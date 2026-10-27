@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const pageItems = filtered.slice(start, start + PAGE_SIZE);
 
     if (pageItems.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="7"><div class="alerts-empty-state">${filtroSituacao.value === 'pendentes' ? 'Nenhum alerta pendente. 🎉 Use o filtro Situação para ver os já lidos.' : 'Nenhum alerta encontrado com os filtros selecionados.'}</div></td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="7"><div class="alerts-empty-state">${filtroSituacao.value === 'pendentes' ? 'Nenhum alerta pendente. Use o filtro Situação para ver os já lidos.' : 'Nenhum alerta encontrado com os filtros selecionados.'}</div></td></tr>`;
     } else {
       tableBody.innerHTML = pageItems.map((alert) => {
         const pClass = priorityClass(alert.priority);
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function () {
     `).join('');
 
     document.getElementById('detailForecastGrid').innerHTML = alert.detail.forecast.map((day) => `
-      <div class="forecast-day">
+      <div class="forecast-day${day.emAlerta ? ' is-alert' : ''}">
         <p class="forecast-day-label">${day.label}</p>
         <p class="forecast-day-date">${day.date}</p>
         <div class="forecast-day-icon">${weatherIcon(day.rain)}</div>
