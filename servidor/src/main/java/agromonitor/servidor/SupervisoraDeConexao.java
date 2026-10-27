@@ -60,6 +60,7 @@ public class SupervisoraDeConexao extends Thread
     private UsuarioDAO          dao;
     private PlantioDAO          plantioDao;
     private AlertaDAO           alertaDao;
+    private ProcessadorDeAlertas processador;
     private EmailService        email;
 
     private static final int VALIDADE_TOKEN_MINUTOS     = 30;
@@ -109,6 +110,7 @@ public class SupervisoraDeConexao extends Thread
         this.plantioDao = plantioDao;
         this.alertaDao  = alertaDao;
         this.email      = email;
+        this.processador = new ProcessadorDeAlertas(alertaDao, dao, email);
     }
 
     public void run()
@@ -329,6 +331,11 @@ public class SupervisoraDeConexao extends Thread
                 ValidadorPlantio.lerData(p.getDataPlantio()),
                 metodo.isEmpty() ? null : metodo,
                 ajustes);
+
+            // o plantio ja nasce com atividades (algumas podem estar para hoje ou atrasadas):
+            // gera os alertas agora, sem esperar o vigia
+            this.processador.verificarEmSegundoPlano();
+
             return new RespostaDeCadastroDePlantio(true, "Plantio cadastrado com sucesso!", codigo);
         }
         catch (Exception e)
@@ -386,6 +393,10 @@ public class SupervisoraDeConexao extends Thread
 
             if (codigo == 0)
                 return new RespostaDeRegistroDeAtividade(false, "Plantio nao encontrado.", 0);
+
+            // gera o alerta (e o e-mail) agora, sem esperar o vigia
+            this.processador.verificarEmSegundoPlano();
+
             return new RespostaDeRegistroDeAtividade(true, "Atividade registrada com sucesso!", codigo);
         }
         catch (Exception e)
