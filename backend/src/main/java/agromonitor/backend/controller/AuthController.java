@@ -1,22 +1,13 @@
 package agromonitor.backend.controller;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import agromonitor.backend.ConexaoComServidor;
-import agromonitor.comum.auth.PedidoDeCadastro;
-import agromonitor.comum.auth.PedidoDeLogin;
-import agromonitor.comum.auth.PedidoDeRecuperacaoDeSenha;
-import agromonitor.comum.auth.PedidoDeRedefinicaoDeSenha;
-import agromonitor.comum.auth.RespostaDeCadastro;
-import agromonitor.comum.auth.RespostaDeLogin;
-import agromonitor.comum.auth.RespostaDeRecuperacaoDeSenha;
-import agromonitor.comum.auth.RespostaDeRedefinicaoDeSenha;
+import agromonitor.comum.auth.*;
 import agromonitor.comum.Comunicado;
 
 // Recebe JSON do front (fetch) e repassa ao servidor como objetos Comunicado.

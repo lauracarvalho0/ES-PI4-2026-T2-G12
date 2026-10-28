@@ -1,19 +1,14 @@
 package agromonitor.backend.controller;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import agromonitor.backend.ConexaoComServidor;
 import agromonitor.comum.Comunicado;
-import agromonitor.comum.plantio.PedidoDeCadastroDePlantio;
-import agromonitor.comum.plantio.PedidoDeListagemDePlantios;
-import agromonitor.comum.plantio.RespostaDeCadastroDePlantio;
-import agromonitor.comum.plantio.RespostaDeListagemDePlantios;
+import agromonitor.comum.plantio.*;
 
 // Recebe JSON do front (fetch) e repassa ao servidor como objetos Comunicado.
 // Nao valida regra de negocio: quem valida e grava no Mongo e o SERVIDOR.

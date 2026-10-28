@@ -577,3 +577,79 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ===== CONFIRMACAO DE SAIDA ===== */
+.logout-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(20, 20, 15, 0.45);
+  align-items: center;
+  justify-content: center;
+  z-index: 600;
+  padding: 20px;
+}
+
+.logout-overlay.is-open {
+  display: flex;
+}
+
+.logout-box {
+  background-color: var(--white);
+  border-radius: 16px;
+  padding: 28px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.logout-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.logout-text {
+  font-size: 13.5px;
+  color: var(--text-gray);
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+
+.logout-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.logout-btn-cancel,
+.logout-btn-confirm {
+  border-radius: 10px;
+  padding: 11px 20px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logout-btn-cancel {
+  background-color: var(--white);
+  border: 1px solid var(--border-gray);
+  color: #1a1a1a;
+}
+
+.logout-btn-cancel:hover {
+  background-color: var(--cream-bg);
+}
+
+.logout-btn-confirm {
+  background-color: var(--red);
+  border: none;
+  color: var(--white);
+}
+
+.logout-btn-confirm:hover {
+  opacity: 0.9;
+}
