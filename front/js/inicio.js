@@ -10,8 +10,6 @@ document.addEventListener('DOMContentLoaded', function () {
       weekday: 'long', day: 'numeric', month: 'long'
     }) + '.';
   }
-  const logout = document.querySelector('.sidebar-logout');
-  if (logout) logout.addEventListener('click', function () { sessionStorage.removeItem('usuario'); });
   const tiposAtividade = {
     PLANTIO: 'Plantio', IRRIGACAO: 'Irrigação', ADUBACAO: 'Adubação de cobertura',
     TRATAMENTO: 'Tratos culturais', MONITORAMENTO: 'Monitoramento', COLHEITA: 'Colheita'
