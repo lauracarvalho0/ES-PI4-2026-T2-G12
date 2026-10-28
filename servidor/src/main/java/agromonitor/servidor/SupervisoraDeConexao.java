@@ -1,16 +1,21 @@
 package agromonitor.servidor;
 
-import java.io.*;
-import java.net.*;
-import java.time.LocalDate;
-import java.util.*;
-import at.favre.lib.crypto.bcrypt.BCrypt;
+import java.io.*;   // fornece os streams (ObjectInputStrem ...)
+import java.net.*; // fornece o socket
+import java.time.LocalDate; 
+import java.util.*; // fornece ArrayList, set, HashSet, Date
+
+import at.favre.lib.crypto.bcrypt.BCrypt; // Biblioteca de hash de senha
+
+//Traz os pedidos e respostas, que são a "conversa" entre cliente e servidor
 import agromonitor.comum.*;
 import agromonitor.comum.alerta.*;
 import agromonitor.comum.atividade.*;
 import agromonitor.comum.auth.*;
 import agromonitor.comum.conta.*;
 import agromonitor.comum.plantio.*;
+
+// Traz o banco, as classes de dados, e as checagens de campos
 import agromonitor.servidor.dao.*;
 import agromonitor.servidor.email.EmailService;
 import agromonitor.servidor.modelo.*;
