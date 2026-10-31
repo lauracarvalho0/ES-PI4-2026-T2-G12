@@ -29,16 +29,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // ===== ESTADO DA CONTA (vem da API) =====
   const profile = { nome: '', email: '', telefone: '' };
-  const prefs = {
-    fusoHorario: '(GMT-03:00) Brasília', idioma: 'Português', receberAlertasPorEmail: true
-  };
+  const prefs = { receberAlertasPorEmail: true };
 
   const displayNome = document.getElementById('displayNome');
   const displayEmail = document.getElementById('displayEmail');
   const displayTelefone = document.getElementById('displayTelefone');
   const sidebarUserName = document.getElementById('sidebarUserName');
-  const selectFuso = document.getElementById('fusoHorario');
-  const selectIdioma = document.getElementById('idioma');
   const toggleEmail = document.getElementById('toggleAlertasEmail');
 
   function refreshProfileDisplay() {
@@ -49,8 +45,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function refreshPrefs() {
-    if (selectFuso) selectFuso.value = prefs.fusoHorario;
-    if (selectIdioma) selectIdioma.value = prefs.idioma;
     toggleEmail.checked = prefs.receberAlertasPorEmail;
   }
 
@@ -121,8 +115,6 @@ document.addEventListener('DOMContentLoaded', function () {
     profile.nome = r.conta.nome || '';
     profile.email = r.conta.email || '';
     profile.telefone = r.conta.telefone || '';
-    prefs.fusoHorario = r.conta.fusoHorario || prefs.fusoHorario;
-    prefs.idioma = r.conta.idioma || prefs.idioma;
     prefs.receberAlertasPorEmail = r.conta.receberAlertasPorEmail !== false;
     refreshProfileDisplay();
     refreshPrefs();
@@ -250,13 +242,12 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // ===== PREFERÊNCIAS E NOTIFICAÇÕES =====
-  // Salva as três preferências juntas; se falhar, volta ao valor anterior.
+  // Salva a preferência de alertas por e-mail; se falhar, volta ao valor anterior.
   function salvarPreferencias(mensagemOk) {
     const novas = {
       receberAlertasPorEmail: toggleEmail.checked
     };
-    const corpo = Object.assign({ fusoHorario: prefs.fusoHorario, idioma: prefs.idioma }, novas);
-    chamar('PUT', '/api/conta/preferencias', corpo).then(function (r) {
+    chamar('PUT', '/api/conta/preferencias', novas).then(function (r) {
       if (!r.sucesso) {
         refreshPrefs();
         showToast(r.mensagem || 'Não foi possível salvar.');

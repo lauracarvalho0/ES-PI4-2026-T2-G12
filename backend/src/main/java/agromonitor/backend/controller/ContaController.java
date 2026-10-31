@@ -18,8 +18,7 @@ import agromonitor.comum.conta.*;
 public class ContaController
 {
     public record PerfilRequest(Integer usuarioCodigo, String nome, String email, String telefone) {}
-    public record PreferenciasRequest(Integer usuarioCodigo, String fusoHorario, String idioma,
-                                      Boolean receberAlertasPorEmail) {}
+    public record PreferenciasRequest(Integer usuarioCodigo, Boolean receberAlertasPorEmail) {}
     public record SenhaRequest(Integer usuarioCodigo, String senhaAtual, String novaSenha) {}
     public record ExclusaoRequest(Integer usuarioCodigo, String senha) {}
 
@@ -43,8 +42,6 @@ public class ContaController
                 conta.put("nome", r.getNome());
                 conta.put("email", r.getEmail());
                 conta.put("telefone", r.getTelefone());
-                conta.put("fusoHorario", r.getFusoHorario());
-                conta.put("idioma", r.getIdioma());
                 conta.put("receberAlertasPorEmail", r.isReceberAlertasPorEmail());
                 corpo.put("conta", conta);
             }
@@ -67,7 +64,7 @@ public class ContaController
     public ResponseEntity<Map<String, Object>> atualizarPreferencias(@RequestBody PreferenciasRequest req)
     {
         return enviar(new PedidoDeAtualizacaoDePreferencias(
-            codigo(req.usuarioCodigo()), req.fusoHorario(), req.idioma(),
+            codigo(req.usuarioCodigo()),
             req.receberAlertasPorEmail() == null || req.receberAlertasPorEmail()));
     }
 
