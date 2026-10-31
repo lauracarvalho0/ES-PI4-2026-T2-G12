@@ -72,26 +72,6 @@ public class ValidadorUsuario
         return resto == 10 ? 0 : resto;
     }
 
-    // listas do dicionario de dados (atributos fusoHorario e idioma)
-    public static final java.util.List<String> FUSOS =
-        java.util.List.of("(GMT-03:00) Brasília", "(GMT-04:00) Manaus", "(GMT-05:00) Rio Branco");
-    public static final java.util.List<String> IDIOMAS =
-        java.util.List.of("Português", "English", "Español");
-
-    public static String validarFusoHorario(String fuso)
-    {
-        if (fuso == null || !FUSOS.contains(fuso))
-            return "Fuso horario invalido.";
-        return null;
-    }
-
-    public static String validarIdioma(String idioma)
-    {
-        if (idioma == null || !IDIOMAS.contains(idioma))
-            return "Idioma invalido.";
-        return null;
-    }
-
     public static String validarCodigo(int codigo)
     {
         if (codigo <= 0)

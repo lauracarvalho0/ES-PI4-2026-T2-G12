@@ -6,25 +6,19 @@ public class Perfil
     private String  nome;
     private String  email;
     private String  telefone;
-    private String  fusoHorario;
-    private String  idioma;
     private boolean receberAlertasPorEmail;
 
-    public Perfil(String nome, String email, String telefone, String fusoHorario,
-                  String idioma, boolean receberAlertasPorEmail)
+    public Perfil(String nome, String email, String telefone,
+                  boolean receberAlertasPorEmail)
     {
         this.nome                   = nome;
         this.email                  = email;
         this.telefone               = telefone;
-        this.fusoHorario            = fusoHorario;
-        this.idioma                 = idioma;
         this.receberAlertasPorEmail = receberAlertasPorEmail;
     }
 
     public String  getNome()                  { return this.nome; }
     public String  getEmail()                 { return this.email; }
     public String  getTelefone()              { return this.telefone; }
-    public String  getFusoHorario()           { return this.fusoHorario; }
-    public String  getIdioma()                { return this.idioma; }
     public boolean isReceberAlertasPorEmail() { return this.receberAlertasPorEmail; }
 }

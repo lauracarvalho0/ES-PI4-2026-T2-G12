@@ -23,8 +23,6 @@ Usuário representa o produtor rural que utiliza o sistema (ex.: João da Silva)
 | telefone | Texto | Não | Simples | (19) 998765647 | texto sem número algum | Telefone de contato. |
 | documento | Documento de identificação | Não | Composto (C) | CPF ou CNPJ válido | documento vazio ou inválido | Usado na cobrança de planos pagos. Ver item 3.1. |
 | senhaHash | Texto | Sim | Simples | hash gerado pelo sistema | senha em texto puro | A senha nunca deve ser armazenada em texto plano, apenas seu hash. |
-| fusoHorario | Texto enumerado | Sim | Simples | (GMT-03:00) Brasília | valor fora da lista de fusos suportados | Usado para exibir datas e horários corretamente. |
-| idioma | Texto enumerado | Sim | Simples | Português, English, Español | qualquer valor fora da lista | Idioma de exibição do sistema. |
 | receberAlertasPorEmail | Booleano | Sim | Simples | true, false | sim, não | Preferência única para todos os alertas por e-mail (tela Configurações). |
 | ativo | Booleano | Sim | Simples | true, false | sim, não | Falso quando o usuário exclui a conta (exclusão lógica). |
 | dataCriacao | Data e hora | Sim | Simples | 2026-01-10 09:00:00 | data impossível | Data de criação da conta. |

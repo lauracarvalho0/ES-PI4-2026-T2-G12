@@ -12,20 +12,16 @@ public class RespostaDeBuscaDePerfil extends Comunicado
     private String nome;
     private String email;
     private String telefone;
-    private String fusoHorario;
-    private String idioma;
     private boolean receberAlertasPorEmail;
 
     public RespostaDeBuscaDePerfil(boolean sucesso, String mensagem, String nome, String email, String telefone,
-            String fusoHorario, String idioma, boolean receberAlertasPorEmail)
+            boolean receberAlertasPorEmail)
     {
         this.sucesso = sucesso;
         this.mensagem = mensagem;
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
-        this.fusoHorario = fusoHorario;
-        this.idioma = idioma;
         this.receberAlertasPorEmail = receberAlertasPorEmail;
     }
 
@@ -34,8 +30,6 @@ public class RespostaDeBuscaDePerfil extends Comunicado
     public String getNome() { return this.nome; }
     public String getEmail() { return this.email; }
     public String getTelefone() { return this.telefone; }
-    public String getFusoHorario() { return this.fusoHorario; }
-    public String getIdioma() { return this.idioma; }
     public boolean isReceberAlertasPorEmail() { return this.receberAlertasPorEmail; }
 
     @Override

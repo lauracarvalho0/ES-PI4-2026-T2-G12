@@ -1,16 +1,21 @@
 package agromonitor.servidor;
 
-import java.io.*;
-import java.net.*;
-import java.time.LocalDate;
-import java.util.*;
-import at.favre.lib.crypto.bcrypt.BCrypt;
+import java.io.*;   // fornece os streams (ObjectInputStrem ...)
+import java.net.*; // fornece o socket
+import java.time.LocalDate; 
+import java.util.*; // fornece ArrayList, set, HashSet, Date
+
+import at.favre.lib.crypto.bcrypt.BCrypt; // Biblioteca de hash de senha
+
+//Traz os pedidos e respostas, que são a "conversa" entre cliente e servidor
 import agromonitor.comum.*;
 import agromonitor.comum.alerta.*;
 import agromonitor.comum.atividade.*;
 import agromonitor.comum.auth.*;
 import agromonitor.comum.conta.*;
 import agromonitor.comum.plantio.*;
+
+// Traz o banco, as classes de dados, e as checagens de campos
 import agromonitor.servidor.dao.*;
 import agromonitor.servidor.email.EmailService;
 import agromonitor.servidor.modelo.*;
@@ -613,23 +618,22 @@ public class SupervisoraDeConexao extends Thread
     {
         String erro = ValidadorUsuario.validarCodigo(p.getUsuarioCodigo());
         if (erro != null)
-            return new RespostaDeBuscaDePerfil(false, erro, null, null, null, null, null, true);
+            return new RespostaDeBuscaDePerfil(false, erro, null, null, null, true);
 
         try
         {
             Perfil perfil = this.dao.buscarPerfil(p.getUsuarioCodigo());
             if (perfil == null)
                 return new RespostaDeBuscaDePerfil(false, "Usuario nao encontrado. Entre novamente.",
-                    null, null, null, null, null, true);
+                    null, null, null, true);
             return new RespostaDeBuscaDePerfil(true, "OK", perfil.getNome(), perfil.getEmail(),
-                perfil.getTelefone(), perfil.getFusoHorario(), perfil.getIdioma(),
-                perfil.isReceberAlertasPorEmail());
+                perfil.getTelefone(), perfil.isReceberAlertasPorEmail());
         }
         catch (Exception e)
         {
             System.err.println("Erro ao buscar perfil: " + e);
             return new RespostaDeBuscaDePerfil(false, "Erro interno ao buscar seus dados. Tente novamente.",
-                    null, null, null, null, null, true);
+                    null, null, null, true);
         }
     }
 
@@ -665,17 +669,13 @@ public class SupervisoraDeConexao extends Thread
 
     private RespostaDeConta tratarAtualizacaoDePreferencias(PedidoDeAtualizacaoDePreferencias p)
     {
-        String erro = primeiroErro(
-            ValidadorUsuario.validarCodigo(p.getUsuarioCodigo()),
-            ValidadorUsuario.validarFusoHorario(p.getFusoHorario()),
-            ValidadorUsuario.validarIdioma(p.getIdioma()));
+        String erro = ValidadorUsuario.validarCodigo(p.getUsuarioCodigo());
         if (erro != null)
             return new RespostaDeConta(false, erro);
 
         try
         {
-            if (!this.dao.atualizarPreferencias(p.getUsuarioCodigo(), p.getFusoHorario(), p.getIdioma(),
-                    p.isReceberAlertasPorEmail()))
+            if (!this.dao.atualizarPreferencias(p.getUsuarioCodigo(), p.isReceberAlertasPorEmail()))
                 return new RespostaDeConta(false, "Usuario nao encontrado. Entre novamente.");
             return new RespostaDeConta(true, "Preferencias salvas.");
         }
