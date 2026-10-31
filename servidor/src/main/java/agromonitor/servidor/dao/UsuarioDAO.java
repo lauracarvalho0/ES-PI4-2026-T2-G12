@@ -63,8 +63,6 @@ public class UsuarioDAO
             .append("documento", cpfSomenteDigitos == null ? null
                     : new Document("tipo", "CPF").append("valor", cpfSomenteDigitos))
             .append("senhaHash", senhaHash)
-            .append("fusoHorario", "(GMT-03:00) Brasília")
-            .append("idioma", "Português")
             .append("receberAlertasPorEmail", true)
             .append("ativo", true)
             .append("dataCriacao", agora)
@@ -169,7 +167,6 @@ public class UsuarioDAO
         if (d == null)
             return null;
         return new Perfil(d.getString("nome"), d.getString("email"), d.getString("telefone"),
-                          d.getString("fusoHorario"), d.getString("idioma"),
                           d.getBoolean("receberAlertasPorEmail", true));
     }
 
@@ -192,12 +189,10 @@ public class UsuarioDAO
         }
     }
 
-    public boolean atualizarPreferencias(int codigo, String fusoHorario, String idioma, boolean alertasPorEmail)
+    public boolean atualizarPreferencias(int codigo, boolean alertasPorEmail)
     {
-        return usuarios().updateOne(ativoComCodigo(codigo), Updates.combine(
-                Updates.set("fusoHorario", fusoHorario),
-                Updates.set("idioma", idioma),
-                Updates.set("receberAlertasPorEmail", alertasPorEmail)))
+        return usuarios().updateOne(ativoComCodigo(codigo),
+                Updates.set("receberAlertasPorEmail", alertasPorEmail))
             .getMatchedCount() > 0;
     }
 

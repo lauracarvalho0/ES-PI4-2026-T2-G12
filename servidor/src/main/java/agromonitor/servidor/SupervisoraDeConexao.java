@@ -618,23 +618,22 @@ public class SupervisoraDeConexao extends Thread
     {
         String erro = ValidadorUsuario.validarCodigo(p.getUsuarioCodigo());
         if (erro != null)
-            return new RespostaDeBuscaDePerfil(false, erro, null, null, null, null, null, true);
+            return new RespostaDeBuscaDePerfil(false, erro, null, null, null, true);
 
         try
         {
             Perfil perfil = this.dao.buscarPerfil(p.getUsuarioCodigo());
             if (perfil == null)
                 return new RespostaDeBuscaDePerfil(false, "Usuario nao encontrado. Entre novamente.",
-                    null, null, null, null, null, true);
+                    null, null, null, true);
             return new RespostaDeBuscaDePerfil(true, "OK", perfil.getNome(), perfil.getEmail(),
-                perfil.getTelefone(), perfil.getFusoHorario(), perfil.getIdioma(),
-                perfil.isReceberAlertasPorEmail());
+                perfil.getTelefone(), perfil.isReceberAlertasPorEmail());
         }
         catch (Exception e)
         {
             System.err.println("Erro ao buscar perfil: " + e);
             return new RespostaDeBuscaDePerfil(false, "Erro interno ao buscar seus dados. Tente novamente.",
-                    null, null, null, null, null, true);
+                    null, null, null, true);
         }
     }
 
@@ -670,17 +669,13 @@ public class SupervisoraDeConexao extends Thread
 
     private RespostaDeConta tratarAtualizacaoDePreferencias(PedidoDeAtualizacaoDePreferencias p)
     {
-        String erro = primeiroErro(
-            ValidadorUsuario.validarCodigo(p.getUsuarioCodigo()),
-            ValidadorUsuario.validarFusoHorario(p.getFusoHorario()),
-            ValidadorUsuario.validarIdioma(p.getIdioma()));
+        String erro = ValidadorUsuario.validarCodigo(p.getUsuarioCodigo());
         if (erro != null)
             return new RespostaDeConta(false, erro);
 
         try
         {
-            if (!this.dao.atualizarPreferencias(p.getUsuarioCodigo(), p.getFusoHorario(), p.getIdioma(),
-                    p.isReceberAlertasPorEmail()))
+            if (!this.dao.atualizarPreferencias(p.getUsuarioCodigo(), p.isReceberAlertasPorEmail()))
                 return new RespostaDeConta(false, "Usuario nao encontrado. Entre novamente.");
             return new RespostaDeConta(true, "Preferencias salvas.");
         }
