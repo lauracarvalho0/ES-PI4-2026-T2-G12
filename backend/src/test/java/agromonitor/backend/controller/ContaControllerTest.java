@@ -40,15 +40,13 @@ class ContaControllerTest
     void buscarPerfilRetornaObjetoConta() throws Exception
     {
         when(servidor.enviarEReceber(any())).thenReturn(new RespostaDeBuscaDePerfil(true, "ok", "Maria", "maria@x.com",
-                "19999990000", "(GMT-03:00) Brasília", "Português", true));
+                "19999990000", true));
 
         mvc.perform(get("/api/conta").param("usuarioCodigo", "3"))
            .andExpect(status().isOk())
            .andExpect(jsonPath("$.conta.nome").value("Maria"))
            .andExpect(jsonPath("$.conta.email").value("maria@x.com"))
            .andExpect(jsonPath("$.conta.telefone").value("19999990000"))
-           .andExpect(jsonPath("$.conta.fusoHorario").value("(GMT-03:00) Brasília"))
-           .andExpect(jsonPath("$.conta.idioma").value("Português"))
            .andExpect(jsonPath("$.conta.receberAlertasPorEmail").value(true));
 
         assertEquals(3, ((PedidoDeBuscaDePerfil) capturar()).getUsuarioCodigo());
@@ -58,7 +56,7 @@ class ContaControllerTest
     void buscarPerfilRecusadoRetorna400SemConta() throws Exception
     {
         when(servidor.enviarEReceber(any())).thenReturn(
-            new RespostaDeBuscaDePerfil(false, "Usuario nao identificado. Entre novamente.", null, null, null, null, null, false));
+            new RespostaDeBuscaDePerfil(false, "Usuario nao identificado. Entre novamente.", null, null, null, false));
 
         mvc.perform(get("/api/conta"))
            .andExpect(status().isBadRequest())
@@ -105,13 +103,11 @@ class ContaControllerTest
         when(servidor.enviarEReceber(any())).thenReturn(new RespostaDeConta(true, "ok"));
 
         mvc.perform(put("/api/conta/preferencias").contentType(MediaType.APPLICATION_JSON)
-                .content("{\"usuarioCodigo\":3,\"fusoHorario\":\"(GMT-04:00) Manaus\",\"idioma\":\"English\",\"receberAlertasPorEmail\":false}"))
+                .content("{\"usuarioCodigo\":3,\"receberAlertasPorEmail\":false}"))
            .andExpect(status().isOk());
 
         PedidoDeAtualizacaoDePreferencias p = (PedidoDeAtualizacaoDePreferencias) capturar();
         assertEquals(3, p.getUsuarioCodigo());
-        assertEquals("(GMT-04:00) Manaus", p.getFusoHorario());
-        assertEquals("English", p.getIdioma());
         assertFalse(p.isReceberAlertasPorEmail());
     }
 
@@ -121,7 +117,7 @@ class ContaControllerTest
         when(servidor.enviarEReceber(any())).thenReturn(new RespostaDeConta(true, "ok"));
 
         mvc.perform(put("/api/conta/preferencias").contentType(MediaType.APPLICATION_JSON)
-                .content("{\"usuarioCodigo\":3,\"fusoHorario\":\"(GMT-04:00) Manaus\",\"idioma\":\"English\"}"))
+                .content("{\"usuarioCodigo\":3}"))
            .andExpect(status().isOk());
 
         assertTrue(((PedidoDeAtualizacaoDePreferencias) capturar()).isReceberAlertasPorEmail());

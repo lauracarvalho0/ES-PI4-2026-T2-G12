@@ -102,25 +102,6 @@ class ValidadorUsuarioTest
         assertEquals("", ValidadorUsuario.somenteDigitos("abc"));
     }
 
-    // ---------- listas do dicionario ----------
-    @Test
-    void fusoHorario()
-    {
-        for (String f : ValidadorUsuario.FUSOS)
-            assertNull(ValidadorUsuario.validarFusoHorario(f));
-        assertEquals("Fuso horario invalido.", ValidadorUsuario.validarFusoHorario("(GMT+01:00) Lisboa"));
-        assertEquals("Fuso horario invalido.", ValidadorUsuario.validarFusoHorario(null));
-    }
-
-    @Test
-    void idioma()
-    {
-        for (String i : ValidadorUsuario.IDIOMAS)
-            assertNull(ValidadorUsuario.validarIdioma(i));
-        assertEquals("Idioma invalido.", ValidadorUsuario.validarIdioma("Klingon"));
-        assertEquals("Idioma invalido.", ValidadorUsuario.validarIdioma(null));
-    }
-
     // ---------- codigo ----------
     @Test
     void codigoDeUsuario()

@@ -383,7 +383,7 @@ class SupervisoraDeConexaoTest
     {
         int u = cadastrarELogar("maria@x.com");
         int p = cadastrarPlantio(u, LocalDate.now().plusDays(100)).getCodigo();
-        enviar(new PedidoDeAtualizacaoDePreferencias(u, "(GMT-03:00) Brasília", "Português", false), RespostaDeConta.class);
+        enviar(new PedidoDeAtualizacaoDePreferencias(u, false), RespostaDeConta.class);
 
         assertEquals("Alertas climaticos por e-mail desativados.", climatico(u, p, "k1", "2026-10-28").getMensagem());
         verify(email, never()).enviarAlerta(any(), any(), any(), any(), any(), any(), any());
@@ -467,7 +467,6 @@ class SupervisoraDeConexaoTest
         RespostaDeBuscaDePerfil p = enviar(new PedidoDeBuscaDePerfil(u), RespostaDeBuscaDePerfil.class);
         assertTrue(p.isSucesso());
         assertEquals("Maria Silva", p.getNome());
-        assertEquals("Português", p.getIdioma());
         assertTrue(p.isReceberAlertasPorEmail());
 
         RespostaDeConta a = enviar(new PedidoDeAtualizacaoDePerfil(u, "Maria Souza", "NOVO@x.com", ""), RespostaDeConta.class);
@@ -499,14 +498,14 @@ class SupervisoraDeConexaoTest
     }
 
     @Test
-    void preferenciasInvalidasSaoRecusadas() throws Exception
+    void preferenciaDeAlertasPorEmailEhSalva() throws Exception
     {
         int u = cadastrarELogar("maria@x.com");
-        assertEquals("Fuso horario invalido.",
-            enviar(new PedidoDeAtualizacaoDePreferencias(u, "Lua", "Português", true), RespostaDeConta.class).getMensagem());
-        assertEquals("Idioma invalido.",
-            enviar(new PedidoDeAtualizacaoDePreferencias(u, "(GMT-03:00) Brasília", "Klingon", true), RespostaDeConta.class).getMensagem());
-        assertTrue(enviar(new PedidoDeAtualizacaoDePreferencias(u, "(GMT-04:00) Manaus", "English", false), RespostaDeConta.class).isSucesso());
+        assertEquals("Usuario nao identificado. Entre novamente.",
+            enviar(new PedidoDeAtualizacaoDePreferencias(0, true), RespostaDeConta.class).getMensagem());
+
+        assertTrue(enviar(new PedidoDeAtualizacaoDePreferencias(u, false), RespostaDeConta.class).isSucesso());
+        assertFalse(enviar(new PedidoDeBuscaDePerfil(u), RespostaDeBuscaDePerfil.class).isReceberAlertasPorEmail());
     }
 
     @Test

@@ -59,8 +59,6 @@ class UsuarioDAOTest
         assertEquals("Maria Silva", d.getString("nome"));
         assertEquals("a@x.com", d.getString("email"));
         assertEquals("hash123", d.getString("senhaHash"));
-        assertEquals("(GMT-03:00) Brasília", d.getString("fusoHorario"));
-        assertEquals("Português", d.getString("idioma"));
         assertTrue(d.getBoolean("receberAlertasPorEmail"));
         assertTrue(d.getBoolean("ativo"));
         assertEquals("CPF", ((Document) d.get("documento")).getString("tipo"));
@@ -186,7 +184,6 @@ class UsuarioDAOTest
         assertEquals("Maria Silva", p.getNome());
         assertEquals("a@x.com", p.getEmail());
         assertEquals("19999990000", p.getTelefone());
-        assertEquals("Português", p.getIdioma());
         assertTrue(p.isReceberAlertasPorEmail());
         assertNull(dao.buscarPerfil(999));
     }
@@ -217,13 +214,11 @@ class UsuarioDAOTest
     void atualizarPreferencias() throws Exception
     {
         int c = novo("a@x.com");
-        assertTrue(dao.atualizarPreferencias(c, "(GMT-04:00) Manaus", "English", false));
+        assertTrue(dao.atualizarPreferencias(c, false));
 
         Perfil p = dao.buscarPerfil(c);
-        assertEquals("(GMT-04:00) Manaus", p.getFusoHorario());
-        assertEquals("English", p.getIdioma());
         assertFalse(p.isReceberAlertasPorEmail());
-        assertFalse(dao.atualizarPreferencias(999, "a", "b", true));
+        assertFalse(dao.atualizarPreferencias(999, true));
     }
 
     @Test
@@ -232,7 +227,7 @@ class UsuarioDAOTest
         int c = novo("a@x.com");
         assertEquals("a@x.com", dao.emailParaAlerta(c));
 
-        dao.atualizarPreferencias(c, "(GMT-03:00) Brasília", "Português", false);
+        dao.atualizarPreferencias(c, false);
         assertNull(dao.emailParaAlerta(c));
 
         assertNull(dao.emailParaAlerta(999));

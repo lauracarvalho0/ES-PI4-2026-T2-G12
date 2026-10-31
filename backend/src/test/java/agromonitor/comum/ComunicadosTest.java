@@ -204,8 +204,7 @@ class ComunicadosTest
         PedidoDeAtualizacaoDePerfil p = viajar(new PedidoDeAtualizacaoDePerfil(3, "Maria", "m@x.com", "1999"));
         assertEquals("Maria", p.getNome()); assertEquals("m@x.com", p.getEmail()); assertEquals("1999", p.getTelefone());
 
-        PedidoDeAtualizacaoDePreferencias f = viajar(new PedidoDeAtualizacaoDePreferencias(3, "(GMT-03:00) Brasília", "Português", false));
-        assertEquals("(GMT-03:00) Brasília", f.getFusoHorario()); assertEquals("Português", f.getIdioma());
+        PedidoDeAtualizacaoDePreferencias f = viajar(new PedidoDeAtualizacaoDePreferencias(3, false));
         assertFalse(f.isReceberAlertasPorEmail());
 
         PedidoDeAlteracaoDeSenha s = viajar(new PedidoDeAlteracaoDeSenha(3, "velha1", "nova12"));
@@ -214,10 +213,8 @@ class ComunicadosTest
         PedidoDeExclusaoDeConta x = viajar(new PedidoDeExclusaoDeConta(3, "senha1"));
         assertEquals(3, x.getUsuarioCodigo()); assertEquals("senha1", x.getSenha());
 
-        RespostaDeBuscaDePerfil r = viajar(new RespostaDeBuscaDePerfil(true, "OK", "Maria", "m@x.com", "1999",
-            "(GMT-03:00) Brasília", "Português", true));
+        RespostaDeBuscaDePerfil r = viajar(new RespostaDeBuscaDePerfil(true, "OK", "Maria", "m@x.com", "1999", true));
         assertEquals("Maria", r.getNome()); assertEquals("m@x.com", r.getEmail()); assertEquals("1999", r.getTelefone());
-        assertEquals("(GMT-03:00) Brasília", r.getFusoHorario()); assertEquals("Português", r.getIdioma());
         assertTrue(r.isReceberAlertasPorEmail());
 
         RespostaDeConta c = viajar(new RespostaDeConta(true, "feito"));
