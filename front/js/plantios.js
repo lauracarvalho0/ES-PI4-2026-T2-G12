@@ -150,6 +150,18 @@ document.addEventListener('DOMContentLoaded', function () {
   filterStatus.addEventListener('change', aplicarFiltros);
   filterCultura.addEventListener('change', aplicarFiltros);
 
+  // Limpa a busca e restaura os filtros sem alterar os plantios.
+  const limparFiltros = document.getElementById('limparFiltros');
+  if (limparFiltros) {
+    limparFiltros.addEventListener('click', function () {
+      searchInput.value = '';
+      filterStatus.value = 'todos';
+      filterCultura.value = 'todas';
+      aplicarFiltros();
+      searchInput.focus();
+    });
+  }
+
   // Links "Ver todos" dos cards de resumo aplicam o filtro de status e rolam até a tabela
   document.querySelectorAll('.stat-link[data-status]').forEach(function (link) {
     link.addEventListener('click', function (e) {
