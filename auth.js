@@ -1,4 +1,5 @@
 (function () {
+  
   // Se o front foi aberto pelo Spring (porta 8080) usa caminho relativo;
   // se foi aberto por outro lugar (ex.: Live Server), aponta para o backend.
   var API = window.location.port === '8080' ? '' : 'http://localhost:8080';
