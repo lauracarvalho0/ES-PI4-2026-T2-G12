@@ -98,31 +98,28 @@
   // ---------- CADASTRO ----------
   var formCadastro = document.getElementById('form-cadastro');
   if (formCadastro) {
-    var senhaCadastro = document.getElementById('senha');
+   var senhaCadastro = document.getElementById('senha');
     var confirmacaoCadastro = document.getElementById('confirmar-senha');
     var avisoSenhas = document.getElementById('senhas-aviso');
 
-    function atualizarAvisoSenhas() {
-      var diferentes = confirmacaoCadastro.value.length > 0 &&
-        senhaCadastro.value !== confirmacaoCadastro.value;
-      avisoSenhas.hidden = !diferentes;
-      confirmacaoCadastro.setAttribute('aria-invalid', String(diferentes));
+    function mostrarAvisoSenhas(mostrar) {
+      avisoSenhas.hidden = !mostrar;
+      confirmacaoCadastro.setAttribute('aria-invalid', String(mostrar));
     }
 
-    if (senhaCadastro && confirmacaoCadastro && avisoSenhas) {
-      senhaCadastro.addEventListener('input', atualizarAvisoSenhas);
-      confirmacaoCadastro.addEventListener('input', atualizarAvisoSenhas);
-      atualizarAvisoSenhas();
-    }
+    // some assim que a pessoa volta a editar qualquer um dos campos
+    senhaCadastro.addEventListener('input', function () { mostrarAvisoSenhas(false); });
+    confirmacaoCadastro.addEventListener('input', function () { mostrarAvisoSenhas(false); });
 
     formCadastro.addEventListener('submit', function (e) {
       e.preventDefault();
       var botao = formCadastro.querySelector('.btn-submit');
-      var senha = document.getElementById('senha').value;
-      var confirmar = document.getElementById('confirmar-senha').value;
+      var senha = senhaCadastro.value;
+      var confirmar = confirmacaoCadastro.value;
 
       if (senha !== confirmar) {
-        mostrarMensagem(formCadastro, 'As senhas nao conferem.', false);
+        mostrarAvisoSenhas(true);
+        confirmacaoCadastro.focus();
         return;
       }
 
