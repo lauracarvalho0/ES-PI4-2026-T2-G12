@@ -14,6 +14,24 @@
     });
   });
 
+  // Avisa quando Caps Lock estiver ativo no campo de senha do login.
+  var campoSenhaLogin = document.querySelector('#form-login #password');
+  var avisoCapsLock = document.getElementById('caps-lock-aviso');
+  if (campoSenhaLogin && avisoCapsLock) {
+    function atualizarAvisoCapsLock(evento) {
+      if (typeof evento.getModifierState === 'function') {
+        avisoCapsLock.hidden = !evento.getModifierState('CapsLock');
+      }
+    }
+
+    campoSenhaLogin.addEventListener('keydown', atualizarAvisoCapsLock);
+    campoSenhaLogin.addEventListener('keyup', atualizarAvisoCapsLock);
+    campoSenhaLogin.addEventListener('mousedown', atualizarAvisoCapsLock);
+    campoSenhaLogin.addEventListener('blur', function () {
+      avisoCapsLock.hidden = true;
+    });
+  }
+
   // Mostra mensagem de erro/sucesso acima do botao de enviar
   function mostrarMensagem(form, texto, ok) {
     var el = form.querySelector('.form-message');
@@ -80,14 +98,28 @@
   // ---------- CADASTRO ----------
   var formCadastro = document.getElementById('form-cadastro');
   if (formCadastro) {
+    var senhaCadastro = document.getElementById('senha');
+    var confirmacaoCadastro = document.getElementById('confirmar-senha');
+    var avisoSenhas = document.getElementById('senhas-aviso');
+
+    function mostrarAvisoSenhas(mostrar) {
+      avisoSenhas.hidden = !mostrar;
+      confirmacaoCadastro.setAttribute('aria-invalid', String(mostrar));
+    }
+
+    // some assim que a pessoa volta a editar qualquer um dos campos
+    senhaCadastro.addEventListener('input', function () { mostrarAvisoSenhas(false); });
+    confirmacaoCadastro.addEventListener('input', function () { mostrarAvisoSenhas(false); });
+
     formCadastro.addEventListener('submit', function (e) {
       e.preventDefault();
       var botao = formCadastro.querySelector('.btn-submit');
-      var senha = document.getElementById('senha').value;
-      var confirmar = document.getElementById('confirmar-senha').value;
+      var senha = senhaCadastro.value;
+      var confirmar = confirmacaoCadastro.value;
 
       if (senha !== confirmar) {
-        mostrarMensagem(formCadastro, 'As senhas nao conferem.', false);
+        mostrarAvisoSenhas(true);
+        confirmacaoCadastro.focus();
         return;
       }
 
@@ -195,3 +227,4 @@
     });
   }
 })();
+
