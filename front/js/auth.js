@@ -14,6 +14,24 @@
     });
   });
 
+  // Avisa quando Caps Lock estiver ativo no campo de senha do login.
+  var campoSenhaLogin = document.querySelector('#form-login #password');
+  var avisoCapsLock = document.getElementById('caps-lock-aviso');
+  if (campoSenhaLogin && avisoCapsLock) {
+    function atualizarAvisoCapsLock(evento) {
+      if (typeof evento.getModifierState === 'function') {
+        avisoCapsLock.hidden = !evento.getModifierState('CapsLock');
+      }
+    }
+
+    campoSenhaLogin.addEventListener('keydown', atualizarAvisoCapsLock);
+    campoSenhaLogin.addEventListener('keyup', atualizarAvisoCapsLock);
+    campoSenhaLogin.addEventListener('mousedown', atualizarAvisoCapsLock);
+    campoSenhaLogin.addEventListener('blur', function () {
+      avisoCapsLock.hidden = true;
+    });
+  }
+
   // Mostra mensagem de erro/sucesso acima do botao de enviar
   function mostrarMensagem(form, texto, ok) {
     var el = form.querySelector('.form-message');
@@ -80,6 +98,23 @@
   // ---------- CADASTRO ----------
   var formCadastro = document.getElementById('form-cadastro');
   if (formCadastro) {
+    var senhaCadastro = document.getElementById('senha');
+    var confirmacaoCadastro = document.getElementById('confirmar-senha');
+    var avisoSenhas = document.getElementById('senhas-aviso');
+
+    function atualizarAvisoSenhas() {
+      var diferentes = confirmacaoCadastro.value.length > 0 &&
+        senhaCadastro.value !== confirmacaoCadastro.value;
+      avisoSenhas.hidden = !diferentes;
+      confirmacaoCadastro.setAttribute('aria-invalid', String(diferentes));
+    }
+
+    if (senhaCadastro && confirmacaoCadastro && avisoSenhas) {
+      senhaCadastro.addEventListener('input', atualizarAvisoSenhas);
+      confirmacaoCadastro.addEventListener('input', atualizarAvisoSenhas);
+      atualizarAvisoSenhas();
+    }
+
     formCadastro.addEventListener('submit', function (e) {
       e.preventDefault();
       var botao = formCadastro.querySelector('.btn-submit');
@@ -195,3 +230,4 @@
     });
   }
 })();
+

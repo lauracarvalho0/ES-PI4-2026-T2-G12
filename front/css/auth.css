@@ -253,6 +253,18 @@ body {
   text-decoration: underline;
 }
 
+.caps-lock-aviso {
+  margin: 0;
+  color: #8a4b08;
+  font-size: 13px;
+}
+
+.senhas-aviso {
+  margin: 0 0 12px;
+  color: #c62828;
+  font-size: 13px;
+}
+
 /* RESPONSIVE */
 @media (max-width: 900px) {
   .login-wrapper {

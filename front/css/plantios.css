@@ -1,4 +1,19 @@
 /* ===== FILTER BAR ===== */
+.btn-limpar-filtros {
+  padding: 10px 16px;
+  border: 1px solid #163a2b;
+  border-radius: 8px;
+  background: #fff;
+  color: #163a2b;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-limpar-filtros:hover {
+  background: #f2f0e9;
+}
+
 .filter-bar {
   display: flex;
   align-items: center;
