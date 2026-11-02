@@ -98,7 +98,7 @@
   // ---------- CADASTRO ----------
   var formCadastro = document.getElementById('form-cadastro');
   if (formCadastro) {
-   var senhaCadastro = document.getElementById('senha');
+    var senhaCadastro = document.getElementById('senha');
     var confirmacaoCadastro = document.getElementById('confirmar-senha');
     var avisoSenhas = document.getElementById('senhas-aviso');
 
