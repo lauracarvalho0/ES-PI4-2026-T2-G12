@@ -18,7 +18,7 @@
     <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-sync</artifactId>
-      <version>5.2.0</version>
+      <version>4.11.5</version>
     </dependency>
     <dependency>
       <groupId>at.favre.lib</groupId>
@@ -36,10 +36,36 @@
       <artifactId>angus-mail</artifactId>
       <version>2.0.3</version>
     </dependency>
+    <!-- testes -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.11.4</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- Mongo em memoria so para os testes (nao precisa instalar nada) -->
+    <dependency>
+      <groupId>de.bwaldvogel</groupId>
+      <artifactId>mongo-java-server-memory-backend</artifactId>
+      <version>1.45.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- dubles (mocks) para o servico de e-mail e para os DAOs -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>5.14.2</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.5.2</version>
+      </plugin>
       <!-- permite rodar com: mvn compile exec:java -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
