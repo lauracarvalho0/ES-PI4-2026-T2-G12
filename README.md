@@ -34,7 +34,7 @@ Desenvolver um sistema web que permita:
 * Apache Maven 3.9 ou superior
 * Uma conta gratuita no [MongoDB Atlas](https://www.mongodb.com/atlas) (ou um MongoDB próprio)
 
-### 0. Configure o banco de dados (MongoDB Atlas)
+### 1. Configure o banco de dados (MongoDB Atlas)
 
 A string de conexão **não está no repositório** (por segurança). Cada pessoa precisa usar a sua:
 
@@ -48,7 +48,7 @@ A string de conexão **não está no repositório** (por segurança). Cada pesso
 O banco `agromonitor` e as coleções são criados automaticamente na primeira execução.
 
 
-### 1. Inicie o servidor Java
+### 2. Inicie o servidor Java
 
 Abra um terminal PowerShell na pasta principal do projeto (a que contém `servidor`, `backend` e `front`):
 
@@ -69,7 +69,7 @@ $env:SMTP_PASS = "senha-de-app-do-gmail"
 
 (No Gmail, use uma *senha de app*, não a senha normal da conta.)
 
-### 2. Inicie o backend
+### 3. Inicie o backend
 
 Em um segundo terminal PowerShell, na pasta principal:
 
@@ -80,7 +80,7 @@ mvn spring-boot:run
 
 O backend usa a porta `8080` e serve os arquivos do frontend.
 
-### 3. Acesse a aplicação
+### 4. Acesse a aplicação
 
 Abra http://localhost:8080 no navegador.
 
