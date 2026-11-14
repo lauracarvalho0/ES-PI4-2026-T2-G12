@@ -1,13 +1,15 @@
 package agromonitor.servidor.validacao;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+
 
 class ValidadorAtividadeTest
 {
@@ -112,5 +114,40 @@ class ValidadorAtividadeTest
         assertNull(ValidadorAtividade.validarObservacoes(null));
         assertNull(ValidadorAtividade.validarObservacoes("a".repeat(200)));
         assertNotNull(ValidadorAtividade.validarObservacoes("a".repeat(201)));
+    }
+
+
+    // ANOMALIA 5: o tipo nao e aparado (trim); quantidade e responsavel sao
+    @ParameterizedTest
+    @ValueSource(strings = {" PLANTIO", "PLANTIO ", " COLHEITA "})
+    void anomalia_espacosNasPontasInvalidamOTipo(String tipo)
+    {
+        assertEquals("Tipo de atividade invalido.", ValidadorAtividade.validarTipo(tipo));
+    }
+
+    // ANOMALIA 6: com status nulo ou invalido nenhuma regra de estado e aplicada e qualquer data real passa
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"CANCELADA", "pendente"})
+    void anomalia_statusInvalidoDesligaAsRegrasDeData(String status)
+    {
+        assertNull(ValidadorAtividade.validarData(hoje.minusDays(100).toString(), status));
+        assertNull(ValidadorAtividade.validarData(hoje.plusDays(100).toString(), status));
+    }
+
+    // ANOMALIA 7: nao existe limite de data, datas absurdas sao aceitas
+    @Test
+    void anomalia_dataMuitoAntigaOuMuitoFuturaEhAceita()
+    {
+        assertNull(ValidadorAtividade.validarData("1900-01-01", "CONCLUIDA"));
+        assertNull(ValidadorAtividade.validarData("9999-12-31", "PENDENTE"));
+    }
+
+    // ANOMALIA 8: observacoes nao apara espacos, responsavel apara
+    @Test
+    void anomalia_observacoesNaoApararEspacos()
+    {
+        assertNotNull(ValidadorAtividade.validarObservacoes("a".repeat(200) + " "));
+        assertNull(ValidadorAtividade.validarResponsavel("a".repeat(100) + " "));
     }
 }
