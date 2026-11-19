@@ -1,4 +1,4 @@
-// Camila Fernandes Costacurta RA:25012949
+// Camila Fernandes Costacurta RA:25012949 
 document.addEventListener('DOMContentLoaded', function () {
   // Se o front foi aberto pelo Spring (porta 8080) usa caminho relativo;
   // se foi aberto por outro lugar (ex.: Live Server), aponta para o backend.
