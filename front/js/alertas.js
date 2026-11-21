@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 document.addEventListener('DOMContentLoaded', function () {
 
   // Começa vazio: só aparece o que vier de Clima.carregar()

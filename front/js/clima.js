@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 // Alertas climaticos gerados a partir da previsao do Open-Meteo para a
 // localizacao de cada plantio. Usado pela tela de Alertas e pelo Inicio.
 (function () {

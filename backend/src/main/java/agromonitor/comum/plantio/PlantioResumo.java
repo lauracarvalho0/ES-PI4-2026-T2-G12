@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 package agromonitor.comum.plantio;
 
 import java.io.Serializable;

@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 // Resumo da tela inicial: busca dados do usuario e monta os cards, a linha do
 // tempo e os alertas com informacoes reais do servidor e da previsao do tempo.
 document.addEventListener('DOMContentLoaded', function () {
