@@ -1,16 +1,22 @@
-// Autoria: Beatriz Leme — RA 25015554.
+// Giovana Uchelli - 25008818
 package agromonitor.servidor.dao;
 
-import java.util.Date;
+import java.util.Date; // Data com hora
 
-import org.bson.Document;
-import org.bson.conversions.Bson;
+import org.bson.Document; // Um documento do MongoDb
+import org.bson.conversions.Bson; // Tipo usado para montar filtros de busca
 
-import com.mongodb.ErrorCategory;
-import com.mongodb.MongoWriteException;
+import com.mongodb.ErrorCategory; // Categorias de erros do mongo
+import com.mongodb.MongoWriteException; // Erro lançado quando uuma gravação no banco falha
+
+// Coleção + banco no mongo
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+
+// Ferramentadas para buscar e alterar dados
 import com.mongodb.client.model.*;
+
+// Classes que guardam dados 
 import agromonitor.servidor.modelo.Perfil;
 import agromonitor.servidor.modelo.Usuario;
 
@@ -18,6 +24,7 @@ import agromonitor.servidor.modelo.Usuario;
 // As colecoes sao criadas automaticamente no primeiro insert.
 public class UsuarioDAO
 {
+    // Erro proprio, usado quando email ja existe
     public static class EmailJaCadastradoException extends Exception
     {
         public EmailJaCadastradoException() { super("E-mail ja cadastrado"); }
@@ -30,6 +37,7 @@ public class UsuarioDAO
         this.banco = banco;
     }
 
+    // Atalho para acessar a coleção "usuarios"
     private MongoCollection<Document> usuarios() { return banco.getCollection("usuarios"); }
 
     // Chamado uma vez na inicializacao do servidor (pode rodar varias vezes sem problema).
@@ -51,13 +59,15 @@ public class UsuarioDAO
         return d.getInteger("seq");
     }
 
-    // Insere o usuario no formato do dicionario de dados e devolve o codigo gerado.
+    // Insere o usuario
     public int inserir(String nome, String email, String telefone, String cpfSomenteDigitos, String senhaHash)
         throws EmailJaCadastradoException
     {
+        // Data atual e novo codigo do usuario
         Date agora   = new Date();
         int  codigo  = proximoCodigo();
 
+        // Monta o documento que será salvo no banco
         Document doc = new Document("codigo", codigo)
             .append("nome", nome)
             .append("email", email)
@@ -75,7 +85,7 @@ public class UsuarioDAO
 
         try
         {
-            usuarios().insertOne(doc);
+            usuarios().insertOne(doc); // Salva o usuario no banco
         }
         catch (MongoWriteException erro)
         {
@@ -104,13 +114,10 @@ public class UsuarioDAO
                 Filters.eq("ativo", true))).first() != null;
     }
 
-    // Guarda (o hash do) token de recuperacao no usuario ativo com esse e-mail.
-    // Devolve o usuario, ou null se o e-mail nao existe OU se ja foi pedido um link ha menos
-    // de "cooldownLimite" (evita encher a caixa de e-mail de alguem). Quem chama trata os dois
-    // casos do mesmo jeito, para nao revelar se o e-mail esta cadastrado.
+    // Guarda o hash do token de recuperacao no usuario ativo com esse e-mail.
     public Usuario salvarTokenDeRecuperacao(String email, String tokenHash, Date expiraEm, Date cooldownLimite)
     {
-        // O filtro também aplica o intervalo mínimo entre pedidos de recuperação.
+        
         Document d = usuarios().findOneAndUpdate(
             Filters.and(
                 Filters.eq("email", email),
@@ -125,19 +132,20 @@ public class UsuarioDAO
 
         if (d == null)
             return null;
+
+        // Devolve o usuario encontrado
         return new Usuario(d.getInteger("codigo"), d.getString("nome"),
                            d.getString("email"), d.getString("senhaHash"));
     }
 
     // Troca a senha se o token existe, nao expirou e o usuario esta ativo.
-    // Uma unica operacao atomica: troca a senha E apaga o token, entao o link so vale uma vez.
     public boolean redefinirSenha(String tokenHash, String novoSenhaHash)
     {
         Document d = usuarios().findOneAndUpdate(
             Filters.and(
-                Filters.eq("recuperacaoSenha.tokenHash", tokenHash),
-                Filters.gt("recuperacaoSenha.expiraEm", new Date()),
-                Filters.eq("ativo", true)),
+                Filters.eq("recuperacaoSenha.tokenHash", tokenHash), // Token confere
+                Filters.gt("recuperacaoSenha.expiraEm", new Date()), // Ainda nao expirou
+                Filters.eq("ativo", true)), // usuario ativo
             Updates.combine(
                 // A troca da senha e a remoção do token acontecem na mesma atualização.
                 Updates.set("senhaHash", novoSenhaHash),
@@ -157,8 +165,9 @@ public class UsuarioDAO
                            d.getString("email"), d.getString("senhaHash"));
     }
 
-    // ---------- tela Configuracoes ----------
+    // --- Tela de configurações ---
 
+    // Filtro pronto, usuario com esse codigo e ativo.
     private Bson ativoComCodigo(int codigo)
     {
         return Filters.and(Filters.eq("codigo", codigo), Filters.eq("ativo", true));
@@ -180,6 +189,7 @@ public class UsuarioDAO
     {
         try
         {
+            // Atualiza os 3 campos de uma vez; true se achou o usuario.
             return usuarios().updateOne(ativoComCodigo(codigo), Updates.combine(
                     Updates.set("nome", nome),
                     Updates.set("email", email),
@@ -193,6 +203,7 @@ public class UsuarioDAO
         }
     }
 
+    // Liga/Desliga o recebimento de alertas por email
     public boolean atualizarPreferencias(int codigo, boolean alertasPorEmail)
     {
         return usuarios().updateOne(ativoComCodigo(codigo),
@@ -203,12 +214,14 @@ public class UsuarioDAO
     // E-mail so e devolvido quando a conta esta ativa e autorizou alertas por e-mail.
     public String emailParaAlerta(int codigo)
     {
+        // Busca só os campos necessarios (email e preferencia)
         Document d = usuarios().find(ativoComCodigo(codigo))
             .projection(Projections.include("email", "receberAlertasPorEmail"))
             .first();
         if (d == null)
             return null;
 
+        // Se nao quiser alertas, devolve o email.
         if (!d.getBoolean("receberAlertasPorEmail", true))
             return null;
         return d.getString("email");
@@ -233,10 +246,14 @@ public class UsuarioDAO
     public boolean desativar(int codigo)
     {
         Date agora = new Date();
+
+        // Marca a conta como inativa (nao apaga do banco) e cancela a assinatura
         boolean ok = usuarios().updateOne(ativoComCodigo(codigo), Updates.combine(
                 Updates.set("ativo", false),
                 Updates.unset("recuperacaoSenha"),
                 Updates.set("assinaturaAtiva.status", "CANCELADA"))).getMatchedCount() > 0;
+
+        // Se desativou, também encerra a assinatura do historico
         if (ok)
             banco.getCollection("assinaturas_historico").updateMany(
                 Filters.and(Filters.eq("usuarioCodigo", codigo), Filters.eq("status", "ATIVA")),

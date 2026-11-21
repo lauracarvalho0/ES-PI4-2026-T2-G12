@@ -1,3 +1,5 @@
+// Giovana Uchelli - 25008818
+
 package agromonitor.servidor.modelo;
 
 // Dados da conta que a tela Configuracoes mostra e edita.
