@@ -73,6 +73,7 @@ public class EmailService
         }
 
         Properties props = new Properties();
+        // STARTTLS protege a conexão SMTP durante o envio das credenciais e da mensagem.
         props.put("mail.smtp.host", this.host);
         props.put("mail.smtp.port", this.porta);
         props.put("mail.smtp.auth", "true");
@@ -118,6 +119,7 @@ public class EmailService
         parteHtml.setContent(html, "text/html; charset=UTF-8");
 
         MimeMultipart corpo = new MimeMultipart("alternative");
+        // O e-mail oferece versões simples e formatadas para leitores diferentes.
         corpo.addBodyPart(parteTexto);
         corpo.addBodyPart(parteHtml);
 

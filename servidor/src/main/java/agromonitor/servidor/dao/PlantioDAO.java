@@ -74,6 +74,7 @@ public class PlantioDAO
         int  primeiroCodigoAtividade = reservarCodigos("atividades", TIPOS.length);
 
         List<Document> atividades = new ArrayList<Document>();
+        // Para cada etapa, usa a data personalizada ou calcula a previsão padrão em dias.
         for (int i = 0; i < TIPOS.length; i++)
         {
             LocalDate prevista = ajustes[i] != null ? ajustes[i] : dataPlantio.plusDays(OFFSETS[i]);
@@ -204,6 +205,7 @@ public class PlantioDAO
     // progresso = atividades concluidas / total de atividades, em %
     private static int calcularProgresso(List<Document> atividades)
     {
+        // A porcentagem é calculada com base nas atividades marcadas como concluídas.
         if (atividades.isEmpty())
             return 0;
 

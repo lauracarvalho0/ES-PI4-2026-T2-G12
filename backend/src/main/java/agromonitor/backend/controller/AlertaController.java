@@ -31,6 +31,7 @@ public class AlertaController
     {
         try
         {
+            // Sem código informado, usa zero como valor inválido tratado pelo servidor.
             int usuario = usuarioCodigo == null ? 0 : usuarioCodigo;
 
             Comunicado resposta = servidor.enviarEReceber(new PedidoDeListagemDeAlertas(usuario));
@@ -50,6 +51,7 @@ public class AlertaController
     }
 
     @PostMapping("/alertas/lido")
+    // O código do usuário acompanha o alerta para impedir que outro usuário o altere.
     public ResponseEntity<Map<String, Object>> marcarComoLido(@RequestBody MarcarLidoRequest req)
     {
         try
@@ -95,6 +97,7 @@ public class AlertaController
 
     private ResponseEntity<Map<String, Object>> indisponivel()
     {
+        // Padroniza a resposta quando a comunicação com o servidor interno falha.
         Map<String, Object> corpo = new LinkedHashMap<>();
         corpo.put("sucesso", false);
         corpo.put("mensagem", "Servidor indisponivel. Tente novamente mais tarde.");

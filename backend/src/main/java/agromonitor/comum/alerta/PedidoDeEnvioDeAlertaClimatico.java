@@ -9,6 +9,7 @@ public class PedidoDeEnvioDeAlertaClimatico extends Comunicado
     private static final long serialVersionUID = 1L;
     private int usuarioCodigo;
     private int plantioCodigo;
+    // A chave identifica o evento para evitar registrar ou enviar o mesmo alerta repetidamente.
     private String chave;
     private String titulo;
     private String descricao;
@@ -18,6 +19,7 @@ public class PedidoDeEnvioDeAlertaClimatico extends Comunicado
     public PedidoDeEnvioDeAlertaClimatico(int usuarioCodigo, int plantioCodigo, String chave,
             String titulo, String descricao, String prioridade, String data)
     {
+        // Os valores recebidos aqui são enviados juntos para o servidor processar o evento.
         this.usuarioCodigo = usuarioCodigo;
         this.plantioCodigo = plantioCodigo;
         this.chave = chave;

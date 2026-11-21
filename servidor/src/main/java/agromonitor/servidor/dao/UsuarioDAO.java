@@ -110,6 +110,7 @@ public class UsuarioDAO
     // casos do mesmo jeito, para nao revelar se o e-mail esta cadastrado.
     public Usuario salvarTokenDeRecuperacao(String email, String tokenHash, Date expiraEm, Date cooldownLimite)
     {
+        // O filtro também aplica o intervalo mínimo entre pedidos de recuperação.
         Document d = usuarios().findOneAndUpdate(
             Filters.and(
                 Filters.eq("email", email),
@@ -138,6 +139,7 @@ public class UsuarioDAO
                 Filters.gt("recuperacaoSenha.expiraEm", new Date()),
                 Filters.eq("ativo", true)),
             Updates.combine(
+                // A troca da senha e a remoção do token acontecem na mesma atualização.
                 Updates.set("senhaHash", novoSenhaHash),
                 Updates.unset("recuperacaoSenha")));
         return d != null;

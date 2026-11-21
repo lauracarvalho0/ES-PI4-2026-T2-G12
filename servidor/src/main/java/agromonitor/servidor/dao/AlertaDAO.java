@@ -103,6 +103,7 @@ public class AlertaDAO
                 if (alertas().countDocuments(Filters.and(
                         Filters.eq("atividade.codigo", atividadeCodigo),
                         Filters.eq("motivo", c.motivo()))) > 0)
+                    // Mantém a criação idempotente: repetir a verificação não replica o mesmo aviso.
                     continue;
 
                 if (inserir(usuarioCodigo, plantio, atividade, dataPrevista, c))
@@ -126,6 +127,7 @@ public class AlertaDAO
     private boolean inserir(int usuarioCodigo, Document plantio, Document atividade, Date dataPrevista,
                             RegrasDeAlerta.Classificacao c)
     {
+        // A chave única da atividade e do motivo evita duplicar alertas em execuções repetidas.
         LocalDate data      = paraLocalDate(dataPrevista);
         String    nomeTipo  = RegrasDeAlerta.nomeDoTipo(atividade.getString("tipoAtividade"));
         String    nomePlant = plantio.getString("nome");

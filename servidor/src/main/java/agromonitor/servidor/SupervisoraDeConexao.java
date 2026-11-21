@@ -104,6 +104,7 @@ public class SupervisoraDeConexao extends Thread
         try
         {
             receptor = new ObjectInputStream(this.conexao.getInputStream());
+            // O filtro limita os tipos que podem ser reconstruídos a partir da rede.
             // seguranca: so aceita desserializar classes do nosso pacote
             receptor.setObjectInputFilter(
                 ObjectInputFilter.Config.createFilter("agromonitor.comum.**;java.lang.*;!*"));
@@ -132,6 +133,7 @@ public class SupervisoraDeConexao extends Thread
             {
                 Comunicado comunicado = this.usuario.envie();
 
+                // O tipo do comunicado determina qual regra de negócio atende a solicitação.
                 if (comunicado == null)
                     return;
                 else if (comunicado instanceof PedidoDeCadastro)

@@ -72,6 +72,7 @@
   }
 
   async function localizarSemCache(texto) {
+    // Se a UF foi informada, ela ajuda a escolher a cidade correta entre resultados homônimos.
     const partes = texto.split(/\s*,\s*|\s+-\s+|\s*\/\s*/).map((p) => p.trim()).filter(Boolean);
     const cidade = partes[0];
     const ufTexto = partes[1] ? partes[1].toUpperCase() : '';
@@ -102,6 +103,7 @@
   }
 
   async function previsaoSemCache(lugar) {
+    // A API recebe coordenadas e devolve os indicadores diários usados pelas regras de risco.
     const query = new URLSearchParams({
       latitude: lugar.latitude,
       longitude: lugar.longitude,
@@ -148,6 +150,7 @@
 
   // Junta dias consecutivos do mesmo tipo de risco em um unico alerta.
   function alertasDoPlantio(plantio, lugar, dias) {
+    // Cada plantio recebe seus alertas com base nos riscos encontrados na previsão.
     const local = plantio.localizacao.trim();
     const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
     const porTipo = {};
