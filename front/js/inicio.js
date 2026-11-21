@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function montarTimeline(atividades) {
+    // A linha do tempo mostra atividades ainda abertas, ordenadas pela data prevista.
     const pendentes = atividades.filter(function (a) {
       return a.status !== 'CONCLUIDA' && a.data;
     }).sort(function (a, b) {
@@ -130,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const codigoUsuario = encodeURIComponent(usuario.codigo);
   const carregamentos = Promise.allSettled([
+    // Carrega cada fonte em paralelo; uma falha isolada não impede os outros cards de aparecer.
     buscarJson(API + '/api/plantios?usuarioCodigo=' + codigoUsuario),
     buscarJson(API + '/api/atividades?usuarioCodigo=' + codigoUsuario),
     buscarJson(API + '/api/alertas?usuarioCodigo=' + codigoUsuario),

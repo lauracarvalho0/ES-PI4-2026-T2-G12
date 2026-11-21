@@ -72,6 +72,7 @@ public class AlertaDAO
     // que ainda nao existem. Devolve quantos alertas novos foram criados.
     public int gerarAlertasDeAtividades(LocalDate hoje)
     {
+        // Considera apenas plantios ativos pertencentes a contas ativas para gerar avisos.
         Set<Integer> usuariosAtivos = new HashSet<Integer>();
         for (Document u : banco.getCollection("usuarios").find(Filters.eq("ativo", true))
                                .projection(Projections.include("codigo")))

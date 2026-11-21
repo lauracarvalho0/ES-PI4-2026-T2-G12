@@ -87,6 +87,7 @@ public class SupervisoraDeConexao extends Thread
 
     public void run()
     {
+        // Cada instância atende um cliente: lê comunicados do socket e devolve a resposta correspondente.
         ObjectOutputStream transmissor;
         try
         {

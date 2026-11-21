@@ -25,6 +25,7 @@ public class AlertaController
     private ConexaoComServidor servidor;
 
     @GetMapping("/alertas")
+    // Traduz a resposta do protocolo interno para o formato JSON consumido pelo front.
     public ResponseEntity<Map<String, Object>> listar(@RequestParam(required = false) Integer usuarioCodigo)
     {
         try
@@ -70,6 +71,7 @@ public class AlertaController
     }
 
     @PostMapping("/alertas/climaticos/email")
+    // Encaminha ao servidor o alerta climático produzido pela previsão no navegador.
     public ResponseEntity<Map<String, Object>> registrarAlertaClimatico(@RequestBody AlertaClimaticoRequest req)
     {
         try

@@ -22,6 +22,7 @@ public class VigiaDeAlertas extends Thread
 
     public void run()
     {
+        // Executa uma verificação ao iniciar e repete o processamento no intervalo configurado.
         for (;;)
         {
             this.processador.verificar();

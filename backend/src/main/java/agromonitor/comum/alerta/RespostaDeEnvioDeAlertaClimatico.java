@@ -4,6 +4,7 @@ import agromonitor.comum.Comunicado;
 
 public class RespostaDeEnvioDeAlertaClimatico extends Comunicado
 {
+    // Informa ao backend se o servidor aceitou registrar o alerta e a mensagem do resultado.
     private static final long serialVersionUID = 1L;
     private boolean sucesso;
     private String mensagem;

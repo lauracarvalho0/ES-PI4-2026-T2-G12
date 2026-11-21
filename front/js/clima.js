@@ -64,6 +64,7 @@
   const cacheGeo = new Map();
 
   async function localizar(texto) {
+    // Reaproveita coordenadas já consultadas para evitar chamadas repetidas ao serviço geográfico.
     const chave = normalizar(texto);
     if (!cacheGeo.has(chave)) cacheGeo.set(chave, localizarSemCache(texto));
     return cacheGeo.get(chave);
@@ -116,6 +117,7 @@
 
   // ---- regras de risco, avaliadas dia a dia ----
   function riscosDoDia(dias, i, local) {
+    // Converte os indicadores da previsão diária em riscos que podem virar alertas para o plantio.
     const chuva = Math.round(dias.precipitation_probability_max[i] || 0);
     const mm = Math.round((dias.precipitation_sum[i] || 0) * 10) / 10;
     const min = Math.round(dias.temperature_2m_min[i]);
@@ -219,6 +221,7 @@
 
   // Devolve { alertas, plantios, semLocalizacao, naoEncontrados, falhas }
   async function carregar() {
+    // Busca plantios do usuário, consulta previsão por localização e monta os alertas climáticos.
     const resultado = { alertas: [], plantios: [], semLocalizacao: false, naoEncontrados: [], falhas: [] };
     let usuario;
     try { usuario = JSON.parse(sessionStorage.getItem('usuario')); } catch (e) { /* sem sessao */ }

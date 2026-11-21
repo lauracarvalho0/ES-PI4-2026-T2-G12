@@ -67,6 +67,7 @@ public class PlantioDAO
                        Integer altitude, LocalDate dataPlantio, String metodoPlantio,
                        LocalDate[] ajustes)
     {
+        // Cria o plantio e deixa as atividades previstas embutidas no mesmo documento MongoDB.
         Date agora  = new Date();
         int  codigo = reservarCodigos("plantios", 1);
         int  primeiroCodigoAtividade = reservarCodigos("atividades", TIPOS.length);

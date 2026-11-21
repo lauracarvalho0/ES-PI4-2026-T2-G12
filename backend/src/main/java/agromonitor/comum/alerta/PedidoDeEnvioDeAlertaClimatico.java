@@ -4,6 +4,7 @@ import agromonitor.comum.Comunicado;
 
 public class PedidoDeEnvioDeAlertaClimatico extends Comunicado
 {
+    // Este objeto transporta os dados do alerta entre backend e servidor via socket.
     private static final long serialVersionUID = 1L;
     private int usuarioCodigo;
     private int plantioCodigo;

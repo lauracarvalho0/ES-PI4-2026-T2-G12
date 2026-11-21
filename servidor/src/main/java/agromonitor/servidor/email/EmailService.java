@@ -38,6 +38,7 @@ public class EmailService
 
     public static EmailService doAmbiente()
     {
+        // Lê credenciais do ambiente para não gravar segredos no código-fonte.
         String u = System.getenv("SMTP_USER");
         String s = System.getenv("SMTP_PASS");
         String h = valorOu(System.getenv("SMTP_HOST"), "smtp.gmail.com");

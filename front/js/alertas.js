@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const priorityOrder = { 'Crítico': 0, 'Alta': 1, 'Média': 2 };
 
   function getFilteredSortedAlerts() {
+    // Aplica primeiro os filtros escolhidos e depois ordena a lista exibida.
     let result = alerts.filter((alert) => {
       // por padrão só os pendentes; os lidos aparecem se o usuário pedir
       if (filtroSituacao.value === 'pendentes' && alert.situacao === 'Lido') return false;
@@ -114,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function renderTable() {
+    // Atualiza resumo, tabela e paginação sempre a partir dos filtros atuais.
     atualizarResumo();
     const filtered = getFilteredSortedAlerts();
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));

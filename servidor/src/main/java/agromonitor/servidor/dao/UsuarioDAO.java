@@ -34,6 +34,7 @@ public class UsuarioDAO
     // Chamado uma vez na inicializacao do servidor (pode rodar varias vezes sem problema).
     public void garantirIndices()
     {
+        // Índices únicos protegem o cadastro contra e-mails e códigos duplicados.
         usuarios().createIndex(Indexes.ascending("email"),  new IndexOptions().unique(true));
         usuarios().createIndex(Indexes.ascending("codigo"), new IndexOptions().unique(true));
         usuarios().createIndex(Indexes.ascending("recuperacaoSenha.tokenHash"));

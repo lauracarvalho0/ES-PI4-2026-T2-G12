@@ -6,6 +6,7 @@ import java.io.Serializable;
 // RespostaDeListagemDePlantios. As datas vao como texto "yyyy-MM-dd".
 public class PlantioResumo implements Serializable
 {
+    // DTO serializável usado para enviar à interface apenas os dados resumidos do plantio.
     private static final long serialVersionUID = 1L;
 
     private int    codigo;
