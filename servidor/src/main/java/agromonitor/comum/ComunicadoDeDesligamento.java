@@ -1,3 +1,5 @@
+// Giovana Uchelli - 25008818
+
 package agromonitor.comum;
 
 // Enviado pelo servidor a todos os clientes quando o administrador digita "desativar".

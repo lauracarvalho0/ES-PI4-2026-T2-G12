@@ -1,3 +1,5 @@
+// Giovana Uchelli - 25008818
+
 document.addEventListener('DOMContentLoaded', function () {
 
   const API = window.location.port === '8080' ? '' : 'http://localhost:8080';

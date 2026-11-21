@@ -13,13 +13,7 @@ import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 
-// Envia recuperacoes de senha e alertas por SMTP. Configurado por variaveis de ambiente:
-//   SMTP_USER  (obrigatoria)  ex.: agromonitor.sistema@gmail.com
-//   SMTP_PASS  (obrigatoria)  senha de app do Gmail (16 letras, sem espacos)
-//   SMTP_HOST  (opcional)     padrao: smtp.gmail.com
-//   SMTP_PORT  (opcional)     padrao: 587
-//   SMTP_FROM  (opcional)     padrao: o proprio SMTP_USER
-// Sem SMTP_USER/SMTP_PASS, recuperacoes imprimem o link no console e alertas ficam pendentes.
+
 public class EmailService
 {
     private final String usuario;

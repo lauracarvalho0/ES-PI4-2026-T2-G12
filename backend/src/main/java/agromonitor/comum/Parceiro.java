@@ -1,9 +1,14 @@
+// Giovana Uchelli - 25008818
+
 package agromonitor.comum;
 
-import java.io.*;
-import java.net.*;
-import java.util.concurrent.Semaphore;
+import java.io.*; // ObjectInputStream, ObjectOutpuStream ...
+import java.net.*; // Socket
+import java.util.concurrent.Semaphore; // Semaphore que controla o acesso das threads
 
+
+// Representa o "parceiro" do outro lado da conexão 
+// Serve para enviar e receber objetos Comunicado pela rede
 public class Parceiro
 {
     private Socket             conexao;
@@ -12,12 +17,13 @@ public class Parceiro
     
     private Comunicado proximoComunicado=null;
 
+    // Garante que só um thread leia por vez
     private Semaphore mutEx = new Semaphore (1,true);
 
     public Parceiro (Socket             conexao,
                      ObjectInputStream  receptor,
                      ObjectOutputStream transmissor)
-                     throws Exception // se parametro nulos
+                     throws Exception 
     {
         if (conexao==null)
             throw new Exception ("Conexao ausente");
@@ -33,12 +39,13 @@ public class Parceiro
         this.transmissor = transmissor;
     }
 
+    // Envia uma mensagem para o outro lado
     public void receba (Comunicado x) throws Exception
     {
         try
         {
-            this.transmissor.writeObject (x);
-            this.transmissor.flush       ();
+            this.transmissor.writeObject (x); // Escreve o objeto na conexao
+            this.transmissor.flush       (); // Força o envio imediato
         }
         catch (IOException erro)
         {
@@ -46,13 +53,16 @@ public class Parceiro
         }
     }
 
+    // Espia a proxima mensagem sem retirá-la 
     public Comunicado espie () throws Exception
     {
         try
         {
-            this.mutEx.acquireUninterruptibly();
+            // Trava para só uma thread ler por vez
+            this.mutEx.acquireUninterruptibly(); 
             if (this.proximoComunicado==null) this.proximoComunicado = (Comunicado)this.receptor.readObject();
             this.mutEx.release();
+
             return this.proximoComunicado;
         }
         catch (Exception erro)
@@ -61,6 +71,7 @@ public class Parceiro
         }
     }
 
+    // Receba a proxima mensagem e a retira
     public Comunicado envie () throws Exception
     {
         try
@@ -76,6 +87,7 @@ public class Parceiro
         }
     }
 
+    // Encerra a conexão
     public void adeus () throws Exception
     {
         try

@@ -1,19 +1,26 @@
+// Giovana Uchelli - 25008818
+
 package agromonitor.servidor;
 
-import java.net.*;
-import java.util.*;
+import java.net.*; // Socket, serverSocket
+import java.util.*; // ArrayList
 
+// Classes compartilhadas entre servidor e cliente
 import agromonitor.comum.*;
+
+// Classes que falam com o mongo
 import agromonitor.servidor.dao.AlertaDAO;
 import agromonitor.servidor.dao.PlantioDAO;
 import agromonitor.servidor.dao.UsuarioDAO;
+
+// Serviço que envia emails
 import agromonitor.servidor.email.EmailService;
 
 // Thread que so aceita conexoes e, para cada uma, dispara uma SupervisoraDeConexao.
 // Fica curta e rapida de proposito, para voltar logo a aceitar novos clientes.
 public class AceitadoraDeConexao extends Thread
 {
-    private ServerSocket        pedido;
+    private ServerSocket        pedido; // Fica "ouvindo" a porta e esperando clientes
     private ArrayList<Parceiro> usuarios;
     private UsuarioDAO          dao;
     private PlantioDAO          plantioDao;
@@ -28,6 +35,7 @@ public class AceitadoraDeConexao extends Thread
 
         try
         {
+            // Abre o servidor nessa porta
             this.pedido = new ServerSocket(Integer.parseInt(porta));
         }
         catch (Exception erro)
@@ -60,11 +68,11 @@ public class AceitadoraDeConexao extends Thread
             Socket conexao = null;
             try
             {
-                conexao = this.pedido.accept();
+                conexao = this.pedido.accept(); // Espera um cliente se conectar
             }
             catch (Exception erro)
             {
-                continue;
+                continue; 
             }
 
             SupervisoraDeConexao supervisora = null;

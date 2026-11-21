@@ -1,3 +1,5 @@
+// Giovana Uchelli - 25008818
+
 package agromonitor.servidor.modelo;
 
 // Dados do usuario que o servidor precisa para autenticar.
