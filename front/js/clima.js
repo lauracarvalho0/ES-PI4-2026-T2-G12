@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 // Alertas climaticos gerados a partir da previsao do Open-Meteo para a
 // localizacao de cada plantio. Usado pela tela de Alertas e pelo Inicio.
 (function () {
@@ -64,12 +65,14 @@
   const cacheGeo = new Map();
 
   async function localizar(texto) {
+    // Reaproveita coordenadas já consultadas para evitar chamadas repetidas ao serviço geográfico.
     const chave = normalizar(texto);
     if (!cacheGeo.has(chave)) cacheGeo.set(chave, localizarSemCache(texto));
     return cacheGeo.get(chave);
   }
 
   async function localizarSemCache(texto) {
+    // Se a UF foi informada, ela ajuda a escolher a cidade correta entre resultados homônimos.
     const partes = texto.split(/\s*,\s*|\s+-\s+|\s*\/\s*/).map((p) => p.trim()).filter(Boolean);
     const cidade = partes[0];
     const ufTexto = partes[1] ? partes[1].toUpperCase() : '';
@@ -100,6 +103,7 @@
   }
 
   async function previsaoSemCache(lugar) {
+    // A API recebe coordenadas e devolve os indicadores diários usados pelas regras de risco.
     const query = new URLSearchParams({
       latitude: lugar.latitude,
       longitude: lugar.longitude,
@@ -116,6 +120,7 @@
 
   // ---- regras de risco, avaliadas dia a dia ----
   function riscosDoDia(dias, i, local) {
+    // Converte os indicadores da previsão diária em riscos que podem virar alertas para o plantio.
     const chuva = Math.round(dias.precipitation_probability_max[i] || 0);
     const mm = Math.round((dias.precipitation_sum[i] || 0) * 10) / 10;
     const min = Math.round(dias.temperature_2m_min[i]);
@@ -145,6 +150,7 @@
 
   // Junta dias consecutivos do mesmo tipo de risco em um unico alerta.
   function alertasDoPlantio(plantio, lugar, dias) {
+    // Cada plantio recebe seus alertas com base nos riscos encontrados na previsão.
     const local = plantio.localizacao.trim();
     const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
     const porTipo = {};
@@ -219,6 +225,7 @@
 
   // Devolve { alertas, plantios, semLocalizacao, naoEncontrados, falhas }
   async function carregar() {
+    // Busca plantios do usuário, consulta previsão por localização e monta os alertas climáticos.
     const resultado = { alertas: [], plantios: [], semLocalizacao: false, naoEncontrados: [], falhas: [] };
     let usuario;
     try { usuario = JSON.parse(sessionStorage.getItem('usuario')); } catch (e) { /* sem sessao */ }

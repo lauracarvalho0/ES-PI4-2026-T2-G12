@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 // Resumo da tela inicial: busca dados do usuario e monta os cards, a linha do
 // tempo e os alertas com informacoes reais do servidor e da previsao do tempo.
 document.addEventListener('DOMContentLoaded', function () {
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   async function buscarJson(url) {
+    // Converte respostas HTTP em dados e transforma falhas em erro para o tratamento da tela.
     const resposta = await fetch(url);
     const dados = await resposta.json().catch(function () { return {}; });
     if (!resposta.ok || !dados.sucesso) {
@@ -51,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function montarTimeline(atividades) {
+    // A linha do tempo mostra atividades ainda abertas, ordenadas pela data prevista.
     const pendentes = atividades.filter(function (a) {
       return a.status !== 'CONCLUIDA' && a.data;
     }).sort(function (a, b) {
@@ -97,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function montarAlertas(alertas, erro) {
+    // O painel resume alertas importantes e informa quando houve falha de carregamento.
     const icone = '<svg class="alert-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 21.5 20h-19L12 3.5Z"></path><path d="M12 10v4"></path><path d="M12 17.5h.01"></path></svg>';
     const ordenar = function (a, b) {
       return prioridadeOrdem[a.priority] - prioridadeOrdem[b.priority] || a.dateISO.localeCompare(b.dateISO);
@@ -130,6 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const codigoUsuario = encodeURIComponent(usuario.codigo);
   const carregamentos = Promise.allSettled([
+    // Carrega cada fonte em paralelo; uma falha isolada não impede os outros cards de aparecer.
     buscarJson(API + '/api/plantios?usuarioCodigo=' + codigoUsuario),
     buscarJson(API + '/api/atividades?usuarioCodigo=' + codigoUsuario),
     buscarJson(API + '/api/alertas?usuarioCodigo=' + codigoUsuario),
@@ -160,6 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const alertasAtividade = alertasR.status === 'fulfilled'
       ? (alertasR.value.alertas || []).map(normalizarAlertaAtividade) : [];
+    // Junta alertas gerados por atividades aos alertas climáticos antes de atualizar o painel.
     const alertasClima = climaR.status === 'fulfilled' ? (climaR.value.alertas || []) : [];
     document.getElementById('statAvisosClimaticos').textContent = climaR.status === 'fulfilled'
       ? String(alertasClima.length) : '—';

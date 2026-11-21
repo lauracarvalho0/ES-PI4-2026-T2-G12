@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 package agromonitor.servidor.dao;
 
 import java.time.LocalDate;
@@ -72,6 +73,7 @@ public class AlertaDAO
     // que ainda nao existem. Devolve quantos alertas novos foram criados.
     public int gerarAlertasDeAtividades(LocalDate hoje)
     {
+        // Considera apenas plantios ativos pertencentes a contas ativas para gerar avisos.
         Set<Integer> usuariosAtivos = new HashSet<Integer>();
         for (Document u : banco.getCollection("usuarios").find(Filters.eq("ativo", true))
                                .projection(Projections.include("codigo")))
@@ -101,6 +103,7 @@ public class AlertaDAO
                 if (alertas().countDocuments(Filters.and(
                         Filters.eq("atividade.codigo", atividadeCodigo),
                         Filters.eq("motivo", c.motivo()))) > 0)
+                    // Mantém a criação idempotente: repetir a verificação não replica o mesmo aviso.
                     continue;
 
                 if (inserir(usuarioCodigo, plantio, atividade, dataPrevista, c))
@@ -124,6 +127,7 @@ public class AlertaDAO
     private boolean inserir(int usuarioCodigo, Document plantio, Document atividade, Date dataPrevista,
                             RegrasDeAlerta.Classificacao c)
     {
+        // A chave única da atividade e do motivo evita duplicar alertas em execuções repetidas.
         LocalDate data      = paraLocalDate(dataPrevista);
         String    nomeTipo  = RegrasDeAlerta.nomeDoTipo(atividade.getString("tipoAtividade"));
         String    nomePlant = plantio.getString("nome");

@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 package agromonitor.servidor.email;
 
 import java.util.Properties;
@@ -38,6 +39,7 @@ public class EmailService
 
     public static EmailService doAmbiente()
     {
+        // Lê credenciais do ambiente para não gravar segredos no código-fonte.
         String u = System.getenv("SMTP_USER");
         String s = System.getenv("SMTP_PASS");
         String h = valorOu(System.getenv("SMTP_HOST"), "smtp.gmail.com");
@@ -71,6 +73,7 @@ public class EmailService
         }
 
         Properties props = new Properties();
+        // STARTTLS protege a conexão SMTP durante o envio das credenciais e da mensagem.
         props.put("mail.smtp.host", this.host);
         props.put("mail.smtp.port", this.porta);
         props.put("mail.smtp.auth", "true");
@@ -116,6 +119,7 @@ public class EmailService
         parteHtml.setContent(html, "text/html; charset=UTF-8");
 
         MimeMultipart corpo = new MimeMultipart("alternative");
+        // O e-mail oferece versões simples e formatadas para leitores diferentes.
         corpo.addBodyPart(parteTexto);
         corpo.addBodyPart(parteHtml);
 

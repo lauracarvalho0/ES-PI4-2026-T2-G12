@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 package agromonitor.servidor.dao;
 
 import java.util.Date;
@@ -34,6 +35,7 @@ public class UsuarioDAO
     // Chamado uma vez na inicializacao do servidor (pode rodar varias vezes sem problema).
     public void garantirIndices()
     {
+        // Índices únicos protegem o cadastro contra e-mails e códigos duplicados.
         usuarios().createIndex(Indexes.ascending("email"),  new IndexOptions().unique(true));
         usuarios().createIndex(Indexes.ascending("codigo"), new IndexOptions().unique(true));
         usuarios().createIndex(Indexes.ascending("recuperacaoSenha.tokenHash"));
@@ -108,6 +110,7 @@ public class UsuarioDAO
     // casos do mesmo jeito, para nao revelar se o e-mail esta cadastrado.
     public Usuario salvarTokenDeRecuperacao(String email, String tokenHash, Date expiraEm, Date cooldownLimite)
     {
+        // O filtro também aplica o intervalo mínimo entre pedidos de recuperação.
         Document d = usuarios().findOneAndUpdate(
             Filters.and(
                 Filters.eq("email", email),
@@ -136,6 +139,7 @@ public class UsuarioDAO
                 Filters.gt("recuperacaoSenha.expiraEm", new Date()),
                 Filters.eq("ativo", true)),
             Updates.combine(
+                // A troca da senha e a remoção do token acontecem na mesma atualização.
                 Updates.set("senhaHash", novoSenhaHash),
                 Updates.unset("recuperacaoSenha")));
         return d != null;
