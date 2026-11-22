@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 package agromonitor.servidor.email;
 
 import java.util.Properties;
@@ -12,13 +13,7 @@ import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 
-// Envia recuperacoes de senha e alertas por SMTP. Configurado por variaveis de ambiente:
-//   SMTP_USER  (obrigatoria)  ex.: agromonitor.sistema@gmail.com
-//   SMTP_PASS  (obrigatoria)  senha de app do Gmail (16 letras, sem espacos)
-//   SMTP_HOST  (opcional)     padrao: smtp.gmail.com
-//   SMTP_PORT  (opcional)     padrao: 587
-//   SMTP_FROM  (opcional)     padrao: o proprio SMTP_USER
-// Sem SMTP_USER/SMTP_PASS, recuperacoes imprimem o link no console e alertas ficam pendentes.
+
 public class EmailService
 {
     private final String usuario;
@@ -38,6 +33,7 @@ public class EmailService
 
     public static EmailService doAmbiente()
     {
+        // Lê credenciais do ambiente para não gravar segredos no código-fonte.
         String u = System.getenv("SMTP_USER");
         String s = System.getenv("SMTP_PASS");
         String h = valorOu(System.getenv("SMTP_HOST"), "smtp.gmail.com");
@@ -71,6 +67,7 @@ public class EmailService
         }
 
         Properties props = new Properties();
+        // STARTTLS protege a conexão SMTP durante o envio das credenciais e da mensagem.
         props.put("mail.smtp.host", this.host);
         props.put("mail.smtp.port", this.porta);
         props.put("mail.smtp.auth", "true");
@@ -116,6 +113,7 @@ public class EmailService
         parteHtml.setContent(html, "text/html; charset=UTF-8");
 
         MimeMultipart corpo = new MimeMultipart("alternative");
+        // O e-mail oferece versões simples e formatadas para leitores diferentes.
         corpo.addBodyPart(parteTexto);
         corpo.addBodyPart(parteHtml);
 

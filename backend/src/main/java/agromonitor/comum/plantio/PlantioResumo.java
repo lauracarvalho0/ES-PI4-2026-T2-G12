@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 package agromonitor.comum.plantio;
 
 import java.io.Serializable;
@@ -6,6 +7,7 @@ import java.io.Serializable;
 // RespostaDeListagemDePlantios. As datas vao como texto "yyyy-MM-dd".
 public class PlantioResumo implements Serializable
 {
+    // DTO serializável usado para enviar à interface apenas os dados resumidos do plantio.
     private static final long serialVersionUID = 1L;
 
     private int    codigo;
@@ -18,6 +20,7 @@ public class PlantioResumo implements Serializable
     private String proximaAtividadeTipo;  // null se nao ha atividade pendente
     private String proximaAtividadeData;  // null se nao ha atividade pendente
     private int    progresso;
+    // A fase é derivada do progresso e usada pela interface para indicar o estágio do cultivo.
     private String status;                // FASE_INICIAL, DESENVOLVIMENTO, FASE_FINAL, CONCLUIDO
     private String localizacao;
     
@@ -26,6 +29,7 @@ public class PlantioResumo implements Serializable
                          String proximaAtividadeTipo, String proximaAtividadeData,
                          int progresso, String status, String localizacao)
     {
+        // O construtor reúne em um único objeto os campos exibidos no resumo do plantio.
         this.codigo               = codigo;
         this.nome                 = nome;
         this.cultura              = cultura;

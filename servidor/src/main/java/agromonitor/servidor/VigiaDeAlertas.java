@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 package agromonitor.servidor;
 
 import agromonitor.servidor.dao.AlertaDAO;
@@ -22,12 +23,15 @@ public class VigiaDeAlertas extends Thread
 
     public void run()
     {
+        // Executa uma verificação ao iniciar e repete o processamento no intervalo configurado.
         for (;;)
         {
+            // O processador verifica atividades e trata os e-mails que ainda estão pendentes.
             this.processador.verificar();
 
             try
             {
+                // Pausa a thread entre as verificações para respeitar o intervalo de uma hora.
                 Thread.sleep(INTERVALO_MS);
             }
             catch (InterruptedException erro)

@@ -1,15 +1,26 @@
 /* ===== FILTER BAR ===== */
+/* Camila Fernandes Costacurta  RA:25012949*/
+/* Estilo do botao que limpa filtros. */
 .btn-limpar-filtros {
+  /* Define o tamanho interno do botao. */
   padding: 10px 16px;
+  /* Define a borda do botao. */
   border: 1px solid #163a2b;
+  /* Arredonda os cantos do botao. */
   border-radius: 8px;
+  /* Define o fundo branco do botao. */
   background: #fff;
+  /* Define a cor do texto do botao. */
   color: #163a2b;
+  /* Usa a fonte padrao da interface. */
   font: inherit;
+  /* Mostra o cursor de clique. */
   cursor: pointer;
+  /* Impede quebra do texto. */
   white-space: nowrap;
 }
 
+/* Altera o fundo ao passar o mouse. */
 .btn-limpar-filtros:hover {
   background: #f2f0e9;
 }
