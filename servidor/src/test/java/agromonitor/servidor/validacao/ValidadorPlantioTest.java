@@ -1,9 +1,12 @@
-package agromonitor.servidor.validacao;
+// Laura Carvalho - 25014543
 
-import static org.junit.jupiter.api.Assertions.*;
+package agromonitor.servidor.validacao;
 
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;

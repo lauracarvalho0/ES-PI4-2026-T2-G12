@@ -1,3 +1,5 @@
+// Laura Carvalho - 25014543
+
 // ===== DADOS (vindos do banco, pelo backend) =====
 // Nada aqui e fixo: tudo e carregado de GET /api/plantios e GET /api/atividades
 // e as contas (concluidas, pendentes, atrasadas...) sao feitas no navegador.
@@ -16,6 +18,7 @@ const filtros = {
   talhao: 'todos'
 };
 
+// só roda depois que o HTML inteiro carregou
 document.addEventListener('DOMContentLoaded', function () {
   setupDropdowns();
   setupExportar();
@@ -24,9 +27,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // ===== CARREGAMENTO =====
 function carregarDados() {
+  // usuário logado, salvo no sessionStorage pelo login
   let usuario = null;
   try { usuario = JSON.parse(sessionStorage.getItem('usuario')); } catch (err) {}
 
+  // sem usuário logado: avisa e manda pro login depois de 1,5 s
   if (!usuario || !usuario.codigo) {
     mostrarErro('Sua sessão expirou. Entre novamente.');
     setTimeout(function () { window.location.href = '../auth/login.html'; }, 1500);
@@ -36,6 +41,7 @@ function carregarDados() {
   mostrarErro('Carregando relatório...');
 
   const codigo = encodeURIComponent(usuario.codigo);
+  // faz as duas buscas ao mesmo tempo e só continua quando as duas terminarem
   Promise.all([
     buscarJson(API + '/api/plantios?usuarioCodigo=' + codigo),
     buscarJson(API + '/api/atividades?usuarioCodigo=' + codigo)
@@ -52,6 +58,7 @@ function carregarDados() {
     montarFiltros();
     render();
 
+    // render() esconde o aviso; se não tem plantio, mostra de novo
     if (plantiosData.length === 0) {
       mostrarErro('Você ainda não tem plantios. Cadastre um plantio para ver o relatório.');
     }
@@ -62,11 +69,13 @@ function carregarDados() {
 function buscarJson(url) {
   return fetch(url)
     .then(function (resp) {
+      // se a resposta não for JSON, cria um erro no mesmo formato
       return resp.json().catch(function () {
         return { sucesso: false, mensagem: 'Resposta inesperada do servidor.' };
       });
     })
     .catch(function () {
+      // fetch falhou (servidor desligado, sem internet...)
       return { sucesso: false, mensagem: 'Não foi possível conectar ao servidor.' };
     });
 }
@@ -75,7 +84,7 @@ function buscarJson(url) {
 function mostrarErro(texto) {
   plantiosData = [];
   atividadesData = [];
-  render();
+  render(); // redesenha tudo zerado
   const emptyState = document.getElementById('emptyState');
   emptyState.textContent = texto;
   emptyState.style.display = 'block';
@@ -86,7 +95,7 @@ function mostrarErro(texto) {
 // Escapa texto digitado pelo usuario antes de colocar no HTML (evita injecao de HTML/JS)
 function esc(texto) {
   return String(texto == null ? '' : texto)
-    .replace(/&/g, '&amp;')
+    .replace(/&/g, '&amp;') // o & tem que ser o primeiro
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
@@ -95,11 +104,13 @@ function esc(texto) {
 
 // "Café" -> "cafe" (usado na cor da bolinha da cultura)
 function normalizar(texto) {
+  // NFD separa a letra do acento, e o replace apaga os acentos
   return String(texto).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
 
 // Date -> "yyyy-MM-dd" (no fuso do computador)
 function paraIso(d) {
+  // getMonth() começa em 0, por isso o +1; padStart completa com zero
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
@@ -109,6 +120,7 @@ function formatarData(iso) {
   return p[2] + '/' + p[1] + '/' + p[0];
 }
 
+// código do banco -> texto que aparece na tela
 const tipoTexto = {
   PLANTIO: 'Plantio',
   IRRIGACAO: 'Irrigação',
@@ -124,6 +136,7 @@ const meses = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'O
 function intervaloDoPeriodo(periodo) {
   const hoje = new Date();
   if (periodo === 'mes') {
+    // dia 1 do mês até o dia 0 do mês seguinte (= último dia do mês atual)
     return [paraIso(new Date(hoje.getFullYear(), hoje.getMonth(), 1)),
             paraIso(new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0))];
   }
@@ -151,6 +164,7 @@ function montarFiltros() {
   }));
 }
 
+// tira os repetidos e ordena (mantém só a primeira ocorrência de cada valor)
 function unicos(lista) {
   return lista.filter(function (x, i) { return lista.indexOf(x) === i; }).sort();
 }
@@ -165,9 +179,10 @@ function preencherSelect(id, opcoes) {
     opt.textContent = o.texto; // textContent: nao interpreta HTML
     select.appendChild(opt);
   });
-  select.value = select.options[0].value;
+  select.value = select.options[0].value; // volta pra "Todos"
 }
 
+// cada select guarda no data-filter qual filtro ele controla; ao mudar, atualiza e redesenha
 function setupDropdowns() {
   document.querySelectorAll('.rel-native-select').forEach(function (select) {
     select.addEventListener('change', function () {
@@ -193,19 +208,21 @@ function getAtividadesFiltradas(plantios, comPeriodo) {
   const intervalo = comPeriodo ? intervaloDoPeriodo(filtros.periodo) : null;
 
   return atividadesData.filter(function (a) {
-    if (codigos.indexOf(a.plantioCodigo) === -1) return false;
+    if (codigos.indexOf(a.plantioCodigo) === -1) return false; // não é de um plantio filtrado
     if (intervalo && (a.data < intervalo[0] || a.data > intervalo[1])) return false; // "yyyy-MM-dd" compara como texto
     return true;
   });
 }
 
 // ===== RENDERIZAÇÃO GERAL =====
+// chamada sempre que algo muda: filtra os dados e redesenha cada parte da tela
 function render() {
   const plantiosFiltrados = getPlantiosFiltrados();
   const atividadesNoPeriodo = getAtividadesFiltradas(plantiosFiltrados, true);
 
   renderResumo(plantiosFiltrados, atividadesNoPeriodo);
   renderDonut(atividadesNoPeriodo);
+  // as próximas atividades ignoram o período (olham pra frente de qualquer jeito)
   renderProximasAtividades(getAtividadesFiltradas(plantiosFiltrados, false));
   renderTabela(plantiosFiltrados, atividadesNoPeriodo);
 }
@@ -229,6 +246,7 @@ function renderResumo(plantios, atividades) {
 
 // Conta as atividades por status (CONCLUIDA, PENDENTE, ATRASADA)
 function calcularTotais(atividades) {
+  // reduce percorre a lista acumulando os contadores no objeto "acc"
   return atividades.reduce(function (acc, a) {
     if (a.status === 'CONCLUIDA') acc.concluidas++;
     else if (a.status === 'ATRASADA') acc.atrasadas++;
@@ -237,6 +255,7 @@ function calcularTotais(atividades) {
   }, { concluidas: 0, pendentes: 0, atrasadas: 0 });
 }
 
+// porcentagem arredondada; evita dividir por zero
 function pct(valor, total) {
   if (total === 0) return 0;
   return Math.round((valor / total) * 100);
@@ -251,12 +270,14 @@ function renderDonut(atividades) {
   document.getElementById('donutTotal').textContent = total;
 
   if (total === 0) {
-    donut.style.background = 'conic-gradient(var(--gray-bg) 0 100%)';
+    donut.style.background = 'conic-gradient(var(--gray-bg) 0 100%)'; // anel todo cinza
   } else {
+    // onde cada fatia termina (em %), somando as anteriores
     const fim1 = (totais.concluidas / total) * 100;
     const fim2 = fim1 + (totais.pendentes / total) * 100;
     const fim3 = fim2 + (totais.atrasadas / total) * 100;
 
+    // conic-gradient desenha o anel em fatias; o "furo" vem do CSS
     donut.style.background =
       'conic-gradient(' +
       'var(--accent-green) 0% ' + fim1 + '%, ' +
@@ -280,6 +301,7 @@ function renderProximasAtividades(atividades) {
   const container = document.getElementById('proximasList');
   container.innerHTML = '';
 
+  // tira as concluídas, ordena por data (mais antiga primeiro) e pega 5
   const proximas = atividades
     .filter(function (a) { return a.status !== 'CONCLUIDA'; })
     .sort(function (x, y) { return x.data < y.data ? -1 : (x.data > y.data ? 1 : 0); })
@@ -292,7 +314,7 @@ function renderProximasAtividades(atividades) {
 
   proximas.forEach(function (a) {
     const partes = a.data.split('-'); // [ano, mes, dia]
-    const status = a.status === 'ATRASADA' ? 'atrasada' : 'pendente';
+    const status = a.status === 'ATRASADA' ? 'atrasada' : 'pendente'; // vira parte do nome da classe CSS
     const item = document.createElement('div');
     item.className = 'rel-next-item';
 
@@ -311,11 +333,13 @@ function renderProximasAtividades(atividades) {
   });
 }
 
+// "pendente" -> "Pendente"
 function capitalizar(texto) {
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
 // Uma linha da tabela: dados do plantio + contagem das atividades dele no periodo
+// (também é usada na exportação, pra tela e CSV mostrarem os mesmos números)
 function linhaDoPlantio(p, atividades) {
   const dele = atividades.filter(function (a) { return a.plantioCodigo === p.codigo; });
   const totais = calcularTotais(dele);
@@ -395,21 +419,24 @@ function setupExportar() {
 
     const atividades = getAtividadesFiltradas(plantios, true);
     const cabecalho = ['Plantio', 'Cultura', 'Talhão', 'Data do plantio', 'Concluídas', 'Pendentes', 'Atrasadas', 'Progresso (%)'];
+    // uma linha de texto por plantio, com as colunas separadas por ";" (padrão do Excel em pt-BR)
     const linhas = plantios.map(function (p) {
       const l = linhaDoPlantio(p, atividades);
       return [l.nome, l.cultura, l.talhao, l.dataPlantio, l.concluidas, l.pendentes, l.atrasadas, l.progresso].map(csvCampo).join(';');
     });
 
     const csv = [cabecalho.join(';')].concat(linhas).join('\n');
+    // o \uFEFF no começo (BOM) faz o Excel entender os acentos (UTF-8)
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
 
+    // truque do download: cria um link invisível, clica nele e remove
     const link = document.createElement('a');
     link.href = url;
     link.download = 'relatorio-agromonitor.csv';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url); // libera a memória do arquivo temporário
   });
 }

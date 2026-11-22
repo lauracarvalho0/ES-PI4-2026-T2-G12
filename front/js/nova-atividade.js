@@ -1,6 +1,9 @@
+// Laura Carvalho - 25014543
+
+// só roda depois que o HTML inteiro carregou
 document.addEventListener('DOMContentLoaded', function () {
-  const totalSteps = 2;
-  let currentStep = 1;
+  const totalSteps = 2;   // o formulário tem 2 etapas: preencher e revisar
+  let currentStep = 1;    // etapa em que o usuário está agora
 
   // Se o front foi aberto pelo Spring (porta 8080) usa caminho relativo;
   // se foi aberto por outro lugar (ex.: Live Server), aponta para o backend.
@@ -11,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const atividadeSelect = document.getElementById('atividade');
   const dataInput = document.getElementById('dataExecucao');
 
+  // mostra mensagem de erro (vermelho) ou sucesso (verde); texto vazio esconde a mensagem
   function showMessage(text, ok) {
     formMessage.style.color = ok ? '#2e7d32' : '#c62828';
     formMessage.textContent = text;
@@ -28,15 +32,17 @@ document.addEventListener('DOMContentLoaded', function () {
   const statusCodigos = {
     'Concluída': 'CONCLUIDA',
     'Pendente': 'PENDENTE',
-    'Planejada': 'PENDENTE',
+    'Planejada': 'PENDENTE', // "Planejada" e "Pendente" são o mesmo status pro servidor
     'Atrasada': 'ATRASADA'
   };
 
+  // usuário logado, salvo no sessionStorage pelo login (try/catch protege de JSON quebrado)
   let usuario = null;
   try { usuario = JSON.parse(sessionStorage.getItem('usuario')); } catch (err) {}
 
   // Carrega os plantios do usuario para o select
   function carregarPlantios() {
+    // sem usuário logado: avisa e manda pro login depois de 1,5 s
     if (!usuario || !usuario.codigo) {
       plantioSelect.innerHTML = '<option value="">Sessão expirada</option>';
       showMessage('Sua sessão expirou. Entre novamente.', false);
@@ -46,14 +52,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fetch(API + '/api/plantios?usuarioCodigo=' + encodeURIComponent(usuario.codigo))
       .then(function (resp) {
+        // se a resposta não for JSON, cria um erro no mesmo formato
         return resp.json().catch(function () {
           return { sucesso: false, mensagem: 'Resposta inesperada do servidor.' };
         });
       })
       .catch(function () {
+        // fetch falhou (servidor desligado, sem internet...)
         return { sucesso: false, mensagem: 'Não foi possível conectar ao servidor.' };
       })
       .then(function (r) {
+        // aqui sempre chega { sucesso, ... }, deu certo ou não
         plantioSelect.innerHTML = '';
         if (!r.sucesso) {
           plantioSelect.innerHTML = '<option value="">Não foi possível carregar</option>';
@@ -75,6 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
+  // texto da opção selecionada (não o value); usado na revisão
   function selectedText(select) {
     return select.selectedIndex >= 0 ? select.options[select.selectedIndex].textContent : '';
   }
@@ -88,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return '';
   }
 
+  // monta o JSON com os códigos do servidor e envia a atividade
   function salvarAtividade() {
     if (!usuario || !usuario.codigo) {
       showMessage('Sua sessão expirou. Entre novamente.', false);
@@ -95,11 +106,11 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    const data = new FormData(form);
+    const data = new FormData(form); // lê todos os campos do formulário pelo name
     const payload = {
       usuarioCodigo: usuario.codigo,
       plantioCodigo: parseInt(data.get('plantio'), 10),
-      tipoAtividade: tipoCodigos[data.get('atividade')],
+      tipoAtividade: tipoCodigos[data.get('atividade')], // texto amigável -> código
       status: statusCodigos[data.get('status')],
       dataExecucao: data.get('dataExecucao'),
       quantidade: String(data.get('quantidade')).trim(),
@@ -107,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
       observacoes: String(data.get('observacoes')).trim()
     };
 
-    btnContinuar.disabled = true;
+    btnContinuar.disabled = true; // evita clique duplo enquanto envia
     fetch(API + '/api/atividades', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -125,6 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
         btnContinuar.disabled = false;
         if (r.sucesso) {
           showMessage(r.mensagem, true);
+          // deixa o usuário ver a mensagem e depois volta pra lista
           setTimeout(function () { window.location.href = 'atividades.html'; }, 1200);
         } else {
           showMessage(r.mensagem, false);
@@ -132,9 +144,10 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  const stepItems = document.querySelectorAll('.step-item');
-  const stepLines = document.querySelectorAll('.step-line');
-  const stepContents = document.querySelectorAll('.step-content');
+  // ---------- elementos do formulário em etapas ----------
+  const stepItems = document.querySelectorAll('.step-item');       // bolinhas do topo
+  const stepLines = document.querySelectorAll('.step-line');       // linhas entre as bolinhas
+  const stepContents = document.querySelectorAll('.step-content'); // conteúdo de cada etapa
   const btnVoltar = document.getElementById('btnVoltar');
   const btnContinuar = document.getElementById('btnContinuar');
 
@@ -155,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Bolinha colorida de acordo com o status selecionado
   const statusDotClasses = {
-    'Concluída': '',
+    'Concluída': '',          // verde é a cor padrão, sem classe extra
     'Pendente': 'dot-amber',
     'Atrasada': 'dot-red',
     'Planejada': 'dot-gray'
@@ -177,15 +190,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (statusSelect) {
     statusSelect.addEventListener('change', updateStatusDot);
-    updateStatusDot();
+    updateStatusDot(); // já pinta a bolinha com o valor inicial
   }
 
+  // "2026-11-22" -> "22/11/2026"
   function formatDate(value) {
     if (!value) return '-';
     const [year, month, day] = value.split('-');
     return `${day}/${month}/${year}`;
   }
 
+  // marca a etapa atual como "active" e as anteriores como "done"
   function renderStepper() {
     stepItems.forEach((item) => {
       const step = parseInt(item.dataset.step, 10);
@@ -197,12 +212,14 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
+    // a linha entre as etapas fica "done" quando a etapa anterior já foi concluída
     stepLines.forEach((line, index) => {
       const stepNumber = index + 1;
       line.classList.toggle('done', stepNumber < currentStep);
     });
   }
 
+  // mostra só o conteúdo da etapa atual
   function renderStepContent() {
     stepContents.forEach((content) => {
       const step = parseInt(content.dataset.stepContent, 10);
@@ -210,8 +227,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // esconde o "Voltar" na etapa 1 e troca o texto/ícone do botão na última etapa
   function renderFooter() {
-    btnVoltar.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+    btnVoltar.style.visibility = currentStep === 1 ? 'hidden' : 'visible'; // hidden mantém o espaço no layout
 
     if (currentStep === totalSteps) {
       btnContinuar.innerHTML = `
@@ -226,6 +244,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // preenche a tela de revisão (etapa 2) com o que foi digitado na etapa 1
   function updateReview() {
     const data = new FormData(form);
 
@@ -240,17 +259,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('reviewResponsavel').textContent = data.get('responsavel') || '-';
 
+    // observação vazia mostra um texto padrão e ganha a classe "empty" (estilo apagado)
     const observacoesValue = data.get('observacoes');
     const reviewObservacoes = document.getElementById('reviewObservacoes');
     reviewObservacoes.textContent = observacoesValue ? observacoesValue : 'Nenhuma observação informada';
     reviewObservacoes.classList.toggle('empty', !observacoesValue);
   }
 
+  // vai pra uma etapa e atualiza tudo na tela
   function goToStep(step) {
-    showMessage('', false);
-    currentStep = Math.min(Math.max(step, 1), totalSteps);
+    showMessage('', false); // limpa mensagem de erro antiga
+    currentStep = Math.min(Math.max(step, 1), totalSteps); // garante que fica entre 1 e totalSteps
     if (currentStep === totalSteps) {
-      updateReview();
+      updateReview(); // só monta a revisão quando chega na última etapa
     }
     renderStepper();
     renderStepContent();
@@ -262,6 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
     goToStep(currentStep - 1);
   });
 
+  // "Continuar" valida e avança; na última etapa vira "Confirmar" e salva
   btnContinuar.addEventListener('click', function () {
     const erro = validateStep1();
     if (erro) {
@@ -276,6 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
     goToStep(currentStep + 1);
   });
 
+  // clicar nas bolinhas do topo só deixa voltar (não pula pra frente sem validar)
   stepItems.forEach((item) => {
     item.addEventListener('click', function () {
       const step = parseInt(item.dataset.step, 10);
@@ -286,12 +309,14 @@ document.addEventListener('DOMContentLoaded', function () {
     item.style.cursor = 'pointer';
   });
 
+  // qualquer botão com data-goto-step (ex.: "Editar" na revisão) leva pra etapa indicada
   document.querySelectorAll('[data-goto-step]').forEach((btn) => {
     btn.addEventListener('click', function () {
       goToStep(parseInt(btn.dataset.gotoStep, 10));
     });
   });
 
+  // início da página: desenha a etapa 1 e carrega os plantios
   renderStepper();
   renderStepContent();
   renderFooter();
