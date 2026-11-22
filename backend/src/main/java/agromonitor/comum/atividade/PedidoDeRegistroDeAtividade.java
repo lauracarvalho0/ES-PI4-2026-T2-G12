@@ -2,7 +2,7 @@
 
 package agromonitor.comum.atividade;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz do pedido uma mensagem do protocolo
 
 // Cliente -> Servidor: registra uma atividade dentro de um plantio (tela "Registrar nova atividade").
 // A data vai como texto "yyyy-MM-dd"; o servidor valida tudo.

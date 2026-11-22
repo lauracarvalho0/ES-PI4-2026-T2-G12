@@ -2,8 +2,8 @@
 
 package agromonitor.comum.atividade;
 
-import java.util.ArrayList;
-import agromonitor.comum.Comunicado;
+import java.util.ArrayList; // lista de AtividadeResumo que viaja na resposta
+import agromonitor.comum.Comunicado; // classe-mae: faz da resposta uma mensagem do protocolo
 
 // Servidor -> Cliente: atividades do usuario, da mais antiga para a mais recente.
 public class RespostaDeListagemDeAtividades extends Comunicado

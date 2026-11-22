@@ -2,11 +2,10 @@
 
 package agromonitor.comum.atividade;
 
-import java.util.ArrayList;
-import agromonitor.comum.Comunicado;
+import java.util.ArrayList; // lista de AtividadeResumo que viaja na resposta
+import agromonitor.comum.Comunicado; // classe-mae: faz da resposta uma mensagem do protocolo
 
 // Servidor -> Cliente: atividades do usuario, da mais antiga para a mais recente.
-// extends Comunicado: e assim que o cliente reconhece que isso e uma mensagem do protocolo
 public class RespostaDeListagemDeAtividades extends Comunicado
 {
     // versao da classe pra serializacao (o Comunicado ja e Serializable)
@@ -21,11 +20,11 @@ public class RespostaDeListagemDeAtividades extends Comunicado
     {
         this.sucesso    = sucesso;
         this.mensagem   = mensagem;
+
         // se vier null (ex.: em caso de erro), usa lista vazia pra quem le nao tomar NullPointerException
         this.atividades = atividades == null ? new ArrayList<AtividadeResumo>() : atividades;
     }
 
-    // para boolean, o padrao do getter e "is" em vez de "get"
     public boolean                  isSucesso()      { return this.sucesso; }
     public String                   getMensagem()    { return this.mensagem; }
     public ArrayList<AtividadeResumo> getAtividades() { return this.atividades; }

@@ -2,7 +2,7 @@
 
 package agromonitor.comum.atividade;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz do pedido uma mensagem do protocolo
 
 // Cliente -> Servidor: pede as atividades de todos os plantios de um usuario (tela Atividades).
 public class PedidoDeListagemDeAtividades extends Comunicado

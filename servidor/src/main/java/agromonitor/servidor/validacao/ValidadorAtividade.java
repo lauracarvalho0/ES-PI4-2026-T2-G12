@@ -2,7 +2,7 @@
 
 package agromonitor.servidor.validacao;
 
-import java.time.LocalDate;
+import java.time.LocalDate;  // LocalDate: data de hoje e comparação com a data de execução.
 
 // Regras do dicionario de dados para a atividade.
 // Cada metodo devolve null se estiver OK, ou a mensagem de erro.

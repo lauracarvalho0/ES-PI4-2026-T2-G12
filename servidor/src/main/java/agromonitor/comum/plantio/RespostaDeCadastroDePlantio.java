@@ -2,9 +2,8 @@
 
 package agromonitor.comum.plantio;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz do pedido uma mensagem do protocolo
 
-// Servidor -> Cliente: resultado do cadastro de plantio.
 // extends Comunicado: e assim que o cliente reconhece que isso e uma mensagem do protocolo
 public class RespostaDeCadastroDePlantio extends Comunicado
 {
@@ -12,8 +11,8 @@ public class RespostaDeCadastroDePlantio extends Comunicado
     private static final long serialVersionUID = 1L;
 
     private boolean sucesso;   // true = cadastrou; false = deu algum problema
-    private String  mensagem;  // texto pra mostrar ao usuario (sucesso ou motivo do erro)
-    private int     codigo; // codigo do plantio criado (0 se falhou)
+    private String  mensagem; 
+    private int     codigo;    // codigo do plantio criado (0 se falhou)
 
     // a resposta ja nasce completa; so tem getters, entao nao muda depois de criada
     public RespostaDeCadastroDePlantio(boolean sucesso, String mensagem, int codigo)

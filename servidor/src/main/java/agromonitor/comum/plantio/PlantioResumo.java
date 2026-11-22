@@ -2,11 +2,9 @@
 
 package agromonitor.comum.plantio;
 
-import java.io.Serializable;
+import java.io.Serializable; // permite converter o objeto em bytes para enviar pelo Socket
 
-// Uma linha da tela Meus Plantios. Nao e um Comunicado: viaja dentro da
-// RespostaDeListagemDePlantios. As datas vao como texto "yyyy-MM-dd".
-// Serializable: permite transformar o objeto em bytes pra mandar pela rede (socket)
+// Uma linha da tela Meus Plantios. 
 public class PlantioResumo implements Serializable
 {
     // versao da classe; se o servidor e o cliente tiverem versoes diferentes, a leitura avisa em vez de dar lixo

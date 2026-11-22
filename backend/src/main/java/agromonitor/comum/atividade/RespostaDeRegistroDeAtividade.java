@@ -2,7 +2,7 @@
 
 package agromonitor.comum.atividade;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz da resposta uma mensagem do protocolo
 
 // Servidor -> Cliente: resultado do registro de atividade.
 public class RespostaDeRegistroDeAtividade extends Comunicado

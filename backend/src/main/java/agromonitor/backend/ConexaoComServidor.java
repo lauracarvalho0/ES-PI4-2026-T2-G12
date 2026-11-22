@@ -2,18 +2,17 @@
 
 package agromonitor.backend;
 
-import java.io.*;
-import java.net.*;
+import java.io.*; // Entrada e saída: ObjectInputStream e ObjectOutputStream para trocar objetos pelo socket.
+import java.net.*; // Rede: Socket e InetSocketAddress para conectar no servidor.
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value; // Lê host e porta do application.properties (@Value).
+import org.springframework.stereotype.Component; // Marca a classe como bean do Spring, para ser injetada nos controllers (@Component).
 
 import agromonitor.comum.*;
 
-// Faz o papel do "Cliente" do professor: conecta no servidor por Socket,
-// cria o Parceiro, manda um pedido e recebe a resposta.
+// Faz o papel do "Cliente": conecta no servidor por Socket, cria o Parceiro, manda um pedido e recebe a resposta.
 // Cada requisicao HTTP abre uma conexao curta e a fecha com PedidoParaSair.
-@Component   // o Spring cria uma instancia e injeta nos controllers (@Autowired)
+@Component   
 public class ConexaoComServidor
 {
     // Endereco e porta do servidor, lidos do application.properties.

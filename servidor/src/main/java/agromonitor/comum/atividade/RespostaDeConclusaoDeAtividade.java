@@ -2,10 +2,9 @@
 
 package agromonitor.comum.atividade;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz da resposta uma mensagem do protocolo
 
 // Servidor -> Cliente: resultado da conclusao de atividade.
-// extends Comunicado: e assim que o cliente reconhece que isso e uma mensagem do protocolo
 public class RespostaDeConclusaoDeAtividade extends Comunicado
 {
     // versao da classe pra serializacao (o Comunicado ja e Serializable)
@@ -21,7 +20,6 @@ public class RespostaDeConclusaoDeAtividade extends Comunicado
         this.mensagem = mensagem;
     }
 
-    // para boolean, o padrao do getter e "is" em vez de "get"
     public boolean isSucesso()   { return this.sucesso; }
     public String  getMensagem() { return this.mensagem; }
 

@@ -2,10 +2,9 @@
 
 package agromonitor.comum.atividade;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz do pedido uma mensagem do protocolo
 
 // Cliente -> Servidor: pede as atividades de todos os plantios de um usuario (tela Atividades).
-// extends Comunicado: e assim que o servidor reconhece que isso e uma mensagem do protocolo
 public class PedidoDeListagemDeAtividades extends Comunicado
 {
     // versao da classe pra serializacao (o Comunicado ja e Serializable)

@@ -2,7 +2,7 @@
 
 package agromonitor.comum.plantio;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz do pedido uma mensagem do protocolo
 
 // Cliente -> Servidor: pede a lista de plantios de um usuario (tela Meus Plantios).
 public class PedidoDeListagemDePlantios extends Comunicado

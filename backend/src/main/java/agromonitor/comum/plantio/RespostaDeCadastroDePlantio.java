@@ -2,7 +2,7 @@
 
 package agromonitor.comum.plantio;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz da resposta uma mensagem do protocolo
 
 // Servidor -> Cliente: resultado do cadastro de plantio.
 public class RespostaDeCadastroDePlantio extends Comunicado

@@ -2,7 +2,7 @@
 
 package agromonitor.comum.atividade;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz do pedido uma mensagem do protocolo
 
 // Cliente -> Servidor: marca uma atividade que ja existe como concluida (data realizada = hoje).
 public class PedidoDeConclusaoDeAtividade extends Comunicado

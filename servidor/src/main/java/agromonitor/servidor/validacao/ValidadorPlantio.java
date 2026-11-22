@@ -2,8 +2,8 @@
 
 package agromonitor.servidor.validacao;
 
-import java.time.LocalDate;
-import java.util.regex.Pattern;
+import java.time.LocalDate;  // Representa e valida datas (plantio e ajustes)
+import java.util.regex.Pattern;  // Permite criar e usar expressões regulares
 
 // Regras do dicionario de dados para o plantio.
 // Cada metodo devolve null se estiver OK, ou a mensagem de erro.

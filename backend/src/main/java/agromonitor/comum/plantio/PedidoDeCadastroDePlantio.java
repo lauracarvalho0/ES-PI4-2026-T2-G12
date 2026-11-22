@@ -2,7 +2,7 @@
 
 package agromonitor.comum.plantio;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz do pedido uma mensagem do protocolo
 
 // Cliente -> Servidor: pede para cadastrar um plantio (assistente "Novo Plantio").
 // As datas viajam como texto "yyyy-MM-dd" e o servidor e quem valida tudo.

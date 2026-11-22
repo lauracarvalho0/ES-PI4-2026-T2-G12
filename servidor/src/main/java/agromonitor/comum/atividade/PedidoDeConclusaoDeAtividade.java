@@ -2,16 +2,15 @@
 
 package agromonitor.comum.atividade;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz do pedido uma mensagem do protocolo
 
 // Cliente -> Servidor: marca uma atividade que ja existe como concluida (data realizada = hoje).
-// extends Comunicado: e assim que o servidor reconhece que isso e uma mensagem do protocolo
 public class PedidoDeConclusaoDeAtividade extends Comunicado
 {
     // versao da classe pra serializacao (o Comunicado ja e Serializable)
     private static final long serialVersionUID = 1L;
 
-    // os 3 codigos identificam exatamente qual atividade concluir e de quem e
+    // os 3 codigos identificam exatamente qual atividade concluir e de quem é
     private int usuarioCodigo;
     private int plantioCodigo;
     private int atividadeCodigo;
