@@ -1,4 +1,5 @@
-// Autoria: Beatriz Leme — RA 25015554.
+// Laura Carvalho - 25014543
+
 package agromonitor.comum.plantio;
 
 import java.io.Serializable;

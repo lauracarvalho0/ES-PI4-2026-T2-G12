@@ -1,4 +1,4 @@
-// Autoria: Beatriz Leme — RA 25015554.
+// Laura Carvalho - 25014543
 package agromonitor.servidor.dao;
 
 import java.time.LocalDate;

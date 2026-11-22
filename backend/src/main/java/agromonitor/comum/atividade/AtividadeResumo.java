@@ -1,3 +1,5 @@
+// Laura Carvalho - 25014543
+
 package agromonitor.comum.atividade;
 
 import java.io.Serializable;

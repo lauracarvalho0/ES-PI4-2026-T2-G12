@@ -1,4 +1,4 @@
-// Autoria: Beatriz Leme — RA 25015554, Giovana Uchelli - 25008818, Laura Carvalho
+// Autoria: Beatriz Leme — RA 25015554, Giovana Uchelli - 25008818, Laura Carvalho - 25014543
 package agromonitor.servidor;
 
 import java.io.*;   // fornece os streams (ObjectInputStrem ...)
