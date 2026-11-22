@@ -1,3 +1,4 @@
+// Camila Fernandes Costacurta RA:25012949 
 document.addEventListener('DOMContentLoaded', function () {
   // Se o front foi aberto pelo Spring (porta 8080) usa caminho relativo;
   // se foi aberto por outro lugar (ex.: Live Server), aponta para o backend.
@@ -150,14 +151,20 @@ document.addEventListener('DOMContentLoaded', function () {
   filterStatus.addEventListener('change', aplicarFiltros);
   filterCultura.addEventListener('change', aplicarFiltros);
 
-  // Limpa a busca e restaura os filtros sem alterar os plantios.
+  // Localiza o botao que limpa os filtros.
   const limparFiltros = document.getElementById('limparFiltros');
   if (limparFiltros) {
+    // Executa a limpeza ao clicar no botao.
     limparFiltros.addEventListener('click', function () {
+      // Apaga o texto da busca.
       searchInput.value = '';
+      // Restaura o filtro de status.
       filterStatus.value = 'todos';
+      // Restaura o filtro de cultura.
       filterCultura.value = 'todas';
+      // Atualiza a tabela depois da limpeza.
       aplicarFiltros();
+      // Volta o foco para a busca.
       searchInput.focus();
     });
   }

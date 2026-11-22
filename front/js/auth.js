@@ -1,3 +1,4 @@
+// Camila Fernandes Costacurta
 (function () {
   // Se o front foi aberto pelo Spring (porta 8080) usa caminho relativo;
   // se foi aberto por outro lugar (ex.: Live Server), aponta para o backend.
@@ -14,19 +15,26 @@
     });
   });
 
-  // Avisa quando Caps Lock estiver ativo no campo de senha do login.
+  // Verifica se o Caps Lock esta ativo no campo de senha do login.
   var campoSenhaLogin = document.querySelector('#form-login #password');
   var avisoCapsLock = document.getElementById('caps-lock-aviso');
   if (campoSenhaLogin && avisoCapsLock) {
+    // Atualiza o aviso conforme o estado do Caps Lock.
     function atualizarAvisoCapsLock(evento) {
+      // Confere se o navegador informa o estado da tecla.
       if (typeof evento.getModifierState === 'function') {
+        // Mostra ou esconde o aviso.
         avisoCapsLock.hidden = !evento.getModifierState('CapsLock');
       }
     }
 
+    // Verifica o Caps Lock quando uma tecla for pressionada.
     campoSenhaLogin.addEventListener('keydown', atualizarAvisoCapsLock);
+    // Verifica o Caps Lock quando uma tecla for solta.
     campoSenhaLogin.addEventListener('keyup', atualizarAvisoCapsLock);
+    // Verifica o Caps Lock ao clicar no campo.
     campoSenhaLogin.addEventListener('mousedown', atualizarAvisoCapsLock);
+    // Esconde o aviso ao sair do campo.
     campoSenhaLogin.addEventListener('blur', function () {
       avisoCapsLock.hidden = true;
     });
@@ -98,17 +106,21 @@
   // ---------- CADASTRO ----------
   var formCadastro = document.getElementById('form-cadastro');
   if (formCadastro) {
+    // Guarda os campos de senha do cadastro.
     var senhaCadastro = document.getElementById('senha');
     var confirmacaoCadastro = document.getElementById('confirmar-senha');
+    // Guarda o aviso exibido quando as senhas forem diferentes.
     var avisoSenhas = document.getElementById('senhas-aviso');
 
+    // Mostra ou esconde o aviso de senhas diferentes.
     function mostrarAvisoSenhas(mostrar) {
       avisoSenhas.hidden = !mostrar;
       confirmacaoCadastro.setAttribute('aria-invalid', String(mostrar));
     }
 
-    // some assim que a pessoa volta a editar qualquer um dos campos
+    // Esconde o aviso ao editar a senha.
     senhaCadastro.addEventListener('input', function () { mostrarAvisoSenhas(false); });
+    // Esconde o aviso ao editar a confirmacao da senha.
     confirmacaoCadastro.addEventListener('input', function () { mostrarAvisoSenhas(false); });
 
     formCadastro.addEventListener('submit', function (e) {
@@ -117,6 +129,7 @@
       var senha = senhaCadastro.value;
       var confirmar = confirmacaoCadastro.value;
 
+      // Impede o cadastro quando as senhas forem diferentes.
       if (senha !== confirmar) {
         mostrarAvisoSenhas(true);
         confirmacaoCadastro.focus();
@@ -227,4 +240,6 @@
     });
   }
 })();
+
+
 

@@ -1,16 +1,20 @@
+// Laura Carvalho - 25014543
+
 package agromonitor.servidor;
 
-import java.util.*;
+import java.util.*;  // ArrayList: lista de clientes conectados.
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoClient;  // Cliente do MongoDB.
+import com.mongodb.client.MongoClients; // Cria o cliente a partir da MONGO_URI.
 
-import agromonitor.comum.*;
-import agromonitor.servidor.dao.AlertaDAO;
-import agromonitor.servidor.dao.PlantioDAO;
-import agromonitor.servidor.dao.UsuarioDAO;
-import agromonitor.servidor.email.EmailService;
+import agromonitor.comum.*; // Parceiro, ComunicadoDeDesligamento e Teclado.
+import agromonitor.servidor.dao.AlertaDAO; // Acesso à coleção de alertas.
+import agromonitor.servidor.dao.PlantioDAO;  // Acesso à coleção de plantios.
+import agromonitor.servidor.dao.UsuarioDAO;  // Acesso à coleção de usuários.
+import agromonitor.servidor.email.EmailService;  // Envio de e-mail (recuperação de senha e alertas).
 
+// Classe principal do servidor: conecta no banco, liga o e-mail, aceita clientes
+// e fica no console esperando o comando "desativar"
 public class Servidor
 {
     public static final String PORTA_PADRAO = "3000";
@@ -18,6 +22,7 @@ public class Servidor
     public static void main(String[] args)
     {
         // 1) porta (opcional) vinda de args
+        // aceita no maximo 1 argumento (a porta); mais que isso e uso errado
         if (args.length > 1)
         {
             System.err.println("Uso esperado: java Servidor [PORTA]\n");
@@ -26,9 +31,10 @@ public class Servidor
 
         String porta = Servidor.PORTA_PADRAO;
         if (args.length == 1)
-            porta = args[0];
+            porta = args[0]; // se passou a porta, usa ela no lugar da padrao
 
         // conexao com o MongoDB (string de conexao vem da variavel de ambiente)
+        // assim a senha do banco nao fica escrita no codigo
         String uri = System.getenv("MONGO_URI");
         if (uri == null || uri.isBlank())
         {
@@ -42,6 +48,7 @@ public class Servidor
         try
         {
             MongoClient cliente = MongoClients.create(uri);
+            // cada DAO cuida das operacoes de uma colecao do banco "agromonitor"
             dao = new UsuarioDAO(cliente.getDatabase("agromonitor"));
             plantioDao = new PlantioDAO(cliente.getDatabase("agromonitor"));
             alertaDao = new AlertaDAO(cliente.getDatabase("agromonitor"));
@@ -64,9 +71,11 @@ public class Servidor
             System.out.println("E-mail: SMTP_USER/SMTP_PASS nao definidas. Alertas nao serao enviados ate configurar o SMTP.");
 
         // 2) estrutura de dados compartilhada com os clientes conectados
+        // (varias threads usam essa lista, por isso o synchronized la embaixo)
         ArrayList<Parceiro> usuarios = new ArrayList<Parceiro>();
 
         // 3) aceitadora de conexoes
+        // thread que fica esperando clientes se conectarem na porta
         AceitadoraDeConexao aceitadora = null;
         try
         {
@@ -75,11 +84,13 @@ public class Servidor
         }
         catch (Exception erro)
         {
+            // normalmente cai aqui quando a porta ja esta em uso
             System.err.println("Escolha uma porta liberada para uso!\n");
             return;
         }
 
         // vigia de alertas: confere as atividades agora e depois de hora em hora
+        // outra thread; se falhar, o servidor continua funcionando sem os alertas
         try
         {
             new VigiaDeAlertas(alertaDao, dao, email).start();
@@ -90,6 +101,7 @@ public class Servidor
         }
 
         // tarefa simultanea da main: interagir com o administrador
+        // (a main fica num laco infinito lendo comandos enquanto as outras threads trabalham)
         for (;;)
         {
             System.out.println("O servidor esta ativo na porta " + porta + "! Para desativa-lo,");
@@ -110,8 +122,10 @@ public class Servidor
 
             if (comando.toLowerCase().equals("desativar"))
             {
+                // trava a lista pra ninguem entrar ou sair enquanto percorremos
                 synchronized (usuarios)
                 {
+                    // avisa cada cliente que o servidor vai desligar e fecha a conexao dele
                     ComunicadoDeDesligamento comunicado = new ComunicadoDeDesligamento();
 
                     for (Parceiro usuario : usuarios)
@@ -122,12 +136,12 @@ public class Servidor
                             usuario.adeus();
                         }
                         catch (Exception erro)
-                        {}
+                        {} // se um cliente ja caiu, ignora e segue pro proximo
                     }
                 }
 
                 System.out.println("O servidor foi desativado!\n");
-                System.exit(0);
+                System.exit(0); // encerra o programa inteiro, inclusive as outras threads
             }
             else
                 System.err.println("Comando invalido!\n");

@@ -1,28 +1,30 @@
+// Laura Carvalho - 25014543
 package agromonitor.servidor.dao;
 
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDate;  // Datas sem hora (plantio, atividades, "hoje")
+import java.time.ZoneOffset; // Fuso UTC usado ao converter datas para o Mongo
+import java.util.ArrayList;  // Listas de documentos e de resumos
+import java.util.Collections;  // Collections.sort: ordena as atividades
+import java.util.Comparator;  // Define o critério de ordenação (data e código)
+import java.util.Date;  // Tipo de data que o MongoDB armazena
+import java.util.List;  // Lista genérica de atividades
 
-import agromonitor.comum.atividade.AtividadeResumo;
-import agromonitor.comum.plantio.PlantioResumo;
+import agromonitor.comum.atividade.AtividadeResumo;  // Resumo da atividade enviado ao cliente
+import agromonitor.comum.plantio.PlantioResumo; // Resumo do plantio enviado ao cliente
 
-import org.bson.Document;
+import org.bson.Document;  // Documento BSON: formato dos dados no Mongo
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.*;
-import com.mongodb.client.result.UpdateResult;
+import com.mongodb.client.MongoCollection; // Representa uma coleção do banco
+import com.mongodb.client.MongoDatabase;  // Representa o banco "agromonitor"
+import com.mongodb.client.model.*; // Filters, Updates, Sorts, Indexes e opções de operação
+import com.mongodb.client.result.UpdateResult; // Resultado de updateOne (ex.: getMatchedCount)
 
 // Unica classe que fala com o MongoDB para plantios.
 // Segue o dicionario de dados: a colecao plantios embute a lista de atividades.
 public class PlantioDAO
 {
     // cronograma padrao (dias apos a data de plantio), igual ao mostrado na tela
+    // os dois vetores andam juntos: TIPOS[i] acontece OFFSETS[i] dias depois do plantio
     private static final String[] TIPOS   = { "PLANTIO", "IRRIGACAO", "ADUBACAO", "TRATAMENTO" };
     private static final int[]    OFFSETS = { 0, 7, 20, 35 };
 
@@ -33,12 +35,15 @@ public class PlantioDAO
         this.banco = banco;
     }
 
+    // atalho pra pegar a colecao "plantios" sem repetir o nome em todo lugar
     private MongoCollection<Document> plantios() { return banco.getCollection("plantios"); }
 
     // Chamado uma vez na inicializacao do servidor (pode rodar varias vezes sem problema).
     public void garantirIndices()
     {
+        // unique = nao deixa dois plantios com o mesmo codigo
         plantios().createIndex(Indexes.ascending("codigo"), new IndexOptions().unique(true));
+        // indices nos campos mais usados nas buscas, pra elas ficarem rapidas
         plantios().createIndex(Indexes.ascending("usuario.codigo"));
         plantios().createIndex(Indexes.ascending("status"));
     }
@@ -47,6 +52,8 @@ public class PlantioDAO
     // e devolve o primeiro deles (ex.: reservou 4 e voltou 9 -> usa 9, 10, 11, 12).
     private int reservarCodigos(String colecao, int quantidade)
     {
+        // findOneAndUpdate faz "soma e le" numa operacao so, entao dois usuarios nunca pegam o mesmo codigo
+        // upsert = cria o contador se ainda nao existir; AFTER = devolve o valor ja somado
         Document d = banco.getCollection("contadores").findOneAndUpdate(
             Filters.eq("_id", colecao),
             Updates.inc("seq", quantidade),
@@ -67,15 +74,19 @@ public class PlantioDAO
                        Integer altitude, LocalDate dataPlantio, String metodoPlantio,
                        LocalDate[] ajustes)
     {
+        // Cria o plantio e deixa as atividades previstas embutidas no mesmo documento MongoDB.
         Date agora  = new Date();
         int  codigo = reservarCodigos("plantios", 1);
+        // reserva os 4 codigos das atividades de uma vez
         int  primeiroCodigoAtividade = reservarCodigos("atividades", TIPOS.length);
 
         List<Document> atividades = new ArrayList<Document>();
+        // Para cada etapa, usa a data personalizada ou calcula a previsão padrão em dias.
         for (int i = 0; i < TIPOS.length; i++)
         {
             LocalDate prevista = ajustes[i] != null ? ajustes[i] : dataPlantio.plusDays(OFFSETS[i]);
 
+            // toda atividade nasce PENDENTE e sem data realizada
             atividades.add(new Document("codigo", primeiroCodigoAtividade + i)
                 .append("tipoAtividade", TIPOS[i])
                 .append("dataPrevista", paraData(prevista))
@@ -85,6 +96,7 @@ public class PlantioDAO
                 .append("ordem", i + 1));
         }
 
+        // cultura, talhao e usuario sao guardados como sub-documentos (ex.: usuario.codigo)
         Document doc = new Document("codigo", codigo)
             .append("usuario", new Document("codigo", usuarioCodigo))
             .append("cultura", new Document("nome", cultura))
@@ -100,7 +112,7 @@ public class PlantioDAO
             .append("metodoPlantio", metodoPlantio)
             .append("status", "FASE_INICIAL")
             .append("progresso", 0)
-            .append("ativo", true)
+            .append("ativo", true) // "ativo" = false seria uma exclusao logica (nao apaga do banco)
             .append("dataCriacao", agora)
             .append("atividades", atividades);
 
@@ -120,12 +132,14 @@ public class PlantioDAO
     {
         ArrayList<PlantioResumo> lista = new ArrayList<PlantioResumo>();
 
+        // busca so os plantios desse usuario que estao ativos, do mais novo pro mais antigo
         for (Document d : plantios()
                 .find(Filters.and(Filters.eq("usuario.codigo", usuarioCodigo), Filters.eq("ativo", true)))
                 .sort(Sorts.descending("dataCriacao")))
         {
             List<Document> atividades = d.getList("atividades", Document.class, new ArrayList<Document>());
 
+            // procura a atividade nao concluida com a menor data prevista
             String tipoProxima = null;
             Date   dataProxima = null;
             for (Document a : atividades)
@@ -140,6 +154,7 @@ public class PlantioDAO
                 }
             }
 
+            // monta o resumo que vai pro cliente (cultura e talhao vem de dentro dos sub-documentos)
             lista.add(new PlantioResumo(
                 d.getInteger("codigo"),
                 d.getString("nome"),
@@ -157,6 +172,7 @@ public class PlantioDAO
         return lista;
     }
 
+    // devolve o nome do plantio se ele for desse usuario e estiver ativo; senao, null
     public String nomeAtivoDoUsuario(int usuarioCodigo, int plantioCodigo)
     {
         Document d = plantios().find(Filters.and(
@@ -183,6 +199,7 @@ public class PlantioDAO
             .append("quantidade", quantidade)
             .append("responsavel", responsavel);
 
+        // push adiciona a atividade no fim da lista; o filtro garante que o plantio e desse usuario
         UpdateResult resultado = plantios().updateOne(
             Filters.and(
                 Filters.eq("codigo", plantioCodigo),
@@ -190,10 +207,11 @@ public class PlantioDAO
                 Filters.eq("ativo", true)),
             Updates.push("atividades", atividade));
 
+        // nenhum documento encontrado: plantio inexistente, de outro usuario ou inativo
         if (resultado.getMatchedCount() == 0)
             return 0;
 
-        atualizarProgresso(plantioCodigo);
+        atualizarProgresso(plantioCodigo); // a lista mudou, entao o progresso muda
         return codigo;
     }
 
@@ -202,15 +220,16 @@ public class PlantioDAO
     // progresso = atividades concluidas / total de atividades, em %
     private static int calcularProgresso(List<Document> atividades)
     {
+        // A porcentagem é calculada com base nas atividades marcadas como concluídas.
         if (atividades.isEmpty())
-            return 0;
+            return 0; // evita dividir por zero
 
         int concluidas = 0;
         for (Document a : atividades)
             if ("CONCLUIDA".equals(a.getString("status")))
                 concluidas++;
 
-        return concluidas * 100 / atividades.size();
+        return concluidas * 100 / atividades.size(); // divisao de int: ja arredonda pra baixo
     }
 
     // 0-33% inicial, 34-66% desenvolvimento, 67-99% fase final, 100% concluido
@@ -231,6 +250,7 @@ public class PlantioDAO
 
         int progresso = calcularProgresso(d.getList("atividades", Document.class, new ArrayList<Document>()));
 
+        // grava progresso e fase juntos, numa unica atualizacao
         plantios().updateOne(Filters.eq("codigo", plantioCodigo),
             Updates.combine(
                 Updates.set("progresso", progresso),
@@ -241,6 +261,8 @@ public class PlantioDAO
     // e a atividade ainda nao estiver concluida. Devolve false se nao encontrou.
     public boolean concluirAtividade(int usuarioCodigo, int plantioCodigo, int atividadeCodigo)
     {
+        // elemMatch acha a atividade certa dentro da lista (codigo igual e status diferente de CONCLUIDA)
+        // o "$" em "atividades.$.status" significa "a atividade que bateu no filtro"
         UpdateResult resultado = plantios().updateOne(
             Filters.and(
                 Filters.eq("codigo", plantioCodigo),
@@ -276,10 +298,12 @@ public class PlantioDAO
             for (Document a : d.getList("atividades", Document.class, new ArrayList<Document>()))
             {
                 String status = a.getString("status");
+                // concluida mostra a data realizada; as demais mostram a data prevista
                 Date   data   = "CONCLUIDA".equals(status) && a.getDate("dataRealizada") != null
                                 ? a.getDate("dataRealizada") : a.getDate("dataPrevista");
                 String texto  = paraTexto(data);
 
+                // ATRASADA nao e gravada no banco: e calculada aqui, na hora de listar
                 if ("PENDENTE".equals(status) && LocalDate.parse(texto).isBefore(hoje))
                     status = "ATRASADA";
 
@@ -290,6 +314,7 @@ public class PlantioDAO
             }
         }
 
+        // ordena por data; se a data for igual, desempata pelo codigo da atividade
         Collections.sort(lista, new Comparator<AtividadeResumo>()
         {
             public int compare(AtividadeResumo x, AtividadeResumo y)

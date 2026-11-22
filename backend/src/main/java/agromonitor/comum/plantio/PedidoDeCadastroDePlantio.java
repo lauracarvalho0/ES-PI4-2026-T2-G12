@@ -1,13 +1,17 @@
+// Laura Carvalho - 25014543
+
 package agromonitor.comum.plantio;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz do pedido uma mensagem do protocolo
 
 // Cliente -> Servidor: pede para cadastrar um plantio (assistente "Novo Plantio").
 // As datas viajam como texto "yyyy-MM-dd" e o servidor e quem valida tudo.
 public class PedidoDeCadastroDePlantio extends Comunicado
 {
+    // Versao da classe para a serializacao; precisa ser a mesma no servidor e no backend.
     private static final long serialVersionUID = 1L;
 
+    // Double e Integer (e nao double e int) permitem null nos campos numericos opcionais.
     private int     usuarioCodigo;   // dono do plantio
     private String  cultura;
     private String  nome;
@@ -27,6 +31,7 @@ public class PedidoDeCadastroDePlantio extends Comunicado
     private String ajusteAdubacao;
     private String ajusteTratos;
 
+    // Recebe todos os campos de uma vez; os opcionais podem vir null.
     public PedidoDeCadastroDePlantio(int usuarioCodigo, String cultura, String nome, String safra,
                                      String descricao, String sistemaCultivo, String talhao,
                                      Double areaPlantada, String localizacao, Integer altitude,
@@ -52,6 +57,7 @@ public class PedidoDeCadastroDePlantio extends Comunicado
         this.ajusteTratos    = ajusteTratos;
     }
 
+    // So getters: o pedido nao muda depois de criado.
     public int     getUsuarioCodigo()   { return this.usuarioCodigo; }
     public String  getCultura()         { return this.cultura; }
     public String  getNome()            { return this.nome; }
@@ -69,6 +75,7 @@ public class PedidoDeCadastroDePlantio extends Comunicado
     public String  getAjusteAdubacao()  { return this.ajusteAdubacao; }
     public String  getAjusteTratos()    { return this.ajusteTratos; }
 
+    // Usado para exibir o pedido de forma legivel em logs (so os campos principais).
     @Override
     public String toString()
     {

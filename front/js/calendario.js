@@ -1,3 +1,5 @@
+// Giovana Uchelli - 25008818
+
 document.addEventListener('DOMContentLoaded', function () {
 
   // Se o front foi aberto pelo Spring (porta 8080) usa caminho relativo;

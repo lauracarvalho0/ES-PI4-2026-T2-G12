@@ -1,3 +1,5 @@
+// Giovana Uchelli 25008818
+
 document.addEventListener('DOMContentLoaded', function () {
   const totalSteps = 4;
   let currentStep = 1;

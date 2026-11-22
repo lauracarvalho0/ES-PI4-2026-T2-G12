@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 package agromonitor.backend.controller;
 
 import java.util.*;
@@ -25,10 +26,12 @@ public class AlertaController
     private ConexaoComServidor servidor;
 
     @GetMapping("/alertas")
+    // Traduz a resposta do protocolo interno para o formato JSON consumido pelo front.
     public ResponseEntity<Map<String, Object>> listar(@RequestParam(required = false) Integer usuarioCodigo)
     {
         try
         {
+            // Sem código informado, usa zero como valor inválido tratado pelo servidor.
             int usuario = usuarioCodigo == null ? 0 : usuarioCodigo;
 
             Comunicado resposta = servidor.enviarEReceber(new PedidoDeListagemDeAlertas(usuario));
@@ -48,6 +51,7 @@ public class AlertaController
     }
 
     @PostMapping("/alertas/lido")
+    // O código do usuário acompanha o alerta para impedir que outro usuário o altere.
     public ResponseEntity<Map<String, Object>> marcarComoLido(@RequestBody MarcarLidoRequest req)
     {
         try
@@ -70,6 +74,7 @@ public class AlertaController
     }
 
     @PostMapping("/alertas/climaticos/email")
+    // Encaminha ao servidor o alerta climático produzido pela previsão no navegador.
     public ResponseEntity<Map<String, Object>> registrarAlertaClimatico(@RequestBody AlertaClimaticoRequest req)
     {
         try
@@ -92,6 +97,7 @@ public class AlertaController
 
     private ResponseEntity<Map<String, Object>> indisponivel()
     {
+        // Padroniza a resposta quando a comunicação com o servidor interno falha.
         Map<String, Object> corpo = new LinkedHashMap<>();
         corpo.put("sucesso", false);
         corpo.put("mensagem", "Servidor indisponivel. Tente novamente mais tarde.");

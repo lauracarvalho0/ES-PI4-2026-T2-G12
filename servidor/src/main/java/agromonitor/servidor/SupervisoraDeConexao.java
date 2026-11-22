@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554, Giovana Uchelli - 25008818, Laura Carvalho - 25014543
 package agromonitor.servidor;
 
 import java.io.*;   // fornece os streams (ObjectInputStrem ...)
@@ -22,8 +23,6 @@ import agromonitor.servidor.modelo.*;
 import agromonitor.servidor.validacao.*;
 
 // Uma thread por cliente conectado. Recebe os comunicados e atende cada um.
-// No exemplo do professor o "if instanceof" fazia a conta; aqui ele chama
-// validacao + MongoDB (cadastro e login).
 public class SupervisoraDeConexao extends Thread
 {
     private Parceiro            usuario;
@@ -87,6 +86,8 @@ public class SupervisoraDeConexao extends Thread
 
     public void run()
     {
+        // Cada instância atende um cliente: lê comunicados do socket e devolve a resposta correspondente.
+        // Cria o canal de envio
         ObjectOutputStream transmissor;
         try
         {
@@ -98,11 +99,13 @@ public class SupervisoraDeConexao extends Thread
             return;
         }
 
+        // Cria o canal de recebimento
         ObjectInputStream receptor = null;
         try
         {
             receptor = new ObjectInputStream(this.conexao.getInputStream());
-            // seguranca: so aceita desserializar classes do nosso pacote
+
+            // so aceita desserializar classes do nosso pacote
             receptor.setObjectInputFilter(
                 ObjectInputFilter.Config.createFilter("agromonitor.comum.**;java.lang.*;!*"));
         }
@@ -114,11 +117,13 @@ public class SupervisoraDeConexao extends Thread
 
         try
         {
+    
             this.usuario = new Parceiro(this.conexao, receptor, transmissor);
         }
         catch (Exception erro)
         {} // sei que passei parametros corretos
 
+        // Adiciona o cliente na lista de conectados
         synchronized (this.usuarios)
         {
             this.usuarios.add(this.usuario);
@@ -130,6 +135,7 @@ public class SupervisoraDeConexao extends Thread
             {
                 Comunicado comunicado = this.usuario.envie();
 
+                // O tipo do comunicado determina qual regra de negócio atende a solicitação.
                 if (comunicado == null)
                     return;
                 else if (comunicado instanceof PedidoDeCadastro)
@@ -195,6 +201,7 @@ public class SupervisoraDeConexao extends Thread
 
     private RespostaDeCadastro tratarCadastro(PedidoDeCadastro p)
     {
+        // Valida todos os campos e pega o primeiro erro (se houver)
         String erro = primeiroErro(
             ValidadorUsuario.validarNome(p.getNome()),
             ValidadorUsuario.validarEmail(p.getEmail()),
@@ -204,13 +211,17 @@ public class SupervisoraDeConexao extends Thread
         if (erro != null)
             return new RespostaDeCadastro(false, erro, 0);
 
+        // Padroniza os dados antes de salvar
         String email    = p.getEmail().trim().toLowerCase();
         String cpf      = ValidadorUsuario.somenteDigitos(p.getCpf());
         String telefone = p.getTelefone() == null ? "" : p.getTelefone().trim();
 
         try
         {
+            // Transforma a senha em hash
             String hash = BCrypt.withDefaults().hashToString(12, p.getSenha().toCharArray());
+
+            // Salva ao banco
             int codigo = this.dao.inserir(
                 p.getNome().trim(), email,
                 telefone.isEmpty() ? null : telefone,
@@ -229,6 +240,7 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Login: confere email e senha
     private RespostaDeLogin tratarLogin(PedidoDeLogin p)
     {
         final String falha = "E-mail ou senha incorretos.";
@@ -239,6 +251,8 @@ public class SupervisoraDeConexao extends Thread
         try
         {
             Usuario u = this.dao.buscarAtivoPorEmail(p.getEmail().trim().toLowerCase());
+
+            // Compara a senha digitada com o hash Salvo
             if (u == null || !BCrypt.verifyer().verify(p.getSenha().toCharArray(), u.getSenhaHash()).verified)
                 return new RespostaDeLogin(false, falha, 0, null, null);
 
@@ -251,8 +265,10 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Cadastro de plantio
     private RespostaDeCadastroDePlantio tratarCadastroDePlantio(PedidoDeCadastroDePlantio p)
     {
+        // Valida todos os campos do plantio
         String erro = primeiroErro(
             ValidadorPlantio.validarUsuario(p.getUsuarioCodigo()),
             ValidadorPlantio.validarCultura(p.getCultura()),
@@ -289,6 +305,7 @@ public class SupervisoraDeConexao extends Thread
             ajustes[2] = ValidadorPlantio.lerData(vazioParaNull(p.getAjusteAdubacao()));
             ajustes[3] = ValidadorPlantio.lerData(vazioParaNull(p.getAjusteTratos()));
 
+            // Salva o plantio no banco
             int codigo = this.plantioDao.inserir(
                 p.getUsuarioCodigo(),
                 p.getCultura().trim(),
@@ -317,6 +334,7 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Lista os plantios do usuario
     private RespostaDeListagemDePlantios tratarListagemDePlantios(PedidoDeListagemDePlantios p)
     {
         String erro = ValidadorPlantio.validarUsuario(p.getUsuarioCodigo());
@@ -334,6 +352,7 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Registra uma atividade
     private RespostaDeRegistroDeAtividade tratarRegistroDeAtividade(PedidoDeRegistroDeAtividade p)
     {
         String erro = primeiroErro(
@@ -353,6 +372,7 @@ public class SupervisoraDeConexao extends Thread
             String responsavel = p.getResponsavel() == null ? "" : p.getResponsavel().trim();
             String observacoes = p.getObservacoes() == null ? "" : p.getObservacoes().trim();
 
+            // Salva a atividade no banco
             int codigo = this.plantioDao.registrarAtividade(
                 p.getUsuarioCodigo(),
                 p.getPlantioCodigo(),
@@ -378,6 +398,7 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Marca uma atividade como concluida
     private RespostaDeConclusaoDeAtividade tratarConclusaoDeAtividade(PedidoDeConclusaoDeAtividade p)
     {
         String erro = ValidadorAtividade.validarIds(p.getUsuarioCodigo(), p.getPlantioCodigo());
@@ -388,6 +409,7 @@ public class SupervisoraDeConexao extends Thread
 
         try
         {
+            // Conclui no banco (false = nao achou ou ja estava concluida)
             if (!this.plantioDao.concluirAtividade(p.getUsuarioCodigo(), p.getPlantioCodigo(), p.getAtividadeCodigo()))
                 return new RespostaDeConclusaoDeAtividade(false, "Atividade nao encontrada ou ja concluida.");
 
@@ -410,6 +432,7 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Lista as atividades do usuario
     private RespostaDeListagemDeAtividades tratarListagemDeAtividades(PedidoDeListagemDeAtividades p)
     {
         String erro = ValidadorPlantio.validarUsuario(p.getUsuarioCodigo());
@@ -428,6 +451,7 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Lista os alertas do usuário
     private RespostaDeListagemDeAlertas tratarListagemDeAlertas(PedidoDeListagemDeAlertas p)
     {
         String erro = ValidadorPlantio.validarUsuario(p.getUsuarioCodigo());
@@ -445,6 +469,7 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Marca um alerta como lido
     private RespostaDeMarcacaoDeAlertaLido tratarMarcacaoDeAlertaLido(PedidoDeMarcacaoDeAlertaLido p)
     {
         String erro = ValidadorPlantio.validarUsuario(p.getUsuarioCodigo());
@@ -466,8 +491,10 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Recebe um alerta de clima, registra e envia por e-mail
     private RespostaDeEnvioDeAlertaClimatico tratarEnvioDeAlertaClimatico(PedidoDeEnvioDeAlertaClimatico p)
     {
+        // Conefere se todos os dados vieram preenchidos
         if (p.getUsuarioCodigo() <= 0 || p.getPlantioCodigo() <= 0
                 || p.getChave() == null || p.getChave().length() > 160
                 || p.getTitulo() == null || p.getTitulo().isBlank() || p.getTitulo().length() > 160
@@ -476,23 +503,26 @@ public class SupervisoraDeConexao extends Thread
             return new RespostaDeEnvioDeAlertaClimatico(false, "Alerta climatico invalido.");
 
         final LocalDate data;
-        try { data = LocalDate.parse(p.getData()); }
+        try { data = LocalDate.parse(p.getData()); } // Converte o texto da data para localDate
         catch (Exception erro) { return new RespostaDeEnvioDeAlertaClimatico(false, "Data do alerta invalida."); }
 
         try
         {
+            // Confere se o plantio e o usuário existem
             String nomePlantio = this.plantioDao.nomeAtivoDoUsuario(p.getUsuarioCodigo(), p.getPlantioCodigo());
             if (nomePlantio == null)
                 return new RespostaDeEnvioDeAlertaClimatico(false, "Plantio nao encontrado.");
             if (!this.dao.existeAtivoPorCodigo(p.getUsuarioCodigo()))
                 return new RespostaDeEnvioDeAlertaClimatico(false, "Usuario nao encontrado.");
 
+            // Registra o alerta (false = já foi processado)
             boolean pendente = this.alertaDao.registrarAlertaClimaticoEmail(
                 p.getChave(), p.getUsuarioCodigo(), p.getPlantioCodigo(), nomePlantio, p.getTitulo(),
                 p.getDescricao(), p.getPrioridade(), data.toString());
             if (!pendente)
                 return new RespostaDeEnvioDeAlertaClimatico(true, "Alerta ja processado.");
 
+            // Pega o email do usuario
             String destino = this.dao.emailParaAlerta(p.getUsuarioCodigo());
             if (destino == null)
             {
@@ -500,6 +530,7 @@ public class SupervisoraDeConexao extends Thread
                 return new RespostaDeEnvioDeAlertaClimatico(true, "Alertas climaticos por e-mail desativados.");
             }
 
+            // Envia o email e marca como processado
             boolean enviado = this.email.enviarAlerta(destino, "Alerta climatico", p.getTitulo(),
                 p.getDescricao(), nomePlantio, data.toString(), p.getPrioridade());
             if (enviado)
@@ -534,9 +565,8 @@ public class SupervisoraDeConexao extends Thread
         String base = p.getUrlBase() == null ? "" : p.getUrlBase().trim();
         while (base.endsWith("/"))
             base = base.substring(0, base.length() - 1);
-        // seguranca: o link do e-mail so pode apontar para um site nosso. Se aceitasse qualquer
-        // endereco, alguem poderia pedir a recuperacao da conta de outra pessoa com um site falso
-        // e a vitima receberia um e-mail verdadeiro com o link do site falso.
+        
+        // Por segurança, o link do email so pode apontar para um site nosso.
         if (!BASES_PERMITIDAS.contains(base.toLowerCase()))
         {
             System.err.println("urlBase NAO permitida no pedido de recuperacao: " + base
@@ -546,9 +576,11 @@ public class SupervisoraDeConexao extends Thread
 
         try
         {
+            // Gera o token aleatorio e pega a hora atual
             String token = TokenRecuperacao.gerar();
             long   agora = System.currentTimeMillis();
 
+            // Salva no banco so o HASH do tokem
             Usuario u = this.dao.salvarTokenDeRecuperacao(
                 p.getEmail().trim().toLowerCase(),
                 TokenRecuperacao.hash(token),
@@ -598,6 +630,7 @@ public class SupervisoraDeConexao extends Thread
 
         try
         {
+            // Gera o hash da nova senha
             String novoHash = BCrypt.withDefaults().hashToString(12, p.getNovaSenha().toCharArray());
             boolean trocou  = this.dao.redefinirSenha(TokenRecuperacao.hash(token), novoHash);
 
@@ -614,6 +647,7 @@ public class SupervisoraDeConexao extends Thread
 
     // ---------- tela Configuracoes ----------
 
+    // Busca os dados da conta do usuário
     private RespostaDeBuscaDePerfil tratarBuscaDePerfil(PedidoDeBuscaDePerfil p)
     {
         String erro = ValidadorUsuario.validarCodigo(p.getUsuarioCodigo());
@@ -637,6 +671,7 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Atualiza nome, email e telefone
     private RespostaDeConta tratarAtualizacaoDePerfil(PedidoDeAtualizacaoDePerfil p)
     {
         String erro = primeiroErro(
@@ -667,6 +702,7 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Liga/desliga alertas por email
     private RespostaDeConta tratarAtualizacaoDePreferencias(PedidoDeAtualizacaoDePreferencias p)
     {
         String erro = ValidadorUsuario.validarCodigo(p.getUsuarioCodigo());
@@ -686,6 +722,7 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Troca a senha
     private RespostaDeConta tratarAlteracaoDeSenha(PedidoDeAlteracaoDeSenha p)
     {
         String erro = primeiroErro(
@@ -717,6 +754,7 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Exclui a conta (precisa confirmar com a senha)
     private RespostaDeConta tratarExclusaoDeConta(PedidoDeExclusaoDeConta p)
     {
         String erro = ValidadorUsuario.validarCodigo(p.getUsuarioCodigo());
@@ -743,6 +781,7 @@ public class SupervisoraDeConexao extends Thread
         }
     }
 
+    // Devolve o primeiro erro que nao for null
     private static String primeiroErro(String... erros)
     {
         for (String e : erros)

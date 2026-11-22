@@ -1,3 +1,4 @@
+/* Camila Fernandes Costacurta */
 * {
   margin: 0;
   padding: 0;
@@ -253,15 +254,23 @@ body {
   text-decoration: underline;
 }
 
+/* Estilo do aviso de Caps Lock. */
 .caps-lock-aviso {
+  /* Remove margens externas do aviso. */
   margin: 0;
+  /* Define a cor do aviso. */
   color: #8a4b08;
+  /* Define o tamanho do texto. */
   font-size: 13px;
 }
 
+/* Estilo do aviso de senhas diferentes. */
 .senhas-aviso {
+  /* Define o espacamento externo do aviso. */
   margin: 0 0 12px;
+  /* Define a cor do aviso. */
   color: #c62828;
+  /* Define o tamanho do texto. */
   font-size: 13px;
 }
 

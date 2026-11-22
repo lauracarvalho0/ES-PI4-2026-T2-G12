@@ -1,3 +1,4 @@
+// Autoria: Beatriz Leme — RA 25015554.
 document.addEventListener('DOMContentLoaded', function () {
 
   // Começa vazio: só aparece o que vier de Clima.carregar()
@@ -32,6 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const priorityOrder = { 'Crítico': 0, 'Alta': 1, 'Média': 2 };
 
   function getFilteredSortedAlerts() {
+    // Aplica primeiro os filtros escolhidos e depois ordena a lista exibida.
+    // O slice abaixo mantém o array original intacto ao ordenar uma cópia.
     let result = alerts.filter((alert) => {
       // por padrão só os pendentes; os lidos aparecem se o usuário pedir
       if (filtroSituacao.value === 'pendentes' && alert.situacao === 'Lido') return false;
@@ -114,11 +117,13 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function renderTable() {
+    // Atualiza resumo, tabela e paginação sempre a partir dos filtros atuais.
     atualizarResumo();
     const filtered = getFilteredSortedAlerts();
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     currentPage = Math.min(currentPage, totalPages);
     const start = (currentPage - 1) * PAGE_SIZE;
+    // Mostra somente os itens da página atual após filtros e ordenação.
     const pageItems = filtered.slice(start, start + PAGE_SIZE);
 
     if (pageItems.length === 0) {
@@ -154,6 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function renderPagination(totalPages) {
+    // A navegação refaz a tabela sem buscar os mesmos alertas novamente.
     let html = `<button type="button" id="pagPrev" ${currentPage === 1 ? 'disabled' : ''}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
       </button>`;
@@ -209,6 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function openDetail(alertId) {
+    // Localiza o alerta selecionado e preenche a área de detalhes da tela.
     const alert = alerts.find((a) => String(a.id) === String(alertId));
     if (!alert) return;
 

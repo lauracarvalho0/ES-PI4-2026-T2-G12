@@ -1,3 +1,5 @@
+// Autoria: Beatriz Leme — RA 25015554.
+
 package agromonitor.servidor;
 
 import java.time.LocalDate;

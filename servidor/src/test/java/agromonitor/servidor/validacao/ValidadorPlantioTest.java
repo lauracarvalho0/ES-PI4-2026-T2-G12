@@ -1,16 +1,22 @@
+// Laura Carvalho - 25014543
+
 package agromonitor.servidor.validacao;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.time.LocalDate; // LocalDate: "hoje" e datas relativas (plusDays/minusDays) nos testes de data x status
 
-import java.time.LocalDate;
+import static org.junit.jupiter.api.Assertions.assertEquals;  // Confere se a mensagem de erro é exatamente a esperada
+import static org.junit.jupiter.api.Assertions.assertNotNull;  // Confere que o validador rejeitou (devolveu alguma mensagem)
+import static org.junit.jupiter.api.Assertions.assertNull; // Confere que o validador aceitou (null = ok)
+import org.junit.jupiter.api.Test;  // @Test: marca um método como teste
+import org.junit.jupiter.params.ParameterizedTest; // @ParameterizedTest: roda o mesmo teste com vários valores
+import org.junit.jupiter.params.provider.NullAndEmptySource; // Acrescenta as execuções com null e ""
+import org.junit.jupiter.params.provider.ValueSource;  // Lista os valores usados em cada execução do teste
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
-
+// Testa o ValidadorPlantio: cada metodo dele devolve null (ok) ou a mensagem de erro,
+// entao os testes usam assertNull (passou) e assertEquals/assertNotNull (rejeitou)
 class ValidadorPlantioTest
 {
+    // fronteira do codigo: 1 passa, 0 e negativo nao
     @Test
     void usuario()
     {
@@ -19,6 +25,8 @@ class ValidadorPlantioTest
         assertNotNull(ValidadorPlantio.validarUsuario(-1));
     }
 
+    // @ParameterizedTest roda o mesmo teste uma vez por valor: null, "" (do @NullAndEmptySource) e "  "
+    // (3 execucoes); o assertNull no fim confere que uma cultura preenchida passa
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"  "})
@@ -28,6 +36,8 @@ class ValidadorPlantioTest
         assertNull(ValidadorPlantio.validarCultura("Soja"));
     }
 
+    // testa os dois lados do limite: exatamente 100 passa, 101 nao
+    // "a".repeat(100) gera um texto de 100 letras sem precisar digitar
     @Test
     void nomeObrigatorioEAte100Caracteres()
     {
@@ -40,6 +50,7 @@ class ValidadorPlantioTest
         assertNull(ValidadorPlantio.validarNome("  " + "a".repeat(100) + "  "));
     }
 
+    // formatos aceitos pela regex ^\d{2}/\d{2}$ (o " 24/25 " passa porque o validador usa trim)
     @ParameterizedTest
     @ValueSource(strings = {"25/26", "00/01", " 24/25 "})
     void safraValida(String safra)
@@ -47,6 +58,8 @@ class ValidadorPlantioTest
         assertNull(ValidadorPlantio.validarSafra(safra));
     }
 
+    // cada valor quebra a regex de um jeito: sem barra, separador errado, digitos a menos/a mais,
+    // letras, ou texto extra depois (8 execucoes com o null e o "")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"2526", "25-26", "25/2", "2025/26", "ab/cd", "25/26/27"})
@@ -55,6 +68,7 @@ class ValidadorPlantioTest
         assertEquals("Informe a safra no formato 25/26.", ValidadorPlantio.validarSafra(safra));
     }
 
+    // campo opcional: null e "" passam; so o tamanho e conferido (200 ok, 201 nao)
     @Test
     void descricaoOpcionalAte200()
     {
@@ -82,6 +96,7 @@ class ValidadorPlantioTest
         assertNotNull(ValidadorPlantio.validarTalhao("  "));
     }
 
+    // NaN e infinito sao numeros "quebrados" do double que tambem precisam ser recusados
     @Test
     void areaPlantadaPrecisaSerPositiva()
     {
@@ -94,6 +109,7 @@ class ValidadorPlantioTest
         assertNotNull(ValidadorPlantio.validarAreaPlantada(Double.POSITIVE_INFINITY));
     }
 
+    // 0 e valido (so negativo e rejeitado)
     @Test
     void altitudeOpcionalNaoNegativa()
     {
@@ -103,6 +119,7 @@ class ValidadorPlantioTest
         assertNotNull(ValidadorPlantio.validarAltitude(-1));
     }
 
+    // vazio passa; se vier preenchido, tem que ser um dos 3 metodos da lista
     @Test
     void metodoPlantioOpcionalMasRestrito()
     {
@@ -114,6 +131,7 @@ class ValidadorPlantioTest
         assertEquals("Metodo de plantio invalido.", ValidadorPlantio.validarMetodoPlantio("AEREO"));
     }
 
+    // o formato aceito e yyyy-MM-dd; "21/10/2026" e rejeitado, assim como data impossivel (31/02)
     @Test
     void dataDePlantio()
     {
@@ -124,6 +142,7 @@ class ValidadorPlantioTest
         assertEquals("Data de plantio invalida.", ValidadorPlantio.validarDataPlantio("2026-02-31"));
     }
 
+    // o nome da atividade ("Irrigacao") so entra na mensagem de erro
     @Test
     void ajusteOpcionalMasPrecisaSerData()
     {
@@ -133,6 +152,8 @@ class ValidadorPlantioTest
         assertEquals("Data ajustada de Irrigacao invalida.", ValidadorPlantio.validarAjuste("amanha", "Irrigacao"));
     }
 
+    // aqui o retorno e uma data (ou null), entao compara com LocalDate.of(...) em vez de mensagem
+    // casos de borda: espacos nas pontas, ano bissexto (29/02 so existe em 2028), mes 13, null e vazio
     @Test
     void lerData()
     {

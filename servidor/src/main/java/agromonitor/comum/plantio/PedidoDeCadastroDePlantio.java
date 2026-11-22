@@ -1,25 +1,28 @@
+// Laura Carvalho - 25014543
+
 package agromonitor.comum.plantio;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz do pedido uma mensagem do protocolo
 
 // Cliente -> Servidor: pede para cadastrar um plantio (assistente "Novo Plantio").
-// As datas viajam como texto "yyyy-MM-dd" e o servidor e quem valida tudo.
+// extends Comunicado: e assim que o servidor reconhece que isso e uma mensagem do protocolo
 public class PedidoDeCadastroDePlantio extends Comunicado
 {
+    // versao da classe pra serializacao (o Comunicado ja e Serializable)
     private static final long serialVersionUID = 1L;
 
-    private int     usuarioCodigo;   // dono do plantio
+    private int     usuarioCodigo;   
     private String  cultura;
     private String  nome;
     private String  safra;
-    private String  descricao;      // opcional
+    private String  descricao;      
     private String  sistemaCultivo; // SEQUEIRO ou IRRIGADO
     private String  talhao;
-    private Double  areaPlantada;   // hectares
-    private String  localizacao;    // opcional
-    private Integer altitude;       // opcional, metros
+    private Double  areaPlantada;   
+    private String  localizacao;    
+    private Integer altitude;       
     private String  dataPlantio;
-    private String  metodoPlantio;  // opcional: PLANTIO_DIRETO, CONVENCIONAL, MINIMO
+    private String  metodoPlantio;  
 
     // ajustes manuais (opcionais) das datas previstas; vazio = usa a previsao automatica
     private String ajustePlantio;
@@ -27,6 +30,7 @@ public class PedidoDeCadastroDePlantio extends Comunicado
     private String ajusteAdubacao;
     private String ajusteTratos;
 
+    // o pedido ja nasce completo; so tem getters, entao nao muda depois de criado
     public PedidoDeCadastroDePlantio(int usuarioCodigo, String cultura, String nome, String safra,
                                      String descricao, String sistemaCultivo, String talhao,
                                      Double areaPlantada, String localizacao, Integer altitude,
@@ -69,6 +73,7 @@ public class PedidoDeCadastroDePlantio extends Comunicado
     public String  getAjusteAdubacao()  { return this.ajusteAdubacao; }
     public String  getAjusteTratos()    { return this.ajusteTratos; }
 
+    // texto de depuracao: mostra so os campos principais (sem descricao nem datas)
     @Override
     public String toString()
     {

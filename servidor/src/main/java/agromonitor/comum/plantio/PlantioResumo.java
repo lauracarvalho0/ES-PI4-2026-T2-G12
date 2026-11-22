@@ -1,11 +1,13 @@
+// Laura Carvalho - 25014543
+
 package agromonitor.comum.plantio;
 
-import java.io.Serializable;
+import java.io.Serializable; // permite converter o objeto em bytes para enviar pelo Socket
 
-// Uma linha da tela Meus Plantios. Nao e um Comunicado: viaja dentro da
-// RespostaDeListagemDePlantios. As datas vao como texto "yyyy-MM-dd".
+// Uma linha da tela Meus Plantios. 
 public class PlantioResumo implements Serializable
 {
+    // versao da classe; se o servidor e o cliente tiverem versoes diferentes, a leitura avisa em vez de dar lixo
     private static final long serialVersionUID = 1L;
 
     private int    codigo;
@@ -21,6 +23,7 @@ public class PlantioResumo implements Serializable
     private String status;                // FASE_INICIAL, DESENVOLVIMENTO, FASE_FINAL, CONCLUIDO
     private String localizacao;
 
+    // recebe todos os campos de uma vez; o objeto nasce completo e so tem getters (nao muda depois)
     public PlantioResumo(int codigo, String nome, String cultura, String talhao, double areaPlantada,
                          String dataPlantio, int quantidadeAtividades,
                          String proximaAtividadeTipo, String proximaAtividadeData,
@@ -40,6 +43,7 @@ public class PlantioResumo implements Serializable
         this.localizacao          = localizacao;
     }
 
+    // getters: so leitura
     public int    getCodigo()               { return this.codigo; }
     public String getNome()                 { return this.nome; }
     public String getCultura()              { return this.cultura; }
