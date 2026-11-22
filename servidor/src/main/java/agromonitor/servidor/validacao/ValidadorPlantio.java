@@ -9,8 +9,11 @@ import java.util.regex.Pattern;
 // Cada metodo devolve null se estiver OK, ou a mensagem de erro.
 public class ValidadorPlantio
 {
+    // regex da safra: ^ e $ = o texto inteiro, \\d{2} = exatamente 2 digitos (ex.: 25/26)
+    // static final: compila o padrao uma vez so e reaproveita
     private static final Pattern SAFRA = Pattern.compile("^\\d{2}/\\d{2}$");
 
+    // o codigo do usuario tem que ser positivo (0 ou negativo = nao veio nada valido)
     public static String validarUsuario(int codigo)
     {
         if (codigo <= 0)
@@ -18,6 +21,7 @@ public class ValidadorPlantio
         return null;
     }
 
+    // obrigatoria; trim() evita aceitar so espacos
     public static String validarCultura(String cultura)
     {
         if (cultura == null || cultura.trim().isEmpty())
@@ -25,6 +29,7 @@ public class ValidadorPlantio
         return null;
     }
 
+    // obrigatorio, com no maximo 100 caracteres
     public static String validarNome(String nome)
     {
         if (nome == null || nome.trim().isEmpty())
@@ -34,6 +39,7 @@ public class ValidadorPlantio
         return null;
     }
 
+    // matches() confere se o texto INTEIRO bate com o padrao
     public static String validarSafra(String safra)
     {
         if (safra == null || !SAFRA.matcher(safra.trim()).matches())
@@ -49,6 +55,7 @@ public class ValidadorPlantio
         return null;
     }
 
+    // so aceita os 2 sistemas do dicionario de dados
     public static String validarSistemaCultivo(String sistema)
     {
         if (sistema == null || !(sistema.equals("SEQUEIRO") || sistema.equals("IRRIGADO")))
@@ -63,6 +70,7 @@ public class ValidadorPlantio
         return null;
     }
 
+    // Double (objeto) pode ser null; NaN e infinito sao numeros "quebrados" que tambem nao servem
     public static String validarAreaPlantada(Double area)
     {
         if (area == null || area.isNaN() || area.isInfinite() || area <= 0)
@@ -82,12 +90,13 @@ public class ValidadorPlantio
     public static String validarMetodoPlantio(String metodo)
     {
         if (metodo == null || metodo.trim().isEmpty())
-            return null;
+            return null; // vazio e permitido
         if (!(metodo.equals("PLANTIO_DIRETO") || metodo.equals("CONVENCIONAL") || metodo.equals("MINIMO")))
             return "Metodo de plantio invalido.";
         return null;
     }
 
+    // obrigatoria; alem de preenchida, precisa ser uma data real
     public static String validarDataPlantio(String data)
     {
         if (data == null || data.trim().isEmpty())
@@ -98,6 +107,7 @@ public class ValidadorPlantio
     }
 
     // ajuste de data previsto e opcional; se vier, precisa ser uma data valida
+    // (nomeAtividade so entra na mensagem de erro, pra saber qual ajuste esta errado)
     public static String validarAjuste(String data, String nomeAtividade)
     {
         if (data == null || data.trim().isEmpty())
@@ -108,15 +118,17 @@ public class ValidadorPlantio
     }
 
     // Devolve a data ou null se o texto nao for uma data real (ex.: 2026-02-31)
+    // public porque o ValidadorAtividade tambem usa
     public static LocalDate lerData(String texto)
     {
         try
         {
+            // espera o formato yyyy-MM-dd; datas impossiveis (31/02) lancam excecao
             return LocalDate.parse(texto.trim());
         }
         catch (Exception erro)
         {
-            return null;
+            return null; // qualquer erro de leitura vira "data invalida"
         }
     }
 }
