@@ -6,8 +6,10 @@ import agromonitor.comum.Comunicado;
 
 // Cliente -> Servidor: pede para cadastrar um plantio (assistente "Novo Plantio").
 // As datas viajam como texto "yyyy-MM-dd" e o servidor e quem valida tudo.
+// extends Comunicado: e assim que o servidor reconhece que isso e uma mensagem do protocolo
 public class PedidoDeCadastroDePlantio extends Comunicado
 {
+    // versao da classe pra serializacao (o Comunicado ja e Serializable)
     private static final long serialVersionUID = 1L;
 
     private int     usuarioCodigo;   // dono do plantio
@@ -17,6 +19,7 @@ public class PedidoDeCadastroDePlantio extends Comunicado
     private String  descricao;      // opcional
     private String  sistemaCultivo; // SEQUEIRO ou IRRIGADO
     private String  talhao;
+    // Double e Integer (com letra maiuscula) sao objetos: aceitam null, que e como o "opcional" chega vazio
     private Double  areaPlantada;   // hectares
     private String  localizacao;    // opcional
     private Integer altitude;       // opcional, metros
@@ -24,11 +27,14 @@ public class PedidoDeCadastroDePlantio extends Comunicado
     private String  metodoPlantio;  // opcional: PLANTIO_DIRETO, CONVENCIONAL, MINIMO
 
     // ajustes manuais (opcionais) das datas previstas; vazio = usa a previsao automatica
+    // sao 4 porque o plantio nasce com 4 atividades (Plantio, Irrigacao, Adubacao, Tratos)
     private String ajustePlantio;
     private String ajusteIrrigacao;
     private String ajusteAdubacao;
     private String ajusteTratos;
 
+    // o pedido ja nasce completo; so tem getters, entao nao muda depois de criado
+    // (aqui nao valida nada: quem valida e o ValidadorPlantio, no servidor)
     public PedidoDeCadastroDePlantio(int usuarioCodigo, String cultura, String nome, String safra,
                                      String descricao, String sistemaCultivo, String talhao,
                                      Double areaPlantada, String localizacao, Integer altitude,
@@ -71,6 +77,7 @@ public class PedidoDeCadastroDePlantio extends Comunicado
     public String  getAjusteAdubacao()  { return this.ajusteAdubacao; }
     public String  getAjusteTratos()    { return this.ajusteTratos; }
 
+    // texto de depuracao: mostra so os campos principais (sem descricao nem datas)
     @Override
     public String toString()
     {

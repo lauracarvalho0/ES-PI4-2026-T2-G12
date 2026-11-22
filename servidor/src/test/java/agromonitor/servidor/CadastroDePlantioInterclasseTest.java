@@ -46,17 +46,23 @@ import agromonitor.servidor.email.EmailService;
 import de.bwaldvogel.mongo.MongoServer;
 import de.bwaldvogel.mongo.backend.memory.MemoryBackend;
 
+// Teste de INTERCLASSE: em vez de testar uma classe sozinha, sobe o fluxo inteiro do cadastro
+// (cliente -> socket -> SupervisoraDeConexao -> Validador -> DAO -> banco) e confere o resultado.
+// O banco e um Mongo falso em memoria (MongoServer + MemoryBackend), entao nao toca no Atlas de verdade.
 class CadastroDePlantioInterclasseTest
 {
+    // banco falso
     private MongoServer   servidorMongo;
     private MongoClient   clienteMongo;
     private MongoDatabase banco;
 
+    // as classes reais do servidor, ligadas nesse banco falso
     private UsuarioDAO   usuarioDao;
     private PlantioDAO   plantioDao;
     private AlertaDAO    alertaDao;
     private EmailService email;
 
+    // lado "cliente" da conexao (faz o papel do front, falando pelo socket)
     private ServerSocket       ss;
     private Socket             cliente;
     private ObjectOutputStream saida;
@@ -64,9 +70,11 @@ class CadastroDePlantioInterclasseTest
 
     private int usuarioCodigo;
 
+    // roda ANTES de cada teste: monta um ambiente novinho e limpo pra cada um
     @BeforeEach
     void preparar() throws Exception
     {
+        // sobe o Mongo em memoria e conecta nele (bind() escolhe uma porta livre)
         servidorMongo = new MongoServer(new MemoryBackend());
         InetSocketAddress endereco = servidorMongo.bind();
         clienteMongo = MongoClients.create("mongodb://" + endereco.getHostString() + ":" + endereco.getPort());
@@ -78,11 +86,14 @@ class CadastroDePlantioInterclasseTest
         usuarioDao.garantirIndices();
         plantioDao.garantirIndices();
         alertaDao.garantirIndices();
+        // mock: e-mail de mentira, nao envia nada de verdade
         email = mock(EmailService.class);
 
         // usuario dono dos plantios (precisa existir e estar ativo)
         usuarioCodigo = usuarioDao.inserir("Maria Silva", "maria@x.com", null, null, "hash-qualquer");
 
+        // sobe um servidor de socket numa porta livre (porta 0 = o sistema escolhe)
+        // e uma thread que aceita UMA conexao e entrega pra SupervisoraDeConexao (a classe real)
         ss = new ServerSocket(0);
         Thread aceitadora = new Thread(() -> {
             try
@@ -92,16 +103,19 @@ class CadastroDePlantioInterclasseTest
             }
             catch (Exception fim) {}
         });
-        aceitadora.setDaemon(true);
+        aceitadora.setDaemon(true); // daemon: nao impede o teste de terminar
         aceitadora.start();
 
+        // conecta como cliente; setSoTimeout evita o teste travar pra sempre se o servidor nao responder
         cliente = new Socket("localhost", ss.getLocalPort());
         cliente.setSoTimeout(15000);
         saida = new ObjectOutputStream(cliente.getOutputStream());
-        saida.flush();
+        saida.flush(); // o flush aqui evita travar o "aperto de mao" dos streams de objeto
         entrada = new ObjectInputStream(cliente.getInputStream());
     }
 
+    // roda DEPOIS de cada teste: avisa o servidor que vai sair e fecha tudo
+    // (cada try/catch separado: se um fechamento falhar, os outros ainda acontecem)
     @AfterEach
     void limpar()
     {
@@ -113,6 +127,7 @@ class CadastroDePlantioInterclasseTest
     }
 
     // ---------- utilitarios ----------
+    // manda um pedido pelo socket e le a resposta, ja convertida pro tipo esperado
     private <T extends Comunicado> T enviar(Comunicado pedido, Class<T> tipo) throws Exception
     {
         saida.writeObject(pedido);
@@ -120,6 +135,8 @@ class CadastroDePlantioInterclasseTest
         return tipo.cast(entrada.readObject());
     }
 
+    // atalho pra cadastrar um plantio valido (nome com espacos nas pontas de proposito, pra testar o trim)
+    // os 4 null do fim sao os ajustes de data: sem ajuste, vale o cronograma padrao
     private RespostaDeCadastroDePlantio cadastrarPlantio(int usuario, String cultura, LocalDate dataPlantio) throws Exception
     {
         return enviar(new PedidoDeCadastroDePlantio(usuario, cultura, "  Soja T1  ", "25/26", "descricao",
@@ -127,12 +144,14 @@ class CadastroDePlantioInterclasseTest
                 null, null, null, null), RespostaDeCadastroDePlantio.class);
     }
 
+    // le um campo de data de um documento do Mongo (guardado como meia-noite UTC) e devolve LocalDate
     private static LocalDate paraData(Document atividade, String campo)
     {
         return atividade.getDate(campo).toInstant().atZone(ZoneOffset.UTC).toLocalDate();
     }
 
     // o alerta e criado em outra thread (verificarEmSegundoPlano): espera ate 5 s
+    // repete a consulta a cada 50 ms ate aparecer o minimo de alertas ou acabar o tempo
     private List<AlertaResumo> esperarAlertas(int usuario, int minimo) throws Exception
     {
         List<AlertaResumo> alertas = new ArrayList<AlertaResumo>();
@@ -160,6 +179,7 @@ class CadastroDePlantioInterclasseTest
         assertTrue(r.getCodigo() > 0);
 
         // 2) o que ficou gravado no banco (PlantioDAO.inserir)
+        // aqui o teste olha direto o banco, sem passar pelo servidor, pra ter certeza do que foi gravado
         assertEquals(1, banco.getCollection("plantios").countDocuments());
         Document plantio = banco.getCollection("plantios").find().first();
         assertEquals(r.getCodigo(), plantio.getInteger("codigo"));
@@ -170,6 +190,7 @@ class CadastroDePlantioInterclasseTest
         assertEquals(0, plantio.getInteger("progresso"));
 
         // cronograma padrao: plantio +0, irrigacao +7, adubacao +20, tratamento +35 dias
+        // (mesmos TIPOS e OFFSETS do PlantioDAO)
         List<Document> atividades = plantio.getList("atividades", Document.class);
         assertEquals(4, atividades.size());
         String[]  tipos   = { "PLANTIO", "IRRIGACAO", "ADUBACAO", "TRATAMENTO" };
@@ -212,6 +233,7 @@ class CadastroDePlantioInterclasseTest
         assertFalse(r.isSucesso());
         assertEquals("Selecione a cultura.", r.getMensagem());
         assertEquals(0, r.getCodigo());
+        // nada foi gravado: nem plantio, nem alerta
         assertEquals(0, banco.getCollection("plantios").countDocuments());
         assertEquals(0, banco.getCollection("alertas").countDocuments());
     }
@@ -220,6 +242,7 @@ class CadastroDePlantioInterclasseTest
     @Test
     void cenarioDeErro_usuarioInexistenteEhRecusado() throws Exception
     {
+        // o codigo 999 nao existe no banco (so existe o usuario criado no preparar())
         RespostaDeCadastroDePlantio r = cadastrarPlantio(999, "Soja", LocalDate.now());
 
         assertFalse(r.isSucesso());
@@ -233,6 +256,8 @@ class CadastroDePlantioInterclasseTest
     @Test
     void cenarioDeErro_falhaNoBancoViraMensagemDeErroInterno() throws Exception
     {
+        // diz ao spy: "quando chamarem inserir(...) com qualquer argumento, lance esta excecao"
+        // (e por isso que aparece "falha simulada do banco" no console quando o teste roda: e de proposito)
         doThrow(new RuntimeException("falha simulada do banco"))
             .when(plantioDao).inserir(anyInt(), any(), any(), any(), any(), any(), any(),
                                       anyDouble(), any(), any(), any(), any(), any());
@@ -253,6 +278,7 @@ class CadastroDePlantioInterclasseTest
     @Test
     void anomalia_mesmoPlantioPodeSerCadastradoDuasVezes() throws Exception
     {
+        // data daqui a 100 dias: longe o bastante pra nao gerar alerta (nao interfere no teste)
         RespostaDeCadastroDePlantio primeira = cadastrarPlantio(usuarioCodigo, "Soja", LocalDate.now().plusDays(100));
         RespostaDeCadastroDePlantio segunda  = cadastrarPlantio(usuarioCodigo, "Soja", LocalDate.now().plusDays(100));
 

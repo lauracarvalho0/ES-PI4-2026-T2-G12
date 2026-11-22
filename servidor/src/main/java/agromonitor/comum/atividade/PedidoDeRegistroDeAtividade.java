@@ -6,8 +6,10 @@ import agromonitor.comum.Comunicado;
 
 // Cliente -> Servidor: registra uma atividade dentro de um plantio (tela "Registrar nova atividade").
 // A data vai como texto "yyyy-MM-dd"; o servidor valida tudo.
+// extends Comunicado: e assim que o servidor reconhece que isso e uma mensagem do protocolo
 public class PedidoDeRegistroDeAtividade extends Comunicado
 {
+    // versao da classe pra serializacao (o Comunicado ja e Serializable)
     private static final long serialVersionUID = 1L;
 
     private int    usuarioCodigo;
@@ -19,6 +21,8 @@ public class PedidoDeRegistroDeAtividade extends Comunicado
     private String responsavel;    // opcional
     private String observacoes;    // opcional
 
+    // o pedido ja nasce completo; so tem getters, entao nao muda depois de criado
+    // (aqui nao valida nada: quem valida e o ValidadorAtividade, no servidor)
     public PedidoDeRegistroDeAtividade(int usuarioCodigo, int plantioCodigo, String tipoAtividade,
                                        String status, String dataExecucao, String quantidade,
                                        String responsavel, String observacoes)
@@ -42,6 +46,7 @@ public class PedidoDeRegistroDeAtividade extends Comunicado
     public String getResponsavel()   { return this.responsavel; }
     public String getObservacoes()   { return this.observacoes; }
 
+    // texto de depuracao: mostra so os campos principais (sem observacoes, que pode ser longa)
     @Override
     public String toString()
     {

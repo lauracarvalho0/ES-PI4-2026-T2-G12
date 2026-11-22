@@ -6,8 +6,10 @@ import java.io.Serializable;
 
 // Uma linha da tela Atividades. Nao e um Comunicado: viaja dentro da
 // RespostaDeListagemDeAtividades. A data vai como texto "yyyy-MM-dd".
+// Serializable: permite transformar o objeto em bytes pra mandar pela rede (socket)
 public class AtividadeResumo implements Serializable
 {
+    // versao da classe; se o servidor e o cliente tiverem versoes diferentes, a leitura avisa em vez de dar lixo
     private static final long serialVersionUID = 1L;
 
     private int    codigo;
@@ -21,6 +23,7 @@ public class AtividadeResumo implements Serializable
     private String responsavel; // pode ser null
     private String observacoes; // pode ser null
 
+    // recebe todos os campos de uma vez; o objeto nasce completo e so tem getters (nao muda depois)
     public AtividadeResumo(int codigo, int plantioCodigo, String plantioNome, String talhao,
                            String tipoAtividade, String data, String status,
                            String quantidade, String responsavel, String observacoes)
@@ -37,6 +40,7 @@ public class AtividadeResumo implements Serializable
         this.observacoes   = observacoes;
     }
 
+    // getters: so leitura
     public int    getCodigo()        { return this.codigo; }
     public int    getPlantioCodigo() { return this.plantioCodigo; }
     public String getPlantioNome()   { return this.plantioNome; }

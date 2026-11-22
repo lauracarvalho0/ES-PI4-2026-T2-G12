@@ -9,15 +9,16 @@ import java.io.Serializable;
 public class PlantioResumo implements Serializable
 {
     // DTO serializável usado para enviar à interface apenas os dados resumidos do plantio.
+    // Versao da classe para a serializacao; precisa ser a mesma no servidor e no backend.
     private static final long serialVersionUID = 1L;
 
     private int    codigo;
     private String nome;
     private String cultura;
     private String talhao;
-    private double areaPlantada;
+    private double areaPlantada;          // hectares
     private String dataPlantio;
-    private int    quantidadeAtividades;
+    private int    quantidadeAtividades;  // total de atividades registradas neste plantio
     private String proximaAtividadeTipo;  // null se nao ha atividade pendente
     private String proximaAtividadeData;  // null se nao ha atividade pendente
     private int    progresso;
@@ -25,6 +26,7 @@ public class PlantioResumo implements Serializable
     private String status;                // FASE_INICIAL, DESENVOLVIMENTO, FASE_FINAL, CONCLUIDO
     private String localizacao;
     
+    // Recebe todos os campos de uma vez; o objeto e montado pelo servidor.
     public PlantioResumo(int codigo, String nome, String cultura, String talhao, double areaPlantada,
                          String dataPlantio, int quantidadeAtividades,
                          String proximaAtividadeTipo, String proximaAtividadeData,
@@ -45,6 +47,7 @@ public class PlantioResumo implements Serializable
         this.localizacao          = localizacao;
     }
 
+    // So getters: o resumo e somente leitura depois de criado.
     public int    getCodigo()               { return this.codigo; }
     public String getNome()                 { return this.nome; }
     public String getCultura()              { return this.cultura; }
