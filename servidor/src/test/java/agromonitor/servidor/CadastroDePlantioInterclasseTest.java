@@ -2,49 +2,49 @@
 
 package agromonitor.servidor;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
+import static org.junit.jupiter.api.Assertions.*;                       // Todos os assert (assertEquals, assertTrue, assertFalse, assertNotEquals...)
+import static org.mockito.ArgumentMatchers.any;                         // Aceita qualquer objeto como argumento ao simular o inserir()
+import static org.mockito.ArgumentMatchers.anyDouble;                   // Aceita qualquer double (área plantada)
+import static org.mockito.ArgumentMatchers.anyInt;                      // Aceita qualquer int (código do usuário)
+import static org.mockito.Mockito.doThrow;                              // Faz o spy lançar exceção (simula falha do banco)
+import static org.mockito.Mockito.mock;                                 // Cria o EmailService de mentira
+import static org.mockito.Mockito.spy;                                  // Envolve o PlantioDAO real para poder simular falha em um método
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.ObjectInputStream;                                       // Lê objetos vindos do servidor pelo socket
+import java.io.ObjectOutputStream;                                      // Envia objetos (pedidos) ao servidor pelo socket
+import java.net.InetSocketAddress;                                      // Endereço (host e porta) do Mongo em memória
+import java.net.ServerSocket;                                           // Servidor de socket do teste, em porta livre
+import java.net.Socket;                                                 // Conexão do cliente com o servidor de socket
+import java.time.LocalDate;                                             // Datas sem hora (hoje, data de plantio, previstas)
+import java.time.ZoneOffset;                                            // Fuso UTC para converter as datas guardadas no Mongo
+import java.util.ArrayList;                                             // Lista de clientes e de alertas
+import java.util.List;                                                  // Lista genérica (atividades e alertas)
 
-import org.bson.Document;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.bson.Document;                                               // Documento BSON: formato dos dados lidos direto do banco
+import org.junit.jupiter.api.AfterEach;                                 // Roda depois de cada teste (limpeza)
+import org.junit.jupiter.api.BeforeEach;                                // Roda antes de cada teste (monta o ambiente)
+import org.junit.jupiter.api.Test;                                      // Marca um método como teste
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoClient;                                  // Cliente do MongoDB
+import com.mongodb.client.MongoClients;                                 // Cria o cliente a partir da URI do Mongo em memória
+import com.mongodb.client.MongoDatabase;                                // Representa o banco de teste
 
-import agromonitor.comum.Comunicado;
-import agromonitor.comum.Parceiro;
-import agromonitor.comum.PedidoParaSair;
-import agromonitor.comum.alerta.AlertaResumo;
-import agromonitor.comum.alerta.PedidoDeListagemDeAlertas;
-import agromonitor.comum.alerta.RespostaDeListagemDeAlertas;
-import agromonitor.comum.plantio.PedidoDeCadastroDePlantio;
-import agromonitor.comum.plantio.PedidoDeListagemDePlantios;
-import agromonitor.comum.plantio.RespostaDeCadastroDePlantio;
-import agromonitor.comum.plantio.RespostaDeListagemDePlantios;
-import agromonitor.servidor.dao.AlertaDAO;
-import agromonitor.servidor.dao.PlantioDAO;
-import agromonitor.servidor.dao.UsuarioDAO;
-import agromonitor.servidor.email.EmailService;
-import de.bwaldvogel.mongo.MongoServer;
-import de.bwaldvogel.mongo.backend.memory.MemoryBackend;
+import agromonitor.comum.Comunicado;                                    // Tipo base das mensagens trocadas com o servidor
+import agromonitor.comum.Parceiro;                                      // Representa um cliente conectado (lista da SupervisoraDeConexao)
+import agromonitor.comum.PedidoParaSair;                                // Avisa o servidor que a conversa acabou
+import agromonitor.comum.alerta.AlertaResumo;                           // Resumo de alerta devolvido ao cliente
+import agromonitor.comum.alerta.PedidoDeListagemDeAlertas;              // Pedido para listar os alertas do usuário
+import agromonitor.comum.alerta.RespostaDeListagemDeAlertas;            // Resposta com a lista de alertas
+import agromonitor.comum.plantio.PedidoDeCadastroDePlantio;             // Pedido para cadastrar um plantio
+import agromonitor.comum.plantio.PedidoDeListagemDePlantios;            // Pedido para listar os plantios do usuário
+import agromonitor.comum.plantio.RespostaDeCadastroDePlantio;           // Resposta do cadastro de plantio
+import agromonitor.comum.plantio.RespostaDeListagemDePlantios;          // Resposta com a lista de plantios
+import agromonitor.servidor.dao.AlertaDAO;                              // Acesso à coleção de alertas
+import agromonitor.servidor.dao.PlantioDAO;                             // Acesso à coleção de plantios
+import agromonitor.servidor.dao.UsuarioDAO;                             // Acesso à coleção de usuários
+import agromonitor.servidor.email.EmailService;                         // Serviço de e-mail (aqui substituído por mock)
+import de.bwaldvogel.mongo.MongoServer;                                 // Servidor Mongo falso, em memória
+import de.bwaldvogel.mongo.backend.memory.MemoryBackend;                // Armazenamento em memória usado pelo Mongo falso
 
 // Teste de INTERCLASSE: em vez de testar uma classe sozinha, sobe o fluxo inteiro do cadastro
 // (cliente -> socket -> SupervisoraDeConexao -> Validador -> DAO -> banco) e confere o resultado.

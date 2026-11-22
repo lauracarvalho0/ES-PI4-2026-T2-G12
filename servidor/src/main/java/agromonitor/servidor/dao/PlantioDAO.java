@@ -1,23 +1,23 @@
 // Laura Carvalho - 25014543
 package agromonitor.servidor.dao;
 
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDate;  // Datas sem hora (plantio, atividades, "hoje")
+import java.time.ZoneOffset; // Fuso UTC usado ao converter datas para o Mongo
+import java.util.ArrayList;  // Listas de documentos e de resumos
+import java.util.Collections;  // Collections.sort: ordena as atividades
+import java.util.Comparator;  // Define o critério de ordenação (data e código)
+import java.util.Date;  // Tipo de data que o MongoDB armazena
+import java.util.List;  // Lista genérica de atividades
 
-import agromonitor.comum.atividade.AtividadeResumo;
-import agromonitor.comum.plantio.PlantioResumo;
+import agromonitor.comum.atividade.AtividadeResumo;  // Resumo da atividade enviado ao cliente
+import agromonitor.comum.plantio.PlantioResumo; // Resumo do plantio enviado ao cliente
 
-import org.bson.Document;
+import org.bson.Document;  // Documento BSON: formato dos dados no Mongo
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.*;
-import com.mongodb.client.result.UpdateResult;
+import com.mongodb.client.MongoCollection; // Representa uma coleção do banco
+import com.mongodb.client.MongoDatabase;  // Representa o banco "agromonitor"
+import com.mongodb.client.model.*; // Filters, Updates, Sorts, Indexes e opções de operação
+import com.mongodb.client.result.UpdateResult; // Resultado de updateOne (ex.: getMatchedCount)
 
 // Unica classe que fala com o MongoDB para plantios.
 // Segue o dicionario de dados: a colecao plantios embute a lista de atividades.

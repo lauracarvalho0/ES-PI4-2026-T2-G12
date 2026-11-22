@@ -2,8 +2,8 @@
 
 package agromonitor.comum.plantio;
 
-import java.util.ArrayList;
-import agromonitor.comum.Comunicado;
+import java.util.ArrayList; // lista de PlantioResumo que viaja na resposta
+import agromonitor.comum.Comunicado; // classe-mae: faz da resposta uma mensagem do protocolo
 
 // Servidor -> Cliente: lista de plantios do usuario.
 public class RespostaDeListagemDePlantios extends Comunicado

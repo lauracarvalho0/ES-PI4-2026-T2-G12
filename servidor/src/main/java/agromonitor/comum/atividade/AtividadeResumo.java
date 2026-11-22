@@ -2,11 +2,9 @@
 
 package agromonitor.comum.atividade;
 
-import java.io.Serializable;
+import java.io.Serializable; //permite transformar o objeto em bytes pra mandar pela rede (socket)
 
-// Uma linha da tela Atividades. Nao e um Comunicado: viaja dentro da
-// RespostaDeListagemDeAtividades. A data vai como texto "yyyy-MM-dd".
-// Serializable: permite transformar o objeto em bytes pra mandar pela rede (socket)
+// Uma linha da tela Atividades.
 public class AtividadeResumo implements Serializable
 {
     // versao da classe; se o servidor e o cliente tiverem versoes diferentes, a leitura avisa em vez de dar lixo
@@ -18,10 +16,10 @@ public class AtividadeResumo implements Serializable
     private String talhao;
     private String tipoAtividade;
     private String data;        // data realizada (se concluida) ou data prevista
-    private String status;      // PENDENTE, CONCLUIDA ou ATRASADA (ja calculado pela data)
-    private String quantidade;  // pode ser null
-    private String responsavel; // pode ser null
-    private String observacoes; // pode ser null
+    private String status;      
+    private String quantidade;  
+    private String responsavel;
+    private String observacoes; 
 
     // recebe todos os campos de uma vez; o objeto nasce completo e so tem getters (nao muda depois)
     public AtividadeResumo(int codigo, int plantioCodigo, String plantioNome, String talhao,

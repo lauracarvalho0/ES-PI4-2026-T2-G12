@@ -2,16 +2,16 @@
 
 package agromonitor.servidor;
 
-import java.util.*; // ArrayList
+import java.util.*;  // ArrayList: lista de clientes conectados.
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoClient;  // Cliente do MongoDB.
+import com.mongodb.client.MongoClients; // Cria o cliente a partir da MONGO_URI.
 
-import agromonitor.comum.*;
-import agromonitor.servidor.dao.AlertaDAO;
-import agromonitor.servidor.dao.PlantioDAO;
-import agromonitor.servidor.dao.UsuarioDAO;
-import agromonitor.servidor.email.EmailService;
+import agromonitor.comum.*; // Parceiro, ComunicadoDeDesligamento e Teclado.
+import agromonitor.servidor.dao.AlertaDAO; // Acesso à coleção de alertas.
+import agromonitor.servidor.dao.PlantioDAO;  // Acesso à coleção de plantios.
+import agromonitor.servidor.dao.UsuarioDAO;  // Acesso à coleção de usuários.
+import agromonitor.servidor.email.EmailService;  // Envio de e-mail (recuperação de senha e alertas).
 
 // Classe principal do servidor: conecta no banco, liga o e-mail, aceita clientes
 // e fica no console esperando o comando "desativar"

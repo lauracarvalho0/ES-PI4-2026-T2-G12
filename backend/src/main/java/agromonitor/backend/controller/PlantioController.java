@@ -2,25 +2,23 @@
 
 package agromonitor.backend.controller;
 
-import java.util.*;
+import java.util.*; // Map e LinkedHashMap: montam o JSON de resposta.
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired; // Injeção da conexão com o servidor (@Autowired).
+import org.springframework.http.*; // HttpStatus e ResponseEntity: status e corpo da resposta HTTP.
+import org.springframework.web.bind.annotation.*; // Anotações web: @RestController, @RequestMapping, @PostMapping, @GetMapping, @RequestBody, @RequestParam, @CrossOrigin.
 
-import agromonitor.backend.ConexaoComServidor;
-import agromonitor.comum.Comunicado;
-import agromonitor.comum.plantio.*;
+import agromonitor.backend.ConexaoComServidor; // Conexão (socket) com o servidor; fornece enviarEReceber().
+import agromonitor.comum.Comunicado; // Tipo base das mensagens; retorno genérico de enviarEReceber().
+import agromonitor.comum.plantio.*; // Pedidos e respostas de plantio trocados com o servidor.
 
 // Recebe JSON do front (fetch) e repassa ao servidor como objetos Comunicado.
-// Nao valida regra de negocio: quem valida e grava no Mongo e o SERVIDOR.
 @RestController
 @RequestMapping("/api")   // todas as rotas daqui comecam com /api
-@CrossOrigin              // libera o front (outra origem) para chamar esta API
+@CrossOrigin              // libera o front para chamar esta API
 public class PlantioController
 {
     // Corpo JSON esperado no cadastro de um plantio.
-    // Integer e Double (e nao int e double) permitem receber null quando o campo nao vem no JSON.
     public record PlantioRequest(Integer usuarioCodigo, String cultura, String nome, String safra,
                                  String descricao, String sistemaCultivo, String talhao,
                                  Double areaPlantada, String localizacao, Integer altitude,
@@ -51,14 +49,14 @@ public class PlantioController
             // Converte o Comunicado generico para o tipo de resposta especifico.
             RespostaDeCadastroDePlantio r = (RespostaDeCadastroDePlantio) resposta;
 
-            // Monta o JSON de retorno (LinkedHashMap mantem a ordem dos campos).
+            // Monta o JSON de retorno
             Map<String, Object> corpo = new LinkedHashMap<>();
             corpo.put("sucesso", r.isSucesso());
             corpo.put("mensagem", r.getMensagem());
             if (r.isSucesso())
-                corpo.put("codigo", r.getCodigo());   // codigo do plantio criado
+                corpo.put("codigo", r.getCodigo());  
 
-            // 201 se criou, 400 se o servidor recusou (ex.: dados invalidos).
+            // 201 se criou, 400 se o servidor recusou
             return ResponseEntity.status(r.isSucesso() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST).body(corpo);
         }
         catch (Exception e)

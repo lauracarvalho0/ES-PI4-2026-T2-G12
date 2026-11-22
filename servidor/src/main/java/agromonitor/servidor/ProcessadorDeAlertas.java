@@ -2,11 +2,11 @@
 
 package agromonitor.servidor;
 
-import java.time.LocalDate;
+import java.time.LocalDate;  // Data de hoje, usada para gerar os alertas das atividades.
 
-import agromonitor.servidor.dao.AlertaDAO;
-import agromonitor.servidor.dao.UsuarioDAO;
-import agromonitor.servidor.email.EmailService;
+import agromonitor.servidor.dao.AlertaDAO; // Acesso à coleção de alertas.
+import agromonitor.servidor.dao.UsuarioDAO; // Acesso à coleção de usuários (e-mail para alerta).
+import agromonitor.servidor.email.EmailService; // Envio de e-mail dos alertas.
 
 // Faz o trabalho do vigia de alertas: cria os alertas de atividade que faltam e envia por e-mail
 // os que estao pendentes. Quem chama e o VigiaDeAlertas (de hora em hora) e a SupervisoraDeConexao

@@ -2,10 +2,9 @@
 
 package agromonitor.comum.plantio;
 
-import java.util.ArrayList;
-import agromonitor.comum.Comunicado;
+import java.util.ArrayList; // lista de PlantioResumo que viaja na resposta
+import agromonitor.comum.Comunicado; // classe-mae: faz da resposta uma mensagem do protocolo
 
-// Servidor -> Cliente: lista de plantios do usuario.
 // extends Comunicado: e assim que o cliente reconhece que isso e uma mensagem do protocolo
 public class RespostaDeListagemDePlantios extends Comunicado
 {
@@ -21,7 +20,8 @@ public class RespostaDeListagemDePlantios extends Comunicado
     {
         this.sucesso  = sucesso;
         this.mensagem = mensagem;
-        // se vier null (ex.: em caso de erro), usa lista vazia pra quem le nao tomar NullPointerException
+
+        // se vier null usa lista vazia pra quem le nao tomar NullPointerException
         this.plantios = plantios == null ? new ArrayList<PlantioResumo>() : plantios;
     }
 

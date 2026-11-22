@@ -2,7 +2,7 @@
 
 package agromonitor.comum.atividade;
 
-import java.io.Serializable;
+import java.io.Serializable; //permite transformar o objeto em bytes pra mandar pela rede (socket)
 
 // Uma linha da tela Atividades. Nao e um Comunicado: viaja dentro da
 // RespostaDeListagemDeAtividades. A data vai como texto "yyyy-MM-dd".

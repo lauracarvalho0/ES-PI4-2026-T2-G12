@@ -2,15 +2,15 @@
 
 package agromonitor.servidor.validacao;
 
-import java.time.LocalDate;
+import java.time.LocalDate; // LocalDate: "hoje" e datas relativas (plusDays/minusDays) nos testes de data x status
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
+import static org.junit.jupiter.api.Assertions.assertEquals;  // Confere se a mensagem de erro é exatamente a esperada
+import static org.junit.jupiter.api.Assertions.assertNotNull;  // Confere que o validador rejeitou (devolveu alguma mensagem)
+import static org.junit.jupiter.api.Assertions.assertNull; // Confere que o validador aceitou (null = ok)
+import org.junit.jupiter.api.Test;  // @Test: marca um método como teste
+import org.junit.jupiter.params.ParameterizedTest; // @ParameterizedTest: roda o mesmo teste com vários valores
+import org.junit.jupiter.params.provider.NullAndEmptySource; // Acrescenta as execuções com null e ""
+import org.junit.jupiter.params.provider.ValueSource;  // Lista os valores usados em cada execução do teste
 
 
 // Testa o ValidadorAtividade: cada metodo dele devolve null (ok) ou a mensagem de erro,

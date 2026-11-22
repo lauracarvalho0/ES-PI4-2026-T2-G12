@@ -2,11 +2,9 @@
 
 package agromonitor.comum.atividade;
 
-import agromonitor.comum.Comunicado;
+import agromonitor.comum.Comunicado; // classe-mae: faz do pedido uma mensagem do protocolo
 
 // Cliente -> Servidor: registra uma atividade dentro de um plantio (tela "Registrar nova atividade").
-// A data vai como texto "yyyy-MM-dd"; o servidor valida tudo.
-// extends Comunicado: e assim que o servidor reconhece que isso e uma mensagem do protocolo
 public class PedidoDeRegistroDeAtividade extends Comunicado
 {
     // versao da classe pra serializacao (o Comunicado ja e Serializable)
@@ -14,15 +12,14 @@ public class PedidoDeRegistroDeAtividade extends Comunicado
 
     private int    usuarioCodigo;
     private int    plantioCodigo;
-    private String tipoAtividade;  // PLANTIO, IRRIGACAO, ADUBACAO, TRATAMENTO, MONITORAMENTO, COLHEITA
-    private String status;         // PENDENTE, CONCLUIDA ou ATRASADA
-    private String dataExecucao;   // se CONCLUIDA e a data realizada; senao e a data prevista
-    private String quantidade;     // opcional, texto livre (ex.: "22 mm")
-    private String responsavel;    // opcional
-    private String observacoes;    // opcional
+    private String tipoAtividade;  
+    private String status;        
+    private String dataExecucao;   // se conluida é a data realizada; senao é a data prevista
+    private String quantidade;     
+    private String responsavel;    
+    private String observacoes;    
 
     // o pedido ja nasce completo; so tem getters, entao nao muda depois de criado
-    // (aqui nao valida nada: quem valida e o ValidadorAtividade, no servidor)
     public PedidoDeRegistroDeAtividade(int usuarioCodigo, int plantioCodigo, String tipoAtividade,
                                        String status, String dataExecucao, String quantidade,
                                        String responsavel, String observacoes)

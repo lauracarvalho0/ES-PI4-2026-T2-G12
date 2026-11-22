@@ -2,7 +2,7 @@
 
 package agromonitor.comum.plantio;
 
-import java.io.Serializable;
+import java.io.Serializable; //permite transformar o objeto em bytes pra mandar pela rede (socket)
 
 // Uma linha da tela Meus Plantios. Nao e um Comunicado: viaja dentro da
 // RespostaDeListagemDePlantios. As datas vao como texto "yyyy-MM-dd".
