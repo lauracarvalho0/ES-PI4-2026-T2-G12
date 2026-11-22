@@ -2,7 +2,7 @@
 
 package agromonitor.servidor;
 
-import java.util.*;
+import java.util.*; // ArrayList
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;

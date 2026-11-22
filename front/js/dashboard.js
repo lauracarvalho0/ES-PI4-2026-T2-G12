@@ -1,3 +1,5 @@
+// Laura Carvalho - 25014543
+
 // Mostra o nome do usuario logado (guardado na sessao pelo login) no menu lateral
 // de todas as telas e na saudacao "Ola, ..." quando a tela tiver #saudacaoTitulo.
 document.addEventListener('DOMContentLoaded', function () {
