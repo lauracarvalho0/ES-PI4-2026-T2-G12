@@ -1,12 +1,21 @@
-# Como rodar todos os testes
+# Como rodar os testes
 
-Os testes ficam em dois lugares. Cada um roda sozinho.
+Os testes ficam no módulo `servidor`:
 
-## 1) Servidor (Java): validadores, regras de alerta, DAOs, supervisora, e-mail...
     cd servidor
     mvn test
 
-Usa um MongoDB em memoria (nao precisa instalar nada) e um servico de e-mail falso:
-nenhum e-mail real e enviado e o seu banco (Atlas) nao e tocado.
+O que eles cobrem:
 
-Relatorios dos testes Java: `target/surefire-reports/`.
+- Validadores de usuário, plantio e atividade.
+- Regras de alerta de atividade (`RegrasDeAlerta`).
+- Cadastro de plantio de ponta a ponta (validação, `PlantioDAO` e geração de alertas).
+
+Usam um MongoDB em memória (não precisa instalar nada) e um serviço de e-mail falso (Mockito): nenhum e-mail real é enviado e o seu banco (Atlas) não é tocado.
+
+Para rodar uma classe específica:
+
+    mvn test -Dtest=ValidadorPlantioTest
+
+Relatórios dos testes: `servidor/target/surefire-reports/`.
+ 
